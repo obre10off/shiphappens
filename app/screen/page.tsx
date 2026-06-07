@@ -30,6 +30,16 @@ function mockSanctionsSummary(report: RiskReport): string {
   return flags.length ? `${base} · ${flags.join(' · ')}` : base;
 }
 
+function mockEuSummary(report: RiskReport): string {
+  const e = report.euSanctions;
+  if (!e) return 'no EU data';
+  if (e.totalMatches === 0) return 'no EU list match';
+  const base = `${e.totalMatches} candidate match${e.totalMatches === 1 ? '' : 'es'} · best ${Math.round(
+    e.bestScore * 100,
+  )}%`;
+  return e.isListed ? `${base} · LISTED` : base;
+}
+
 function mockAdverseSummary(report: RiskReport): string {
   const a = report.adverseMedia;
   if (!a) return 'no adverse-media data';
@@ -92,6 +102,16 @@ function ScreenInner() {
         summary: mockSanctionsSummary(report),
         ok: !report.sanctions?.error,
       },
+      eu_sanctions: {
+        tool: 'searchEuSanctions' as const,
+        args: {
+          name: input.name,
+          dateOfBirth: input.dateOfBirth,
+          country: input.country,
+        },
+        summary: mockEuSummary(report),
+        ok: !report.euSanctions?.error,
+      },
       adverse_media: {
         tool: 'searchGoogle' as const,
         args: {
@@ -122,9 +142,11 @@ function ScreenInner() {
         const matches =
           phase === 'sanctions'
             ? report.sanctions?.totalMatches
-            : phase === 'adverse_media'
-              ? report.adverseMedia?.sources.length
-              : undefined;
+            : phase === 'eu_sanctions'
+              ? report.euSanctions?.matches.length
+              : phase === 'adverse_media'
+                ? report.adverseMedia?.sources.length
+                : undefined;
         setMockPhases((prev) =>
           prev.map((p) => (p.phase === phase ? { ...p, status: 'done', matches } : p)),
         );

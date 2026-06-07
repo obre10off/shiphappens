@@ -9,7 +9,8 @@ import { FULL_SYSTEM_PROMPT } from '@/lib/data/adverseMedia';
 import { adverseMediaSchema, sanitizeAdverseMedia } from '@/lib/agent/schema';
 import { MODEL_ID } from '@/lib/agent/prompts';
 import type { AdverseMediaResult } from '@/lib/contracts/types';
-import { searchWeb, type SearchHit } from './tavily';
+import { buildDeepQueries, searchQueries, type SearchHit } from './tavily';
+import { planQueries, selectRelevantSources } from './research';
 
 interface AdverseArgs {
   name: string;
@@ -56,25 +57,45 @@ function degraded(name: string, error: string): AdverseMediaResult {
   };
 }
 
+/**
+ * Deep adverse-media research:
+ *   1. plan many targeted queries (AI + deterministic angles),
+ *   2. run them all through Tavily (advanced depth, more results per query),
+ *   3. ask the model to curate the most relevant sources for citations,
+ *   4. flag adverse media against the curated pool.
+ * Every stage degrades gracefully so the report is always produced.
+ */
 export async function analyzeAdverseMedia(args: AdverseArgs): Promise<AdverseMediaResult> {
+  const hasLLM = !!process.env.ANTHROPIC_API_KEY;
   let hits: SearchHit[] = [];
+
   try {
-    hits = await searchWeb(
-      { name: args.name, company: args.company, country: args.country, freeText: args.freeText },
-      // Tavily wants a full country name (e.g. "bulgaria"), not an ISO-2 code.
-      { country: args.country },
-    );
+    const planned = await planQueries(args);
+    const queries = [...new Set([...buildDeepQueries(args), ...planned])].slice(0, 16);
+    hits = await searchQueries(queries, {
+      // No `country` filter: adverse media is frequently international (Reuters,
+      // OCCRP, ICIJ…); region-filtering Tavily here was collapsing the result set.
+      // Country still anchors the queries (in the query text) and the source curation.
+      timeoutMs: 20_000,
+      maxResults: 10,
+      concurrency: 5,
+    });
     console.log(
-      `[tavily] ${args.name} (${args.country}) → ${hits.length} hit(s)\n` +
-      hits.map((h, i) => `  [${i + 1}] ${h.link}`).join('\n'),
+      `[tavily] ${args.name} (${args.country}) → ${queries.length} quer${queries.length === 1 ? 'y' : 'ies'}, ${hits.length} unique hit(s)`,
     );
   } catch (err) {
-    // Search failed — still ask the model, but it will have no grounding.
     hits = [];
     console.error(`[tavily] search failed for ${args.name}:`, err instanceof Error ? err.message : err);
-    if (!process.env.ANTHROPIC_API_KEY) {
+    if (!hasLLM) {
       return degraded(args.name, err instanceof Error ? err.message : 'search failed');
     }
+  }
+
+  // Curate the most relevant sources — these become the numbered, citable evidence.
+  let curated = hits.slice(0, 15);
+  if (hasLLM && hits.length > 0) {
+    curated = await selectRelevantSources(args, hits);
+    console.log(`[research] curated ${curated.length}/${hits.length} source(s) for citation`);
   }
 
   try {
@@ -82,11 +103,11 @@ export async function analyzeAdverseMedia(args: AdverseArgs): Promise<AdverseMed
       model: anthropic(MODEL_ID),
       schema: adverseMediaSchema,
       system: FULL_SYSTEM_PROMPT,
-      prompt: buildContext(args, hits),
+      prompt: buildContext(args, curated),
       // Generous ceiling so a rich summary + timeline never truncates mid-sentence.
       maxOutputTokens: 8000,
     });
-    const sanitized = sanitizeAdverseMedia(object, hits);
+    const sanitized = sanitizeAdverseMedia(object, curated);
     // Ensure the name field reflects the subject we screened.
     return { ...sanitized, name: sanitized.name || args.name };
   } catch (err) {

@@ -10,6 +10,7 @@ import {
 } from '@/lib/data/weights';
 import type {
   AdverseMediaResult,
+  EuSanctionsResult,
   RiskBand,
   RiskReport,
   SanctionsResult,
@@ -21,8 +22,11 @@ import { buildAdverseMediaScores, buildHighRiskActivityScores } from './categori
 
 const clamp = (n: number, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, n));
 
-/** Sanctions component, 0..100 (the heaviest signal). */
-export function sanctionsComponent(s: SanctionsResult | null): number {
+/** Sanctions component, 0..100 (the heaviest signal).
+ * A high-confidence EU Sanctions Tracker hit is treated as a sanctions designation
+ * even if the primary OpenSanctions check missed it. */
+export function sanctionsComponent(s: SanctionsResult | null, euListed = false): number {
+  if (euListed) return SANCTIONS_POINTS.sanctioned;
   if (!s || s.error) return 0;
   if (s.isSanctioned) return SANCTIONS_POINTS.sanctioned;
   if (s.isPep) return SANCTIONS_POINTS.pep;
@@ -57,6 +61,7 @@ function bandFor(overall: number, isSanctioned: boolean): RiskBand {
 
 function buildSummary(
   sanctions: SanctionsResult | null,
+  euSanctions: EuSanctionsResult | null,
   adverseMedia: AdverseMediaResult | null,
 ): string {
   const parts: string[] = [];
@@ -71,6 +76,15 @@ function buildSummary(
     }
     if (sanctions.isPep) flags.push('confirmed Politically Exposed Person');
     parts.push(`Subject ${flags.join(' and ')}.`);
+  }
+
+  if (euSanctions?.isListed && euSanctions.matches[0]) {
+    const m = euSanctions.matches[0];
+    const ref = m.reference ? ` — ${m.reference}` : '';
+    parts.push(
+      `EU Sanctions Tracker: matched "${m.matchedName}" under the ${m.regime} regime${ref} ` +
+        `(${Math.round(m.score * 100)}% name confidence).`,
+    );
   }
 
   if (adverseMedia?.summary) parts.push(adverseMedia.summary);
@@ -106,14 +120,17 @@ function recommendationFor(band: RiskBand, reasons: string[]): string {
 export function scoreReport(args: {
   input: ScreeningInput;
   sanctions: SanctionsResult | null;
+  euSanctions?: EuSanctionsResult | null;
   adverseMedia: AdverseMediaResult | null;
   social: SocialMediaResult | null;
   durationMs: number;
   generatedAt?: string;
 }): RiskReport {
   const { input, sanctions, adverseMedia, social, durationMs } = args;
+  const euSanctions = args.euSanctions ?? null;
+  const euListed = !!euSanctions?.isListed && !euSanctions.error;
 
-  const sScore = sanctionsComponent(sanctions);
+  const sScore = sanctionsComponent(sanctions, euListed);
   const aScore = adverseComponent(adverseMedia);
   const socScore = socialComponent(social);
 
@@ -135,15 +152,15 @@ export function scoreReport(args: {
     ),
   );
 
-  const band = bandFor(overallScore, !!sanctions?.isSanctioned);
+  const band = bandFor(overallScore, !!sanctions?.isSanctioned || euListed);
 
   const highRiskActivityScores = buildHighRiskActivityScores(adverseMedia);
-  const adverseMediaScores = buildAdverseMediaScores(sanctions, adverseMedia);
+  const adverseMediaScores = buildAdverseMediaScores(sanctions, adverseMedia, euSanctions);
 
   // Reasons that drove a non-clear band, for the recommendation text.
   const reasons = adverseMediaScores.filter((c) => c.present).map((c) => c.label);
 
-  const summary = buildSummary(sanctions, adverseMedia);
+  const summary = buildSummary(sanctions, euSanctions, adverseMedia);
   const recommendation = recommendationFor(band, reasons);
 
   // Union of all evidence sources, deduped by URL.
@@ -152,6 +169,11 @@ export function scoreReport(args: {
   for (const m of sanctions?.matches ?? []) {
     if (m.match && m.sourceUrl) {
       sourceMap.set(m.sourceUrl, { url: m.sourceUrl, note: `OpenSanctions: ${m.caption}` });
+    }
+  }
+  for (const m of euSanctions?.matches ?? []) {
+    if (m.sourceUrl) {
+      sourceMap.set(m.sourceUrl, { url: m.sourceUrl, note: `EU Sanctions Tracker: ${m.name}` });
     }
   }
   for (const p of social?.profiles ?? []) {
@@ -164,6 +186,7 @@ export function scoreReport(args: {
     overallScore,
     weights,
     sanctions,
+    euSanctions,
     adverseMedia,
     social,
     highRiskActivityScores,

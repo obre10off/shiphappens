@@ -3,6 +3,8 @@ import { HIGH_RISK_ACTIVITIES } from '@/lib/data/highRiskActivities';
 import {
   mockAdverseClear,
   mockAdverseMediaResult,
+  mockEuSanctionsClear,
+  mockEuSanctionsResult,
   mockInput,
   mockInputClear,
   mockSanctionsClear,
@@ -100,6 +102,30 @@ describe('scoreReport', () => {
       adverseMedia: mockAdverseClear,
     });
     expect(r.band).toBe('high');
+  });
+
+  it('EU Sanctions Tracker hit escalates to high even when OpenSanctions is clear', () => {
+    const r = scoreReport({
+      ...base,
+      sanctions: mockSanctionsClear,
+      euSanctions: mockEuSanctionsResult,
+      adverseMedia: mockAdverseClear,
+    });
+    expect(r.band).toBe('high');
+    expect(r.adverseMediaScores.find((c) => c.key === 'sanctioned')?.present).toBe(true);
+    expect(r.summary).toContain('EU Sanctions Tracker');
+    expect(r.sources.some((s) => s.url.includes('eusanctionstracker'))).toBe(true);
+  });
+
+  it('a clear EU result does not change a clear outcome', () => {
+    const r = scoreReport({
+      ...base,
+      input: mockInputClear,
+      sanctions: mockSanctionsClear,
+      euSanctions: mockEuSanctionsClear,
+      adverseMedia: mockAdverseClear,
+    });
+    expect(r.band).toBe('clear');
   });
 
   it('sanctions.error → component 0, no throw, degraded note in summary', () => {

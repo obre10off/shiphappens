@@ -15,6 +15,12 @@ vi.mock('@/lib/sanctions/match', () => ({
     datasetsHit: ['us_ofac_sdn'], scope: 'default',
   }),
 }));
+vi.mock('@/lib/eu/match', () => ({
+  searchEuSanctions: vi.fn().mockReturnValue({
+    matches: [], totalMatches: 0, bestScore: 0, isListed: false,
+    source: 'EU Sanctions Tracker', snapshotDate: '2026-06-07T10:00:00.000Z',
+  }),
+}));
 vi.mock('@/lib/google/tool', () => ({
   analyzeAdverseMedia: vi.fn().mockResolvedValue({
     name: 'X', badPress: true, badPressLast5Years: true, highRiskActivitiesFlag: false,
@@ -102,6 +108,7 @@ describe('runScreening', () => {
     );
 
     expect(bundle.sanctions?.isSanctioned).toBe(true);
+    expect(bundle.euSanctions?.isListed).toBe(false);
     expect(bundle.adverseMedia?.badPress).toBe(true);
 
     const phases = events
@@ -110,6 +117,8 @@ describe('runScreening', () => {
     expect(phases).toEqual([
       'sanctions:start',
       'sanctions:done',
+      'eu_sanctions:start',
+      'eu_sanctions:done',
       'adverse_media:start',
       'adverse_media:done',
     ]);

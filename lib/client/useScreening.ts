@@ -7,6 +7,7 @@
 import { useCallback, useRef, useState } from 'react';
 import type {
   AdverseMediaResult,
+  EuSanctionsResult,
   RiskReport,
   SanctionsResult,
   ScreeningInput,
@@ -14,7 +15,7 @@ import type {
   ToolName,
 } from '@/lib/contracts/types';
 
-export type Phase = 'sanctions' | 'adverse_media' | 'social' | 'synthesis';
+export type Phase = 'sanctions' | 'eu_sanctions' | 'adverse_media' | 'social' | 'synthesis';
 export type PhaseStatus = 'pending' | 'running' | 'done';
 
 export interface PhaseState {
@@ -32,7 +33,7 @@ export interface ToolCallState {
   ok?: boolean;
 }
 
-export const PHASE_ORDER: Phase[] = ['sanctions', 'adverse_media', 'synthesis'];
+export const PHASE_ORDER: Phase[] = ['sanctions', 'eu_sanctions', 'adverse_media', 'synthesis'];
 
 function initialPhases(): PhaseState[] {
   return PHASE_ORDER.map((phase) => ({ phase, status: 'pending' as PhaseStatus }));
@@ -62,6 +63,7 @@ export function useScreening() {
   const [error, setError] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [partialSanctions, setPartialSanctions] = useState<SanctionsResult | null>(null);
+  const [partialEu, setPartialEu] = useState<EuSanctionsResult | null>(null);
   const [partialAdverse, setPartialAdverse] = useState<AdverseMediaResult | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -73,6 +75,7 @@ export function useScreening() {
     setError(null);
     setIsRunning(false);
     setPartialSanctions(null);
+    setPartialEu(null);
     setPartialAdverse(null);
   }, []);
 
@@ -104,6 +107,7 @@ export function useScreening() {
       });
     } else if (e.type === 'partial') {
       if (e.sanctions) setPartialSanctions(e.sanctions);
+      if (e.euSanctions) setPartialEu(e.euSanctions);
       if (e.adverseMedia) setPartialAdverse(e.adverseMedia);
     } else if (e.type === 'report') {
       setReport(e.report);
@@ -175,6 +179,7 @@ export function useScreening() {
     error,
     isRunning,
     partialSanctions,
+    partialEu,
     partialAdverse,
   };
 }

@@ -34,6 +34,32 @@ export interface SanctionsResult {
   error?: string; // set if the call failed (degrade gracefully)
 }
 
+// ── EU Sanctions Tracker (corroborating secondary source) ──────────────
+// Local snapshot of the EU consolidated list (data.europa.eu sanctions tracker).
+// Runs right after the primary OpenSanctions check to corroborate / catch gaps.
+export interface EuSanctionsMatch {
+  id: string; // EU subject id
+  name: string; // primary listed name
+  matchedName: string; // the name/alias that matched the query
+  aliases: string[];
+  score: number; // 0..1 name-match confidence
+  regime: string; // EU sanctions regime (e.g. "IRAN")
+  reference: string; // Official Journal reference
+  types: string; // 'F' (asset freeze) | 'T' (travel ban) | 'F+T'
+  dob?: string; // listed date of birth, if any
+  sourceUrl: string; // EU sanctions tracker subject page
+}
+
+export interface EuSanctionsResult {
+  matches: EuSanctionsMatch[];
+  totalMatches: number;
+  bestScore: number; // 0..1
+  isListed: boolean; // high-confidence hit — strong enough to corroborate/escalate
+  source: string; // human label of the dataset
+  snapshotDate: string; // when the local snapshot was last refreshed (ISO)
+  error?: string;
+}
+
 // ── Part 2: Adverse media (LLM) + social ───────────────────────────────
 export interface Source {
   url: string;
@@ -81,6 +107,7 @@ export interface RiskReport {
   overallScore: number; // 0..100 weighted
   weights: { sanctions: number; adverseMedia: number; social: number };
   sanctions: SanctionsResult | null;
+  euSanctions: EuSanctionsResult | null;
   adverseMedia: AdverseMediaResult | null;
   social: SocialMediaResult | null;
   highRiskActivityScores: CategoryScore[]; // one per HIGH_RISK_ACTIVITIES
@@ -93,12 +120,12 @@ export interface RiskReport {
 }
 
 // ── Streaming protocol (Part 2 → Part 4 over SSE / NDJSON) ──────────────
-export type ToolName = 'searchSanctions' | 'searchGoogle';
+export type ToolName = 'searchSanctions' | 'searchEuSanctions' | 'searchGoogle';
 
 export type ScreenEvent =
   | {
       type: 'phase';
-      phase: 'sanctions' | 'adverse_media' | 'social' | 'synthesis';
+      phase: 'sanctions' | 'eu_sanctions' | 'adverse_media' | 'social' | 'synthesis';
       status: 'start' | 'done';
       detail?: string;
       matches?: number;
@@ -112,6 +139,11 @@ export type ScreenEvent =
       summary?: string; // present on 'result' — one-line outcome
       ok?: boolean; // present on 'result' — false if the tool degraded
     }
-  | { type: 'partial'; sanctions?: SanctionsResult; adverseMedia?: AdverseMediaResult }
+  | {
+      type: 'partial';
+      sanctions?: SanctionsResult;
+      euSanctions?: EuSanctionsResult;
+      adverseMedia?: AdverseMediaResult;
+    }
   | { type: 'report'; report: RiskReport } // terminal success
   | { type: 'error'; message: string }; // terminal failure

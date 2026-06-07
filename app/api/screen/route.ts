@@ -8,7 +8,10 @@ import { scoreReport } from '@/lib/scoring/score';
 import type { ScreenEvent } from '@/lib/contracts/types';
 
 export const runtime = 'nodejs'; // tools call external APIs
-export const maxDuration = 60; // Vercel function timeout (seconds)
+// Deep adverse-media research (multi-query Tavily + AI curation) can run for
+// minutes; 300s is the platform ceiling on most Vercel plans. Locally there's
+// no cap. The agent's per-step timeouts keep us under this budget.
+export const maxDuration = 300; // Vercel function timeout (seconds)
 
 const ScreeningInputSchema = z.object({
   name: z.string().min(1, 'name is required'),
@@ -49,6 +52,7 @@ export async function POST(req: Request) {
         const report = scoreReport({
           input,
           sanctions: bundle.sanctions,
+          euSanctions: bundle.euSanctions,
           adverseMedia: bundle.adverseMedia,
           social: bundle.social,
           durationMs: Date.now() - started,

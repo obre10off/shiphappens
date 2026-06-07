@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import {
   AlertTriangle,
+  Check,
   CheckCircle,
   ChevronDown,
   ChevronUp,
   Clock,
+  Copy,
   ExternalLink,
   FileDown,
   Loader,
@@ -30,6 +32,13 @@ const BAND_META: Record<
 const TIMELINE_PREVIEW = 4;
 const SOURCES_PREVIEW = 3;
 
+/** Sortable key from a loose date ("2019-01-24", "2014", or ""). Unknown → oldest. */
+function timeKey(date: string): number {
+  const m = (date ?? '').match(/^(\d{4})(?:-(\d{2}))?(?:-(\d{2}))?/);
+  if (!m) return -Infinity;
+  return Number(m[1]) * 10000 + Number(m[2] ?? '01') * 100 + Number(m[3] ?? '01');
+}
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-2xl border border-line bg-surface p-5">
@@ -41,12 +50,16 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export function RiskDashboard({ report, onReset }: { report: RiskReport; onReset?: () => void }) {
   const [downloading, setDownloading] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
   const [showAllTimeline, setShowAllTimeline] = useState(false);
   const [showAllSources, setShowAllSources] = useState(false);
   const meta = BAND_META[report.band];
   const { Icon } = meta;
-  const timeline = report.adverseMedia?.timeline ?? [];
+  // Most recent first; events with unknown dates fall to the bottom (behind "Show more").
+  const timeline = [...(report.adverseMedia?.timeline ?? [])].sort(
+    (a, b) => timeKey(b.date) - timeKey(a.date),
+  );
   const shownTimeline = showAllTimeline ? timeline : timeline.slice(0, TIMELINE_PREVIEW);
 
   // Sources keep their report order so the summary's inline [n] citations stay
@@ -54,6 +67,24 @@ export function RiskDashboard({ report, onReset }: { report: RiskReport; onReset
   const orderedSources = report.sources;
   const shownSources = showAllSources ? orderedSources : orderedSources.slice(0, SOURCES_PREVIEW);
   const citationUrl = (n: number) => orderedSources[n - 1]?.url;
+
+  const copyJson = async () => {
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(report, null, 2));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // Clipboard API can fail on insecure origins — fall back to a textarea copy.
+      const ta = document.createElement('textarea');
+      ta.value = JSON.stringify(report, null, 2);
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }
+  };
 
   const downloadPdf = async () => {
     setDownloading(true);
@@ -119,6 +150,52 @@ export function RiskDashboard({ report, onReset }: { report: RiskReport; onReset
       <Section title="Summary">
         <Markdown text={report.summary} citationUrl={citationUrl} />
       </Section>
+
+      {/* EU Sanctions Tracker — corroborating secondary source */}
+      {report.euSanctions && report.euSanctions.matches.length > 0 && (
+        <Section
+          title={`EU Sanctions Tracker (${report.euSanctions.matches.length} match${
+            report.euSanctions.matches.length === 1 ? '' : 'es'
+          })`}
+        >
+          <div className="space-y-2">
+            {report.euSanctions.matches.map((m) => {
+              const listed = m.score >= 0.9;
+              return (
+                <a
+                  key={m.id}
+                  href={m.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-3 rounded-xl border border-line bg-surface-alt/40 px-3.5 py-2.5 hover:border-accent/40 transition-colors group"
+                >
+                  <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 mt-1 text-accent" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold text-ink truncate">{m.name}</div>
+                    <div className="text-xs text-muted">
+                      {m.regime ? `${m.regime} regime` : 'EU listed'}
+                      {m.reference ? ` · ${m.reference}` : ''}
+                      {m.types ? ` · ${m.types === 'F' ? 'asset freeze' : m.types === 'T' ? 'travel ban' : 'asset freeze + travel ban'}` : ''}
+                      {m.matchedName && m.matchedName !== m.name ? ` · matched alias “${m.matchedName}”` : ''}
+                    </div>
+                  </div>
+                  <span
+                    className={`text-[11px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${
+                      listed ? 'bg-red-500/15 text-red-400' : 'bg-amber-500/15 text-amber-400'
+                    }`}
+                  >
+                    {listed ? 'listed' : `${Math.round(m.score * 100)}%`}
+                  </span>
+                </a>
+              );
+            })}
+          </div>
+          <p className="mt-3 text-[11px] text-faint">
+            Source: EU Sanctions Tracker (data.europa.eu) · snapshot{' '}
+            {report.euSanctions.snapshotDate ? report.euSanctions.snapshotDate.slice(0, 10) : 'n/a'}
+          </p>
+        </Section>
+      )}
 
       {/* Adverse-media signals */}
       <Section title="Adverse-media signals">
@@ -214,6 +291,14 @@ export function RiskDashboard({ report, onReset }: { report: RiskReport; onReset
         >
           {downloading ? <Loader className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4" />}
           {downloading ? 'Generating…' : 'Download PDF report'}
+        </button>
+        <button
+          onClick={copyJson}
+          className="flex items-center justify-center gap-2 border border-line text-ink font-medium py-3 px-5 rounded-xl hover:bg-surface-alt transition-colors text-sm"
+          title="Copy the full report JSON (useful for a deterministic demo fixture)"
+        >
+          {copied ? <Check className="w-4 h-4 text-risk-clear" /> : <Copy className="w-4 h-4" />}
+          {copied ? 'Copied!' : 'Copy JSON'}
         </button>
         {onReset && (
           <button

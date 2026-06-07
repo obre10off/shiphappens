@@ -4,6 +4,7 @@
 
 import type {
   AdverseMediaResult,
+  EuSanctionsResult,
   RiskReport,
   SanctionsResult,
   ScreeningInput,
@@ -61,6 +62,38 @@ export const mockSanctionsClear: SanctionsResult = {
   scope: 'default',
 };
 
+// ── EU Sanctions Tracker ─────────────────────────────────────────────────────
+export const mockEuSanctionsResult: EuSanctionsResult = {
+  matches: [
+    {
+      id: '14098',
+      name: 'Viktor Fedorovych YANUKOVYCH',
+      matchedName: 'Viktor Fedorovych YANUKOVYCH',
+      aliases: ['Viktor Yanukovych'],
+      score: 0.97,
+      regime: 'UKRAINE',
+      reference: '2014/119/CFSP (OJ L66)',
+      types: 'F',
+      dob: '1950-07-09',
+      sourceUrl: 'https://data.europa.eu/apps/eusanctionstracker/subjects/14098',
+    },
+  ],
+  totalMatches: 1,
+  bestScore: 0.97,
+  isListed: true,
+  source: 'EU Sanctions Tracker (data.europa.eu) — consolidated EU financial sanctions + travel bans',
+  snapshotDate: '2026-06-07T10:00:59.944+00:00',
+};
+
+export const mockEuSanctionsClear: EuSanctionsResult = {
+  matches: [],
+  totalMatches: 0,
+  bestScore: 0,
+  isListed: false,
+  source: 'EU Sanctions Tracker (data.europa.eu) — consolidated EU financial sanctions + travel bans',
+  snapshotDate: '2026-06-07T10:00:59.944+00:00',
+};
+
 // ── Adverse media ────────────────────────────────────────────────────────────
 export const mockAdverseMediaResult: AdverseMediaResult = {
   name: 'Viktor Yanukovych',
@@ -82,8 +115,11 @@ export const mockAdverseMediaResult: AdverseMediaResult = {
     { url: 'https://www.occrp.org/example-yanukovych', note: 'Offshore money-laundering investigation' },
   ],
   timeline: [
+    { date: '2002', event: 'Appointed Prime Minister of Ukraine.' },
+    { date: '2004', event: 'Disputed presidential run triggers the Orange Revolution.' },
     { date: '2010', event: 'Elected President of Ukraine.' },
     { date: '2014-02-22', event: 'Removed from office; fled the country.' },
+    { date: '2017', event: 'EU and US asset freezes remain in force.' },
     { date: '2019-01-24', event: 'Convicted in absentia of high treason.' },
   ],
 };
@@ -116,6 +152,7 @@ export const mockRiskReport: RiskReport = {
   overallScore: 92,
   weights: { sanctions: 0.66, adverseMedia: 0.33, social: 0.01 },
   sanctions: mockSanctionsResult,
+  euSanctions: mockEuSanctionsResult,
   adverseMedia: mockAdverseMediaResult,
   social: null,
   highRiskActivityScores: [
@@ -161,6 +198,10 @@ export const mockRiskReport: RiskReport = {
   sources: [
     ...mockAdverseMediaResult.sources,
     { url: 'https://www.opensanctions.org/entities/Q1090/', note: 'OpenSanctions entity' },
+    {
+      url: 'https://data.europa.eu/apps/eusanctionstracker/subjects/14098',
+      note: 'EU Sanctions Tracker: Viktor Fedorovych YANUKOVYCH',
+    },
   ],
   generatedAt: '2026-06-07T12:00:00.000Z',
   durationMs: 6800,
@@ -172,6 +213,7 @@ export const mockRiskReportClear: RiskReport = {
   overallScore: 0,
   weights: { sanctions: 0.667, adverseMedia: 0.333, social: 0 },
   sanctions: mockSanctionsClear,
+  euSanctions: mockEuSanctionsClear,
   adverseMedia: mockAdverseClear,
   social: null,
   highRiskActivityScores: [],

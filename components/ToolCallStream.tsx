@@ -7,6 +7,7 @@ import type { ToolName } from '@/lib/contracts/types';
 
 const TOOL_META: Record<ToolName, { label: string; source: string }> = {
   searchSanctions: { label: 'searchSanctions', source: 'OpenSanctions /match' },
+  searchEuSanctions: { label: 'searchEuSanctions', source: 'EU Sanctions Tracker (data.europa.eu)' },
   searchGoogle: { label: 'searchGoogle', source: 'Tavily web search → AI flagging' },
 };
 

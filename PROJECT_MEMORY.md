@@ -2,7 +2,7 @@
 
 > **Living memory of this project.** Keep this file current — see the rule in
 > [CLAUDE.md](./CLAUDE.md). Update it whenever a plan file changes or a build step ships.
-> Last updated: 2026-06-07 (bilingual EN/BG pitch deck at `/en/presentation` & `/bg/presentation`, light-only, real demo video).
+> Last updated: 2026-06-07 (added EU Sanctions Tracker as a second source check after the primary sanctions check).
 
 ## What we're building
 
@@ -15,9 +15,11 @@ PEP status, and adverse media in ~8s instead of 45 min.* Built for a hackathon.
 
 ## Architecture (the agreed design)
 
-- **One Claude agent** (Vercel AI SDK) runs a tool-use loop with two main tools:
+- **One Claude agent** (Vercel AI SDK) runs a tool-use loop with three main tools, in order:
   1. `searchSanctions` → OpenSanctions `/match` endpoint (sanctions + PEP).
-  2. `searchGoogle` → Google SERP → LLM adverse-media flagging.
+  2. `searchEuSanctions` → **EU Sanctions Tracker** local snapshot (corroborating secondary source;
+     runs right after the primary check, can escalate the band on a high-confidence match).
+  3. `searchGoogle` → Google SERP → LLM adverse-media flagging.
   - `searchSocial` → optional social lookup (stretch).
 - Agent results → `scoreReport()` → `RiskReport` → streamed to UI over SSE.
 - **Scoring weights:** sanctions 0.66 (highest) · adverse media 0.33 · social 0.01.
@@ -62,13 +64,16 @@ PEP status, and adverse media in ~8s instead of 45 min.* Built for a hackathon.
 - [x] Part 3 — scoring engine + per-category scores + PDF export + `/api/report/pdf`.
 - [x] Part 4 — frontend: 5-field form, streaming progress, risk dashboard, PDF download, `?mock=1` toggle.
 - [x] End-to-end real screening verified (HIGH for Yanukovych, CLEAR for random name); PDF renders.
+- [x] **EU Sanctions Tracker source check** (`searchEuSanctions`) wired in after the primary sanctions
+  check — local snapshot match, corroborating + can escalate, surfaced as its own phase/tool/section.
 - [ ] Deploy to Vercel with env vars set.
 
 ### Known caveats
-- **Latency:** a live run is ~40–70s (agent orchestration LLM call + adverse-media `generateObject`),
-  close to the route's `maxDuration = 60`. The `?mock=1` toggle is the demo safety net. Could be sped up
-  by skipping the orchestration LLM and calling the tool functions directly (the deterministic fallback
-  path in `lib/agent/agent.ts` already does this when the model doesn't call a tool).
+- **Latency (now intentionally high):** adverse media runs **deep research** — AI query planning +
+  ~14 advanced Tavily queries + AI source curation + flagging — and can take **several minutes**.
+  Budgets raised accordingly: route `maxDuration = 300`, `ADVERSE_STEP_MS = 260s`, `AGENT_LOOP_MS = 290s`
+  (300s is the Vercel ceiling on most plans; locally there's no cap). The `?mock=1` toggle remains the
+  demo safety net for quick walkthroughs.
 - **Social** tool exists (`lib/social/tool.ts`) but is intentionally NOT wired into the default agent;
   the route ships `social: null` and weights renormalize.
 
@@ -94,6 +99,64 @@ PEP status, and adverse media in ~8s instead of 45 min.* Built for a hackathon.
   AML fines incl. crypto $1B+, RegTech ~$22B→~$85B @ ~21% CAGR). **Demo video id is
   `DEMO_VIDEO_ID = 'rZh0m8bg67k'` in `lib/presentation/content.ts`.** `next build` clean; both
   locales + redirect verified in-browser.
+- **2026-06-07** — **Deepened Tavily research (was only returning ~3 hits).** Root causes:
+  (a) queries used Google boolean syntax `"name" (fraud OR corruption OR …)` — Tavily is a *semantic*
+  API and returns far fewer/weaker results for boolean strings; (b) every query was hard-filtered by
+  `country`, regionally collapsing inherently-international adverse media; (c) 14 concurrent queries with
+  silent `.catch(() => [])` lost throttled (429) queries invisibly. Fixes (`lib/google/tavily.ts`,
+  `tool.ts`, `research.ts`): rewrote `buildQueries`/`buildDeepQueries` + the LLM `QUERY_PLANNER_PROMPT`
+  to plain-keyword (non-boolean) queries (name still quoted); **dropped the `country` API filter** (country
+  stays in the query text + source curation); added **429/5xx retry with backoff** and **bounded
+  concurrency (5)** via a `mapPool` helper; raised results-per-query 8→10 and the query cap 14→16; added
+  per-query + failure logging (`[tavily] … N unique hit(s)`, `[tavily] X/N queries failed`). Note: the
+  number shown on the adverse-media phase is the *cited* `sources.length` (post-LLM-flagging), which is a
+  subset of raw hits — the raw breadth is now visible in the `[tavily]` server logs. 45 tests green, `tsc` clean.
+
+- **2026-06-07** — **Copy JSON button + runtime clarification.** Added a "Copy JSON" action to
+  `RiskDashboard` (copies the full `RiskReport` to clipboard, with an `execCommand` fallback for
+  insecure origins) so a real run can be captured as a deterministic demo fixture (paste into
+  `mocks.ts` / use with `?mock=1`). **Did NOT switch `/api/screen` to the edge runtime**: Edge has a
+  hard, non-configurable **25s** timeout that would break the multi-minute deep adverse-media research,
+  and the ~1 MB EU snapshot import risks the Edge bundle-size limit. Current Vercel docs: Node.js
+  functions on **Fluid Compute default to 300s on all plans incl. Hobby**, so `runtime='nodejs'` +
+  `maxDuration=300` already works without Pro. Kept the route on nodejs.
+
+- **2026-06-07** — **EU Sanctions Tracker added as a second source check** (after the primary
+  OpenSanctions check). Decisions (user-confirmed): **bundled local snapshot**, **corroborating +
+  can escalate**, **individuals only**. (1) **Data** — scraped the EU Sanctions Tracker
+  (`data.europa.eu/apps/eusanctionstracker`), which ships no API and loads a custom `subjects.jsonpack`
+  unpacked client-side into `window.application.datasets.subjects`; extracted the 4,343 individuals to a
+  compact snapshot `lib/data/euSanctionsIndividuals.json` (id, name, aliases, dob, nationalities, regime,
+  OJ ref, sanction types, subject-page URL). (2) **Matcher** — `lib/eu/match.ts` `searchEuSanctions`:
+  diacritic/stroke-aware name normalization (`normalizeName`) + token-set F1 (`scoreNames`), DOB/
+  nationality corroboration boosts; thresholds DISPLAY 0.72 / LISTED 0.90; pure + synchronous, never
+  throws. (3) **Agent** — new `searchEuSanctions` tool runs between sanctions and google, with the same
+  phase/tool events + deterministic fallback (`lib/agent/agent.ts`, prompt order updated, `stepCountIs(8)`).
+  (4) **Scoring** — `scoreReport` takes `euSanctions`; a high-confidence EU hit forces the sanctions
+  component to 100 and the band to `high` even if OpenSanctions was clear; EU subject pages added to
+  Sources; summary notes the EU match; `buildAdverseMediaScores` ORs EU into the "On a sanctions list"
+  signal. (5) **UI** — new `eu_sanctions` phase (ProgressStream), `searchEuSanctions` tool card
+  (ToolCallStream), and an **EU Sanctions Tracker** section in `RiskDashboard` (per-match regime/ref/
+  type/confidence + link). Contracts extended (`EuSanctionsResult`/`EuSanctionsMatch`, `ScreenEvent`
+  phase + tool + partial, `RiskReport.euSanctions`); mocks + page mock-mode updated. New `lib/eu/match.test.ts`
+  + EU escalation tests in `score.test.ts`; **45 tests green, `tsc` clean**. Caveat: snapshot is a
+  point-in-time copy (EU `updated` 2026-06-07) — refresh periodically by re-extracting the jsonpack.
+
+- **2026-06-07** — **Deep adverse-media research + AI source curation + newest-first timeline**:
+  (1) **Deep research** — `analyzeAdverseMedia` (`lib/google/tool.ts`) now runs a multi-stage pipeline:
+  `planQueries` (LLM proposes 6–10 targeted queries, `lib/google/research.ts`) ∪ `buildDeepQueries`
+  (deterministic sanctions/criminal/regulatory/financial-crime/leaks/litigation angles, `tavily.ts`),
+  capped at 14 queries, all run through Tavily `searchQueries` (advanced depth, `max_results: 8`,
+  `timeoutMs: 20s`). (2) **AI source curation** — new `selectRelevantSources` LLM step vets the large
+  hit pool down to ≤15 sources that plausibly refer to the subject AND are risk-relevant, ordered
+  most-material first; that order becomes the citation numbering passed to the flagging `generateObject`
+  + `sanitizeAdverseMedia`. Every stage degrades gracefully (static-query / top-score fallbacks; skips
+  AI steps when no `ANTHROPIC_API_KEY`). (3) **Timeouts raised** for the longer run (see Known caveats).
+  (4) **Timeline reversed** — `RiskDashboard` sorts events newest-first via a loose `timeKey` parser
+  (unknown dates sink to the bottom, behind "Show more"); mock timeline expanded to 6 entries to show it.
+  New `buildDeepQueries` tests added; 23+ tests green, `tsc` clean. (PDF timeline left chronological as
+  the audit document.)
+
 - **2026-06-07** — **Relevant-citations + meaningful-tags pass** (follow-up):
   (1) **Summary no longer truncates** — `generateObject` now sets `maxOutputTokens: 8000`; the prompt
   insists every sentence/`**` is closed; the `Markdown` renderer strips stray unclosed `**`.

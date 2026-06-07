@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { buildQueries, searchWeb } from './tavily';
+import { buildDeepQueries, buildQueries, searchWeb } from './tavily';
 
 beforeEach(() => {
   process.env.TAVILY_API_KEY = 'tvly-test';
@@ -19,6 +19,22 @@ describe('buildQueries', () => {
   it('omits optional queries when fields absent', () => {
     const qs = buildQueries({ name: 'Jane Doe' });
     expect(qs).toHaveLength(1);
+  });
+});
+
+describe('buildDeepQueries', () => {
+  it('covers many adverse angles and is deduped', () => {
+    const qs = buildDeepQueries({ name: 'Jane Doe', country: 'Bulgaria' });
+    expect(qs.length).toBeGreaterThan(5);
+    expect(new Set(qs).size).toBe(qs.length); // no dupes
+    expect(qs.every((q) => q.includes('"Jane Doe"'))).toBe(true);
+    expect(qs.some((q) => q.includes('OFAC'))).toBe(true);
+    expect(qs.some((q) => q.includes('indictment'))).toBe(true);
+  });
+
+  it('adds a company-focused query when a company is given', () => {
+    const qs = buildDeepQueries({ name: 'Jane Doe', country: 'Bulgaria', company: 'Acme' });
+    expect(qs.some((q) => q.includes('"Acme"'))).toBe(true);
   });
 });
 

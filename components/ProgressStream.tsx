@@ -5,6 +5,7 @@ import type { Phase, PhaseState } from '@/lib/client/useScreening';
 
 const LABELS: Record<Phase, string> = {
   sanctions: 'Checking OpenSanctions (sanctions + PEP)…',
+  eu_sanctions: 'Cross-checking EU Sanctions Tracker…',
   adverse_media: 'Scanning adverse media (web + AI)…',
   social: 'Checking social media…',
   synthesis: 'AI synthesis & risk scoring…',
@@ -12,6 +13,7 @@ const LABELS: Record<Phase, string> = {
 
 const DONE_LABELS: Record<Phase, string> = {
   sanctions: 'OpenSanctions (sanctions + PEP)',
+  eu_sanctions: 'EU Sanctions Tracker (EU consolidated list)',
   adverse_media: 'Adverse media (web + AI)',
   social: 'Social media',
   synthesis: 'AI synthesis & risk scoring',

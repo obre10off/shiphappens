@@ -8,6 +8,7 @@ import { isEnrichmentDataset, isSanctionsDataset } from '@/lib/data/datasets';
 import type {
   AdverseMediaResult,
   CategoryScore,
+  EuSanctionsResult,
   SanctionsResult,
 } from '@/lib/contracts/types';
 
@@ -59,19 +60,29 @@ export function buildHighRiskActivityScores(
 export function buildAdverseMediaScores(
   sanctions: SanctionsResult | null,
   adverseMedia: AdverseMediaResult | null,
+  euSanctions: EuSanctionsResult | null = null,
 ): CategoryScore[] {
   const datasets = sanctions?.datasetsHit ?? [];
   // The sanctions row shows only real enforcement lists; PEP/enrichment codes
   // (wikidata, everypolitician, …) are filtered out so the tags stay meaningful.
   const sanctionLists = uniq(datasets.filter(isSanctionsDataset).filter((d) => !isEnrichmentDataset(d)));
 
+  const euListed = !!euSanctions?.isListed && !euSanctions.error;
+  const sanctioned = !!sanctions?.isSanctioned || euListed;
+  // Prefer the OpenSanctions enforcement-list codes; fall back to the EU regime
+  // label when only the EU Sanctions Tracker corroborated the listing.
+  const euEvidence = euListed && euSanctions?.matches[0]
+    ? [`EU Sanctions Tracker — ${euSanctions.matches[0].regime} regime`]
+    : [];
+  const sanctionedEvidence = sanctionLists.length ? sanctionLists : euEvidence;
+
   return [
     {
       key: 'sanctioned',
       label: 'On a sanctions list',
-      present: !!sanctions?.isSanctioned,
-      score: sanctions?.isSanctioned ? 100 : 0,
-      evidence: sanctions?.isSanctioned ? sanctionLists : [],
+      present: sanctioned,
+      score: sanctioned ? 100 : 0,
+      evidence: sanctioned ? sanctionedEvidence : [],
     },
     {
       key: 'pep',
