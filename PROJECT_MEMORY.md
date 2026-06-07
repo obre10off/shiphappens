@@ -2,7 +2,7 @@
 
 > **Living memory of this project.** Keep this file current — see the rule in
 > [CLAUDE.md](./CLAUDE.md). Update it whenever a plan file changes or a build step ships.
-> Last updated: 2026-06-07 (relevant inline summary citations; meaningful PEP/sanctions tags; no-truncate summaries).
+> Last updated: 2026-06-07 (feature-flagged agent tool-call visuals via `lib/config.ts`).
 
 ## What we're building
 
@@ -74,6 +74,11 @@ PEP status, and adverse media in ~8s instead of 45 min.* Built for a hackathon.
 
 ## Progress log
 
+- **2026-06-07** — **Feature-flagged the agent tool-call visuals.** Added `lib/config.ts` as the
+  single source of truth for feature flags, with `featureFlags.showAgentToolCalls` (default
+  **false**). The `ToolCallStream` ("Agent tool calls") render on `/screen` is now gated behind that
+  flag; the agent's tool-calling loop is unchanged — only the visual surface is hidden. Flip the flag
+  in `lib/config.ts` to re-enable.
 - **2026-06-07** — **Relevant-citations + meaningful-tags pass** (follow-up):
   (1) **Summary no longer truncates** — `generateObject` now sets `maxOutputTokens: 8000`; the prompt
   insists every sentence/`**` is closed; the `Markdown` renderer strips stray unclosed `**`.

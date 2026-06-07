@@ -16,6 +16,7 @@ import { ScreeningForm } from '@/components/ScreeningForm';
 import { ProgressStream } from '@/components/ProgressStream';
 import { ToolCallStream } from '@/components/ToolCallStream';
 import { RiskDashboard } from '@/components/RiskDashboard';
+import { featureFlags } from '@/lib/config';
 
 type View = 'form' | 'running' | 'done';
 
@@ -191,7 +192,7 @@ function ScreenInner() {
                 error={live.error}
                 onRetry={reset}
               />
-              <ToolCallStream calls={toolCalls} />
+              {featureFlags.showAgentToolCalls && <ToolCallStream calls={toolCalls} />}
             </div>
           )}
 
