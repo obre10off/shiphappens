@@ -70,8 +70,8 @@ export const en: PresentationContent = {
     kicker: 'The problem',
     heading: 'Compliance still runs on humans copy-pasting names.',
     stats: [
-      { value: '31–60%', label: 'of KYC still done manually' },
-      { value: '$206B', label: 'spent on compliance every year' },
+      { value: '30–40%', label: 'of KYC still done manually' },
+      { value: '$200B+', label: 'spent on compliance every year' },
       { value: '$2,000+', label: 'per single corporate KYC review' },
     ],
     sources: [
@@ -154,24 +154,6 @@ export const en: PresentationContent = {
       'Significant cost savings',
       'Reputational & legal protection',
     ],
-  },
-  market: {
-    label: 'The market',
-    kicker: 'The market',
-    heading: 'A growing, mandatory spend.',
-    stats: [
-      { value: '$206B', label: 'compliance spend / year (SAM)' },
-      { value: '~$22B', label: 'RegTech market today (2025)' },
-      { value: '~$85B', label: 'RegTech by 2035, ~21% CAGR' },
-    ],
-    note: 'Every regulated institution is a buyer — because the law makes them one.',
-    sources: ['Precedence Research (2025)', 'LexisNexis Risk Solutions (2023)'],
-  },
-  vision: {
-    label: 'Where we go next',
-    kicker: 'Where we go next',
-    heading: 'From one-time screening to always-on assurance.',
-    items: ['Ongoing counterparty monitoring', 'Deeper research'],
   },
   closing: {
     label: 'Closing',
