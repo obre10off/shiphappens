@@ -24,6 +24,7 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import type { Locale, PresentationContent, Stat } from '@/lib/presentation/content';
 import { DEMO_VIDEO_ID } from '@/lib/presentation/content';
+import { StreamingText } from '@/components/StreamingText';
 
 /** Two-dot brand mark + wordmark, echoing the Clavis logo. */
 function Wordmark() {
@@ -38,22 +39,44 @@ function Wordmark() {
   );
 }
 
-/** Small uppercase section label. */
 function Kicker({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-line px-3 py-1 text-xs font-medium text-muted">
+    <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-line px-3 py-1 text-xs font-medium text-muted">
       <span className="h-1.5 w-1.5 rounded-full bg-accent" />
       {children}
     </div>
   );
 }
 
-/** Tiny source footnote shown at the bottom of a stat slide. */
 function Sources({ label, items }: { label: string; items: string[] }) {
   return (
-    <p className="mt-10 text-[11px] leading-relaxed text-faint">
+    <p className="mt-12 text-[11px] leading-relaxed text-faint">
       {label} {items.join(' · ')}
     </p>
+  );
+}
+
+/** Staggered entrance — fades each child up in sequence after the slide mounts. */
+function Reveal({
+  index,
+  base = 350,
+  step = 90,
+  className = '',
+  children,
+}: {
+  index: number;
+  base?: number;
+  step?: number;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={`animate-slide-up [animation-fill-mode:both] ${className}`}
+      style={{ animationDelay: `${base + index * step}ms` }}
+    >
+      {children}
+    </div>
   );
 }
 
@@ -61,57 +84,25 @@ function BigStat({
   value,
   label,
   accent = 'ink',
+  index,
 }: {
   value: string;
   label: string;
   accent?: 'ink' | 'risk' | 'indigo';
+  index: number;
 }) {
   const valueColor =
     accent === 'risk' ? 'text-red-500' : accent === 'indigo' ? 'text-accent' : 'text-ink';
   return (
-    <div className="rounded-2xl border border-line bg-surface-alt p-6">
+    <Reveal index={index} className="rounded-2xl border border-line bg-surface-alt p-6">
       <div className={`text-4xl font-medium tracking-tight sm:text-5xl ${valueColor}`}>{value}</div>
       <div className="mt-3 text-sm leading-relaxed text-muted">{label}</div>
-    </div>
+    </Reveal>
   );
 }
 
-function CompareCard({
-  tone,
-  title,
-  time,
-  note,
-}: {
-  tone: 'bad' | 'good';
-  title: string;
-  time: string;
-  note: string;
-}) {
-  const bad = tone === 'bad';
-  return (
-    <div
-      className={`rounded-2xl border p-7 ${
-        bad ? 'border-line bg-surface' : 'border-accent/30 bg-accent/[0.04]'
-      }`}
-    >
-      <div className="flex items-center gap-2">
-        {bad ? <Clock className="h-4 w-4 text-faint" /> : <Zap className="h-4 w-4 text-accent" />}
-        <span className={`text-sm font-medium ${bad ? 'text-muted' : 'text-accent'}`}>{title}</span>
-      </div>
-      <div
-        className={`mt-4 text-5xl font-medium tracking-tight sm:text-6xl ${
-          bad ? 'text-faint line-through decoration-2' : 'text-ink'
-        }`}
-      >
-        {time}
-      </div>
-      <p className="mt-4 text-sm leading-relaxed text-muted">{note}</p>
-    </div>
-  );
-}
-
-const HEADING = 'max-w-3xl text-4xl font-medium leading-[1.08] tracking-[-0.02em] text-ink sm:text-5xl';
-const BODY = 'mt-5 max-w-2xl text-lg leading-relaxed text-muted';
+const HEADING =
+  'max-w-3xl text-4xl font-medium leading-[1.08] tracking-[-0.02em] text-ink sm:text-5xl';
 
 // ── Deck ─────────────────────────────────────────────────────────────────────
 
@@ -141,12 +132,19 @@ export default function PresentationDeck({
           <h1 className="text-6xl font-medium leading-[1.02] tracking-[-0.03em] text-ink sm:text-7xl">
             {t.title.product}
           </h1>
-          <p className="mt-6 max-w-xl text-xl leading-relaxed text-muted">{t.title.subtitle}</p>
-          <div className="mt-10 flex items-center gap-3 text-sm text-faint">
-            <span>{t.ui.briefing}</span>
-            <span className="h-1 w-1 rounded-full bg-faint/60" />
-            <span>{t.ui.year}</span>
-          </div>
+          <StreamingText
+            text={t.title.subtitle}
+            speed={45}
+            startDelay={350}
+            className="mt-6 justify-center text-xl leading-relaxed text-muted"
+          />
+          <Reveal index={0} base={1600} className="mt-10">
+            <div className="flex items-center gap-3 text-sm text-faint">
+              <span>{t.ui.briefing}</span>
+              <span className="h-1 w-1 rounded-full bg-faint/60" />
+              <span>{t.ui.year}</span>
+            </div>
+          </Reveal>
         </div>
       ),
     },
@@ -158,11 +156,10 @@ export default function PresentationDeck({
       render: () => (
         <div>
           <Kicker>{t.problem.kicker}</Kicker>
-          <h2 className={HEADING}>{t.problem.heading}</h2>
-          <p className={BODY}>{t.problem.body}</p>
-          <div className="mt-12 grid gap-5 sm:grid-cols-3">
-            {t.problem.stats.map((s: Stat) => (
-              <BigStat key={s.label} value={s.value} label={s.label} />
+          <StreamingText text={t.problem.heading} className={HEADING} />
+          <div className="mt-14 grid gap-5 sm:grid-cols-3">
+            {t.problem.stats.map((s: Stat, i) => (
+              <BigStat key={s.label} value={s.value} label={s.label} index={i} />
             ))}
           </div>
           <Sources label={t.ui.sources} items={t.problem.sources} />
@@ -177,19 +174,19 @@ export default function PresentationDeck({
       render: () => (
         <div>
           <Kicker>{t.human.kicker}</Kicker>
-          <h2 className={HEADING}>{t.human.heading}</h2>
-          <p className={BODY}>{t.human.body}</p>
-          <div className="mt-10 grid gap-x-10 gap-y-5 sm:grid-cols-2">
-            {t.human.items.map((x) => (
-              <div key={x.t} className="flex gap-3.5">
-                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-red-500/10">
-                  <AlertTriangle className="h-4 w-4 text-red-500" />
+          <StreamingText text={t.human.heading} className={HEADING} />
+          <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {t.human.items.map((item, i) => (
+              <Reveal
+                key={item}
+                index={i}
+                className="flex items-center gap-3.5 rounded-2xl border border-line bg-surface p-5"
+              >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-500/10">
+                  <AlertTriangle className="h-[18px] w-[18px] text-red-500" />
                 </span>
-                <div>
-                  <div className="text-base font-medium text-ink">{x.t}</div>
-                  <div className="mt-0.5 text-sm leading-relaxed text-muted">{x.d}</div>
-                </div>
-              </div>
+                <span className="text-base font-medium text-ink">{item}</span>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -203,27 +200,28 @@ export default function PresentationDeck({
       render: () => (
         <div>
           <Kicker>{t.chain.kicker}</Kicker>
-          <h2 className={HEADING}>{t.chain.heading}</h2>
-          <p className={BODY}>{t.chain.body}</p>
-          <div className="mt-12 flex flex-col gap-3 sm:flex-row sm:items-stretch">
-            {t.chain.steps.map((s, i, arr) => (
-              <div key={s.t} className="flex flex-1 items-center gap-3">
-                <div className="flex-1 rounded-2xl border border-line bg-surface p-5">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-accent text-sm font-semibold text-white">
+          <StreamingText text={t.chain.heading} className={HEADING} />
+          <div className="mt-14 flex flex-col gap-3 sm:flex-row sm:items-center">
+            {t.chain.steps.map((step, i, arr) => (
+              <div key={step} className="flex flex-1 items-center gap-3">
+                <Reveal
+                  index={i}
+                  className="flex flex-1 items-center gap-3.5 rounded-2xl border border-line bg-surface p-5"
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-semibold text-white">
                     {i + 1}
-                  </div>
-                  <div className="mt-3 text-base font-medium text-ink">{s.t}</div>
-                  <div className="mt-1 text-sm text-muted">{s.d}</div>
-                </div>
+                  </span>
+                  <span className="text-base font-medium text-ink">{step}</span>
+                </Reveal>
                 {i < arr.length - 1 && (
                   <ChevronRight className="hidden h-5 w-5 shrink-0 text-faint sm:block" />
                 )}
               </div>
             ))}
           </div>
-          <div className="mt-10 grid gap-5 sm:grid-cols-2">
-            {t.chain.stats.map((s) => (
-              <BigStat key={s.label} value={s.value} label={s.label} accent="risk" />
+          <div className="mt-8 grid gap-5 sm:grid-cols-2">
+            {t.chain.stats.map((s, i) => (
+              <BigStat key={s.label} value={s.value} label={s.label} accent="risk" index={i + 4} />
             ))}
           </div>
           <Sources label={t.ui.sources} items={t.chain.sources} />
@@ -238,23 +236,24 @@ export default function PresentationDeck({
       render: () => (
         <div>
           <Kicker>{t.stakes.kicker}</Kicker>
-          <h2 className={HEADING}>{t.stakes.heading}</h2>
-          <p className={BODY}>{t.stakes.body}</p>
-          <div className="mt-12 grid gap-5 sm:grid-cols-3">
-            {t.stakes.stats.map((s) => (
-              <BigStat key={s.label} value={s.value} label={s.label} accent="risk" />
+          <StreamingText text={t.stakes.heading} className={HEADING} />
+          <div className="mt-14 grid gap-5 sm:grid-cols-3">
+            {t.stakes.stats.map((s, i) => (
+              <BigStat key={s.label} value={s.value} label={s.label} accent="risk" index={i} />
             ))}
           </div>
-          <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm text-muted">
-            {t.stakes.tags.map((tag, i) => {
-              const Icon = stakesTagIcons[i] ?? AlertTriangle;
-              return (
-                <span key={tag} className="inline-flex items-center gap-2">
-                  <Icon className="h-4 w-4 text-ink" /> {tag}
-                </span>
-              );
-            })}
-          </div>
+          <Reveal index={3} className="mt-10">
+            <div className="flex flex-wrap items-center gap-x-8 gap-y-3 text-sm text-muted">
+              {t.stakes.tags.map((tag, i) => {
+                const Icon = stakesTagIcons[i] ?? AlertTriangle;
+                return (
+                  <span key={tag} className="inline-flex items-center gap-2">
+                    <Icon className="h-4 w-4 text-ink" /> {tag}
+                  </span>
+                );
+              })}
+            </div>
+          </Reveal>
           <Sources label={t.ui.sources} items={t.stakes.sources} />
         </div>
       ),
@@ -267,13 +266,12 @@ export default function PresentationDeck({
       render: () => (
         <div>
           <Kicker>{t.solution.kicker}</Kicker>
-          <h2 className={HEADING}>{t.solution.heading}</h2>
-          <p className={BODY}>{t.solution.body}</p>
-          <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-3">
-            {t.solution.steps.map((s, i) => {
+          <StreamingText text={t.solution.heading} className={HEADING} />
+          <div className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-3">
+            {t.solution.steps.map((step, i) => {
               const Icon = solutionIcons[i] ?? Search;
               return (
-                <div key={s.t} className="bg-canvas p-7">
+                <Reveal key={step} index={i} className="bg-canvas p-7">
                   <div className="flex items-center gap-3">
                     <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-surface-alt text-ink">
                       <Icon className="h-5 w-5" />
@@ -282,22 +280,23 @@ export default function PresentationDeck({
                       {String(i + 1).padStart(2, '0')}
                     </span>
                   </div>
-                  <h3 className="mt-5 text-lg font-medium text-ink">{s.t}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted">{s.d}</p>
-                </div>
+                  <h3 className="mt-6 text-lg font-medium text-ink">{step}</h3>
+                </Reveal>
               );
             })}
           </div>
-          <div className="mt-8 flex flex-wrap gap-2.5">
-            {t.solution.tags.map((tag) => (
-              <span
-                key={tag}
-                className="rounded-full bg-surface-alt px-3 py-1.5 text-xs font-medium text-muted"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
+          <Reveal index={3} className="mt-8">
+            <div className="flex flex-wrap gap-2.5">
+              {t.solution.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full bg-surface-alt px-3 py-1.5 text-xs font-medium text-muted"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </Reveal>
         </div>
       ),
     },
@@ -309,10 +308,11 @@ export default function PresentationDeck({
       render: () => (
         <div className="flex flex-col items-center text-center">
           <Kicker>{t.demo.kicker}</Kicker>
-          <h2 className="max-w-2xl text-4xl font-medium leading-[1.08] tracking-[-0.02em] text-ink sm:text-5xl">
-            {t.demo.heading}
-          </h2>
-          <div className="mt-9 w-full max-w-3xl">
+          <StreamingText
+            text={t.demo.heading}
+            className="max-w-2xl justify-center text-4xl font-medium leading-[1.08] tracking-[-0.02em] text-ink sm:text-5xl"
+          />
+          <Reveal index={0} base={500} className="mt-9 w-full max-w-3xl">
             <div className="overflow-hidden rounded-2xl border border-line bg-black shadow-[0_10px_40px_rgba(10,10,10,0.12)]">
               <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
                 <iframe
@@ -324,14 +324,16 @@ export default function PresentationDeck({
                 />
               </div>
             </div>
-          </div>
-          <Link
-            href="/screen"
-            className="mt-8 inline-flex items-center gap-2 rounded-lg bg-ink px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90"
-          >
-            {t.demo.cta}
-            <ArrowUpRight className="h-4 w-4" />
-          </Link>
+          </Reveal>
+          <Reveal index={1} base={650}>
+            <Link
+              href="/screen"
+              className="mt-8 inline-flex items-center gap-2 rounded-lg bg-ink px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90"
+            >
+              {t.demo.cta}
+              <ArrowUpRight className="h-4 w-4" />
+            </Link>
+          </Reveal>
         </div>
       ),
     },
@@ -343,18 +345,36 @@ export default function PresentationDeck({
       render: () => (
         <div>
           <Kicker>{t.speed.kicker}</Kicker>
-          <h2 className={HEADING}>{t.speed.heading}</h2>
-          <p className={BODY}>{t.speed.body}</p>
-          <div className="mt-12 grid gap-5 sm:grid-cols-2">
-            <CompareCard tone="bad" title={t.speed.bad.title} time={t.speed.bad.time} note={t.speed.bad.note} />
-            <CompareCard tone="good" title={t.speed.good.title} time={t.speed.good.time} note={t.speed.good.note} />
+          <StreamingText text={t.speed.heading} className={HEADING} />
+          <div className="mt-14 grid gap-5 sm:grid-cols-2">
+            <Reveal index={0} className="rounded-2xl border border-line bg-surface p-7">
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-faint" />
+                <span className="text-sm font-medium text-muted">{t.speed.bad.title}</span>
+              </div>
+              <div className="mt-4 text-5xl font-medium tracking-tight text-faint line-through decoration-2 sm:text-6xl">
+                {t.speed.bad.time}
+              </div>
+            </Reveal>
+            <Reveal index={1} className="rounded-2xl border border-accent/30 bg-accent/[0.04] p-7">
+              <div className="flex items-center gap-2">
+                <Zap className="h-4 w-4 text-accent" />
+                <span className="text-sm font-medium text-accent">{t.speed.good.title}</span>
+              </div>
+              <div className="mt-4 text-5xl font-medium tracking-tight text-ink sm:text-6xl">
+                {t.speed.good.time}
+              </div>
+            </Reveal>
           </div>
-          <div className="mt-8 flex items-center gap-3 rounded-2xl border border-line bg-surface-alt px-6 py-4">
-            <TrendingUp className="h-5 w-5 shrink-0 text-accent" />
-            <span className="text-sm text-ink">
-              <span className="font-semibold">{t.speed.highlight.strong}</span> {t.speed.highlight.rest}
-            </span>
-          </div>
+          <Reveal index={2} className="mt-8">
+            <div className="flex items-center gap-3 rounded-2xl border border-line bg-surface-alt px-6 py-4">
+              <TrendingUp className="h-5 w-5 shrink-0 text-accent" />
+              <span className="text-sm text-ink">
+                <span className="font-semibold">{t.speed.highlight.strong}</span>{' '}
+                {t.speed.highlight.rest}
+              </span>
+            </div>
+          </Reveal>
           <Sources label={t.ui.sources} items={t.speed.sources} />
         </div>
       ),
@@ -367,18 +387,17 @@ export default function PresentationDeck({
       render: () => (
         <div>
           <Kicker>{t.value.kicker}</Kicker>
-          <h2 className={HEADING}>{t.value.heading}</h2>
-          <div className="mt-10 grid gap-5 sm:grid-cols-2">
-            {t.value.pillars.map((p, i) => {
+          <StreamingText text={t.value.heading} className={HEADING} />
+          <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {t.value.pillars.map((pillar, i) => {
               const Icon = valueIcons[i] ?? Zap;
               return (
-                <div key={p.t} className="rounded-2xl border border-line bg-surface p-6">
+                <Reveal key={pillar} index={i} className="rounded-2xl border border-line bg-surface p-6">
                   <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10">
                     <Icon className="h-5 w-5 text-accent" />
                   </span>
-                  <h3 className="mt-4 text-lg font-medium text-ink">{p.t}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted">{p.d}</p>
-                </div>
+                  <h3 className="mt-5 text-lg font-medium text-ink">{pillar}</h3>
+                </Reveal>
               );
             })}
           </div>
@@ -393,17 +412,24 @@ export default function PresentationDeck({
       render: () => (
         <div>
           <Kicker>{t.market.kicker}</Kicker>
-          <h2 className={HEADING}>{t.market.heading}</h2>
-          <p className={BODY}>{t.market.body}</p>
-          <div className="mt-12 grid gap-5 sm:grid-cols-3">
+          <StreamingText text={t.market.heading} className={HEADING} />
+          <div className="mt-14 grid gap-5 sm:grid-cols-3">
             {t.market.stats.map((s, i) => (
-              <BigStat key={s.label} value={s.value} label={s.label} accent={i === 0 ? 'ink' : 'indigo'} />
+              <BigStat
+                key={s.label}
+                value={s.value}
+                label={s.label}
+                accent={i === 0 ? 'ink' : 'indigo'}
+                index={i}
+              />
             ))}
           </div>
-          <div className="mt-10 flex items-center gap-3 rounded-2xl border border-line bg-surface-alt px-6 py-4">
-            <Globe2 className="h-5 w-5 shrink-0 text-accent" />
-            <span className="text-sm text-ink">{t.market.note}</span>
-          </div>
+          <Reveal index={3} className="mt-10">
+            <div className="flex items-center gap-3 rounded-2xl border border-line bg-surface-alt px-6 py-4">
+              <Globe2 className="h-5 w-5 shrink-0 text-accent" />
+              <span className="text-sm text-ink">{t.market.note}</span>
+            </div>
+          </Reveal>
           <Sources label={t.ui.sources} items={t.market.sources} />
         </div>
       ),
@@ -416,19 +442,17 @@ export default function PresentationDeck({
       render: () => (
         <div>
           <Kicker>{t.vision.kicker}</Kicker>
-          <h2 className={HEADING}>{t.vision.heading}</h2>
-          <p className={BODY}>{t.vision.body}</p>
-          <div className="mt-12 grid gap-5 sm:grid-cols-2">
-            {t.vision.items.map((x, i) => {
+          <StreamingText text={t.vision.heading} className={HEADING} />
+          <div className="mt-14 grid gap-5 sm:grid-cols-2">
+            {t.vision.items.map((item, i) => {
               const Icon = visionIcons[i] ?? Sparkles;
               return (
-                <div key={x.t} className="rounded-2xl border border-line bg-surface p-7">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10">
-                    <Icon className="h-5 w-5 text-accent" />
+                <Reveal key={item} index={i} className="rounded-2xl border border-line bg-surface p-8">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10">
+                    <Icon className="h-6 w-6 text-accent" />
                   </span>
-                  <h3 className="mt-5 text-xl font-medium text-ink">{x.t}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted">{x.d}</p>
-                </div>
+                  <h3 className="mt-6 text-xl font-medium text-ink">{item}</h3>
+                </Reveal>
               );
             })}
           </div>
@@ -443,20 +467,24 @@ export default function PresentationDeck({
       render: () => (
         <div className="flex flex-col items-center text-center">
           <Wordmark />
-          <h2 className="mt-8 max-w-2xl text-5xl font-medium leading-[1.05] tracking-[-0.02em] text-ink sm:text-6xl">
-            {t.closing.title1}
-            <br />
-            {t.closing.title2}
-          </h2>
-          <p className="mx-auto mt-6 max-w-md text-lg text-muted">{t.closing.subtitle}</p>
-          <Link
-            href="/screen"
-            className="mt-9 inline-flex items-center gap-2 rounded-lg bg-ink px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90"
-          >
-            {t.closing.cta}
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-          <p className="mt-8 text-sm text-faint">{t.closing.contact}</p>
+          <StreamingText
+            text={`${t.closing.title1}\n${t.closing.title2}`}
+            speed={40}
+            startDelay={300}
+            className="mt-8 max-w-2xl justify-center text-5xl font-medium leading-[1.05] tracking-[-0.02em] text-ink sm:text-6xl"
+          />
+          <Reveal index={0} base={1400}>
+            <Link
+              href="/screen"
+              className="mt-9 inline-flex items-center gap-2 rounded-lg bg-ink px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90"
+            >
+              {t.closing.cta}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Reveal>
+          <Reveal index={1} base={1550}>
+            <p className="mt-8 text-sm text-faint">{t.closing.contact}</p>
+          </Reveal>
         </div>
       ),
     },
@@ -499,11 +527,9 @@ export default function PresentationDeck({
   }, [total]);
 
   const slide = slides[index];
-  const otherLocale: Locale = locale === 'en' ? 'bg' : 'en';
 
   return (
     <main className="relative flex h-screen w-full flex-col overflow-hidden bg-canvas">
-      {/* Progress bar */}
       <div className="h-1 w-full bg-line">
         <div
           className="h-full bg-accent transition-all duration-500 ease-out"
@@ -511,13 +537,11 @@ export default function PresentationDeck({
         />
       </div>
 
-      {/* Header */}
       <header className="flex items-center justify-between px-6 py-5 sm:px-10">
         <Link href="/" aria-label="Back to home">
           <Wordmark />
         </Link>
         <div className="flex items-center gap-5">
-          {/* Language switcher */}
           <div className="flex items-center gap-1 text-sm">
             <Link
               href="/en/presentation"
@@ -542,14 +566,12 @@ export default function PresentationDeck({
         </div>
       </header>
 
-      {/* Slide content */}
       <section className="flex flex-1 items-center overflow-y-auto px-6 sm:px-10">
-        <div key={`${locale}-${slide.id}`} className="mx-auto w-full max-w-5xl animate-slide-up py-6">
+        <div key={`${locale}-${slide.id}`} className="mx-auto w-full max-w-5xl py-6">
           {slide.render()}
         </div>
       </section>
 
-      {/* Footer / nav */}
       <footer className="flex items-center justify-between px-6 py-5 sm:px-10">
         <button
           onClick={() => go(index - 1)}
