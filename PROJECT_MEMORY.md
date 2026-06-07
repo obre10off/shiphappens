@@ -2,7 +2,7 @@
 
 > **Living memory of this project.** Keep this file current — see the rule in
 > [CLAUDE.md](./CLAUDE.md). Update it whenever a plan file changes or a build step ships.
-> Last updated: 2026-06-07.
+> Last updated: 2026-06-07 (full implementation landed).
 
 ## What we're building
 
@@ -25,11 +25,19 @@ PEP status, and adverse media in ~8s instead of 45 min.* Built for a hackathon.
 ## Stack & decisions
 
 - **Next.js 15** (App Router) + React 19 + Tailwind, deployed on **Vercel**.
+- **AI SDK:** upgraded to latest — `ai@^6` + `@ai-sdk/anthropic@^3` (v6 API: `tool({ inputSchema })`,
+  `stopWhen: stepCountIs()`, tool results at `result.steps[].toolResults[].output`). Next stayed at 15.3.3,
+  zod at 3.25 (deliberately not bumped to avoid destabilizing the scaffold). `vitest@^4` added for tests.
 - **LLM:** Anthropic Claude (`claude-sonnet-4-6`, bump to `claude-opus-4-8` if synthesis needs it).
-- **Search:** Serper.dev in DEV_PLAN; **Tavily** chosen in the BUILD_PLAN track (1k free credits/mo, no card).
-  ⚠️ *Open discrepancy to reconcile: DEV_PLAN says Serper, BUILD_PLAN says Tavily.*
-- **PDF:** `@react-pdf/renderer` (server) or `jspdf` (client).
-- Env vars: `OPENSANCTIONS_API_KEY`, `SERPER_API_KEY`/`TAVILY_API_KEY`, `ANTHROPIC_API_KEY`, `OPENSANCTIONS_SCOPE`.
+- **Search:** ✅ **Tavily** chosen (user decision 2026-06-07; resolves the prior Serper/Tavily discrepancy).
+  `https://api.tavily.com/search`, `Authorization: Bearer`, `topic:news`, `max_results: 5`.
+- **PDF:** `@react-pdf/renderer` (server-side, `renderToBuffer` in the route).
+- Env vars (canonical, in `.env`): `OPENSANCTIONS_API_KEY`, `TAVILY_API_KEY`, `ANTHROPIC_API_KEY`,
+  `OPENSANCTIONS_SCOPE`. (User initially named them `ANTHROPIC_KEY`/`TAVILY_KEY`; renamed to the `_API_KEY`
+  forms the SDK + code expect.)
+- **OpenSanctions gotcha:** the `/match` endpoint returns an EMPTY top-level `topics`; the real
+  classification (`sanction`, `role.pep`, …) lives under `properties.topics`. `lib/sanctions/map.ts`
+  reads `properties.topics` as the fallback — this is what makes PEP/sanction detection work.
 
 ## Plan files (sources of truth)
 
@@ -45,13 +53,29 @@ PEP status, and adverse media in ~8s instead of 45 min.* Built for a hackathon.
 
 - [x] Next.js app scaffolded (`app/`, config, `package.json`, pitch deck HTML).
 - [x] Planning docs written (DEV_PLAN + part specs + BUILD_PLAN).
-- [ ] Shared contracts/types + data files (`lib/contracts`, `lib/data`).
-- [ ] Part 1 — OpenSanctions `searchSanctions` tool.
-- [ ] Part 2 — agent + `/api/screen` + adverse-media tool.
-- [ ] Part 3 — scoring engine + report + PDF.
-- [ ] Part 4 — frontend form / progress / dashboard.
-- [ ] End-to-end real screening, deploy to Vercel.
+- [x] Shared contracts/types + data files (`lib/contracts`, `lib/data`) + `mocks.ts` + `.env.example`.
+- [x] Part 1 — OpenSanctions `searchSanctions` + `sanctionsTool` (`lib/sanctions/`), unit + live tests.
+- [x] Part 2 — single agent + `/api/screen` SSE route + Tavily adverse-media tool + social stretch.
+- [x] Part 3 — scoring engine + per-category scores + PDF export + `/api/report/pdf`.
+- [x] Part 4 — frontend: 5-field form, streaming progress, risk dashboard, PDF download, `?mock=1` toggle.
+- [x] End-to-end real screening verified (HIGH for Yanukovych, CLEAR for random name); PDF renders.
+- [ ] Deploy to Vercel with env vars set.
+
+### Known caveats
+- **Latency:** a live run is ~40–70s (agent orchestration LLM call + adverse-media `generateObject`),
+  close to the route's `maxDuration = 60`. The `?mock=1` toggle is the demo safety net. Could be sped up
+  by skipping the orchestration LLM and calling the tool functions directly (the deterministic fallback
+  path in `lib/agent/agent.ts` already does this when the model doesn't call a tool).
+- **Social** tool exists (`lib/social/tool.ts`) but is intentionally NOT wired into the default agent;
+  the route ships `social: null` and weights renormalize.
 
 ## Progress log
 
-- **2026-06-07** — Repo set up; DEV_PLAN + part specs + BUILD_PLAN authored; project memory + update rule added. No business logic implemented yet.
+- **2026-06-07** — Repo set up; DEV_PLAN + part specs + BUILD_PLAN authored; project memory + update rule added.
+- **2026-06-07** — Implemented ALL parts in one pass (single-dev). Upgraded to AI SDK v6 / anthropic v3,
+  added vitest. Built `lib/{contracts,scoring,report,sanctions,google,social,agent,client}`, the
+  `/api/screen` (NDJSON streaming) and `/api/report/pdf` routes, and refactored `app/screen/page.tsx`
+  + `components/` into the real form→stream→dashboard flow. Switched adverse-media search from Serper to
+  **Tavily** (user decision) and capped it at 5 results. Fixed OpenSanctions PEP/sanction detection
+  (`properties.topics` fallback). 33 unit tests green (+2 live skipped). `next build` clean. Verified live
+  end-to-end against real Anthropic + Tavily + OpenSanctions keys.
