@@ -2,7 +2,7 @@
 
 > **Living memory of this project.** Keep this file current — see the rule in
 > [CLAUDE.md](./CLAUDE.md). Update it whenever a plan file changes or a build step ships.
-> Last updated: 2026-06-07 (added a "review"-band mock fixture + per-step timeouts in the mock workflow).
+> Last updated: 2026-06-07 (EU Sanctions Tracker as a second source check; demo-grade `/screen` form polish: card pop-out + country autocomplete).
 
 ## What we're building
 
@@ -79,16 +79,22 @@ PEP status, and adverse media in ~8s instead of 45 min.* Built for a hackathon.
 
 ## Progress log
 
-- **2026-06-07** — **"Review"-band mock fixture + per-step mock timeouts.** Added
-  `mockRiskReportReview` (the real Oleg Nevzorov run — `band: review`, score 33, empty
-  sanctions/EU, rich adverse media: 14 sources, 10-entry timeline, one high-risk activity flag) to
-  `lib/contracts/mocks.ts` alongside `mockInputReview`/`mockSanctionsReview`/`mockEuSanctionsReview`/
-  `mockAdverseMediaReview`. `?mock=1` now picks it when the name matches `/nevzorov/i` (clear →
-  kovacheva/asdf/qwerty, else high). Replaced the uniform 1.4s-per-phase cadence in `runMock`
-  (`app/screen/page.tsx`) with a `PHASE_DURATIONS_MS` map (sanctions 1.6s · eu_sanctions 1.2s ·
-  adverse_media 4.5s · synthesis 1.8s, `PHASE_GAP_MS` 200ms) walked via a cumulative `cursor`, so each
-  step has its own timeout and adverse media visibly dominates — mirroring the real run's
-  `durationMs`. `tsc` clean, no lint errors. Added `lib/config.ts` as the
+- **2026-06-07** — **`/screen` form polished for live demo.** The input form now "pops out":
+  wrapped in a raised white card (`bg-surface` + `border` + new `shadow-raised` token added to
+  `tailwind.config.ts`) with an indigo accent hairline along the top, a shield icon badge in the
+  header, an ambient accent glow behind the card, and a demo-prefill toolbar grouped in a tinted
+  panel. Inputs upgraded in `app/globals.css`: larger padding/font, `surface-alt` fill that turns
+  white on focus, a 4px accent focus glow, hover border, and leading-icon support
+  (`.field-wrap`/`.field-lead`/`.field-has-lead`) — name/company/date/case-context now carry
+  lucide icons. **The native country `<select>` was replaced by a new
+  `components/CountryAutocomplete.tsx`** — a filtering combobox with flag emojis (reuses
+  `toIso2` from `lib/sanctions/countries.ts` → regional-indicator pairs), startsWith→contains
+  ranking, full keyboard nav (↑/↓/Enter/Esc/Tab + `aria-activedescendant`), click-outside close,
+  and a clear (×) button; `onChange` emits the display-name string so `ScreeningInput.country`
+  and the downstream engine are unchanged. Also fixed a pre-existing controlled→uncontrolled React
+  warning by merging demo prefills over `empty` (`{ ...empty, ...DEMO_* }`). `next build` + `tsc`
+  clean; verified in-browser (desktop + 390px mobile, filter/select/prefill flows, clean console).
+- **2026-06-07** — **Feature-flagged the agent tool-call visuals.** Added `lib/config.ts` as the
   single source of truth for feature flags, with `featureFlags.showAgentToolCalls` (default
   **false**). The `ToolCallStream` ("Agent tool calls") render on `/screen` is now gated behind that
   flag; the agent's tool-calling loop is unchanged — only the visual surface is hidden. Flip the flag
