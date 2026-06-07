@@ -40,14 +40,15 @@ body {
 /* Form inputs */
 .field {
   width: 100%;
-  background: var(--color-surface);
+  background: var(--color-surface-alt);
   border: 1px solid var(--color-line);
-  border-radius: 10px;
-  padding: 11px 14px;
-  font-size: 14px;
+  border-radius: 12px;
+  padding: 13px 15px;
+  font-size: 15px;
+  line-height: 1.4;
   color: var(--color-ink);
   font-family: inherit;
-  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
   outline: none;
   -webkit-appearance: none;
   appearance: none;
@@ -55,9 +56,13 @@ body {
 .field::placeholder {
   color: var(--color-placeholder);
 }
+.field:hover:not(:focus):not(:disabled) {
+  border-color: rgba(10, 10, 10, 0.22);
+}
 .field:focus {
   border-color: var(--color-accent);
-  background: var(--color-accent-dim);
+  background: var(--color-surface);
+  box-shadow: 0 0 0 4px var(--color-accent-dim);
 }
 .field:disabled {
   opacity: 0.5;
@@ -66,6 +71,86 @@ body {
 select.field option {
   background: var(--color-surface);
   color: var(--color-ink);
+}
+
+/* Inputs with a leading icon / trailing affordance */
+.field-wrap {
+  position: relative;
+  display: block;
+}
+.field-has-lead {
+  padding-left: 42px;
+}
+.field-has-trail {
+  padding-right: 40px;
+}
+.field-lead {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-muted);
+  pointer-events: none;
+  z-index: 1;
+}
+.field-wrap[data-open] .field-lead {
+  color: var(--color-accent);
+}
+.field-trail {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+}
+.field-trail-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  color: var(--color-faint, #9a9a9a);
+  background: transparent;
+  transition: background 0.15s, color 0.15s;
+}
+.field-trail-btn:hover {
+  background: var(--color-surface-alt);
+  color: var(--color-ink);
+}
+
+/* Autocomplete / combobox menu */
+.combobox-menu {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  max-height: 264px;
+  overflow-y: auto;
+  padding: 6px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(10, 10, 10, 0.14);
+}
+.combobox-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  border-radius: 9px;
+  font-size: 14px;
+  color: var(--color-ink);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.combobox-option.is-active {
+  background: var(--color-accent-dim);
 }
 
 /* Accent focus ring for interactive elements */

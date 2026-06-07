@@ -2,7 +2,7 @@
 
 > **Living memory of this project.** Keep this file current — see the rule in
 > [CLAUDE.md](./CLAUDE.md). Update it whenever a plan file changes or a build step ships.
-> Last updated: 2026-06-07 (added EU Sanctions Tracker as a second source check after the primary sanctions check).
+> Last updated: 2026-06-07 (EU Sanctions Tracker as a second source check; demo-grade `/screen` form polish: card pop-out + country autocomplete).
 
 ## What we're building
 
@@ -79,6 +79,21 @@ PEP status, and adverse media in ~8s instead of 45 min.* Built for a hackathon.
 
 ## Progress log
 
+- **2026-06-07** — **`/screen` form polished for live demo.** The input form now "pops out":
+  wrapped in a raised white card (`bg-surface` + `border` + new `shadow-raised` token added to
+  `tailwind.config.ts`) with an indigo accent hairline along the top, a shield icon badge in the
+  header, an ambient accent glow behind the card, and a demo-prefill toolbar grouped in a tinted
+  panel. Inputs upgraded in `app/globals.css`: larger padding/font, `surface-alt` fill that turns
+  white on focus, a 4px accent focus glow, hover border, and leading-icon support
+  (`.field-wrap`/`.field-lead`/`.field-has-lead`) — name/company/date/case-context now carry
+  lucide icons. **The native country `<select>` was replaced by a new
+  `components/CountryAutocomplete.tsx`** — a filtering combobox with flag emojis (reuses
+  `toIso2` from `lib/sanctions/countries.ts` → regional-indicator pairs), startsWith→contains
+  ranking, full keyboard nav (↑/↓/Enter/Esc/Tab + `aria-activedescendant`), click-outside close,
+  and a clear (×) button; `onChange` emits the display-name string so `ScreeningInput.country`
+  and the downstream engine are unchanged. Also fixed a pre-existing controlled→uncontrolled React
+  warning by merging demo prefills over `empty` (`{ ...empty, ...DEMO_* }`). `next build` + `tsc`
+  clean; verified in-browser (desktop + 390px mobile, filter/select/prefill flows, clean console).
 - **2026-06-07** — **Feature-flagged the agent tool-call visuals.** Added `lib/config.ts` as the
   single source of truth for feature flags, with `featureFlags.showAgentToolCalls` (default
   **false**). The `ToolCallStream` ("Agent tool calls") render on `/screen` is now gated behind that
