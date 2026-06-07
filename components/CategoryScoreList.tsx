@@ -3,19 +3,14 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { CategoryScore } from '@/lib/contracts/types';
-
-function barColor(score: number): string {
-  if (score >= 60) return '#c0564b';
-  if (score >= 25) return '#bf9040';
-  return '#475569';
-}
+import { scoreColor } from '@/lib/theme';
 
 function isUrl(s: string): boolean {
   return /^https?:\/\//i.test(s);
 }
 
 function ScoreRow({ c }: { c: CategoryScore }) {
-  const color = barColor(c.score);
+  const color = scoreColor(c.score);
   return (
     <div className={`py-2.5 ${c.present ? '' : 'opacity-50'}`}>
       <div className="flex items-center gap-3">
@@ -44,7 +39,7 @@ function ScoreRow({ c }: { c: CategoryScore }) {
                 href={e}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[11px] text-[#5b7ba6] bg-[#5b7ba6]/10 border border-[#5b7ba6]/20 px-2 py-0.5 rounded hover:bg-[#5b7ba6]/20 transition-colors max-w-[220px] truncate"
+                className="text-[11px] text-accent bg-accent/10 border border-accent/20 px-2 py-0.5 rounded hover:bg-accent/20 transition-colors max-w-[220px] truncate"
               >
                 {e.replace(/^https?:\/\/(www\.)?/, '')}
               </a>

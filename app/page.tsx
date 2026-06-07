@@ -3,20 +3,20 @@ import { Shield, Zap, FileText, ArrowRight, AlertTriangle, CheckCircle } from 'l
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#0f172a] flex flex-col">
+    <main className="min-h-screen bg-canvas flex flex-col">
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-4 border-b border-white/5">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-[#5b7ba6] flex items-center justify-center">
-            <Shield className="w-4 h-4 text-[#0f172a]" strokeWidth={2.5} />
+          <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center">
+            <Shield className="w-4 h-4 text-canvas" strokeWidth={2.5} />
           </div>
           <span className="font-bold text-lg tracking-tight">
-            Ship<span className="text-[#5b7ba6]">Happens</span>
+            Ship<span className="text-accent">Happens</span>
           </span>
         </div>
         <Link
           href="/screen"
-          className="flex items-center gap-2 bg-[#5b7ba6] text-white font-semibold text-sm px-4 py-2 rounded-lg hover:bg-[#7a97bd] transition-colors"
+          className="flex items-center gap-2 bg-accent text-white font-semibold text-sm px-4 py-2 rounded-lg hover:bg-accent-hover transition-colors"
         >
           Start Screening
           <ArrowRight className="w-4 h-4" />
@@ -56,7 +56,7 @@ export default function Home() {
 
           <Link
             href="/screen"
-            className="inline-flex items-center gap-2 bg-[#5b7ba6] text-white font-semibold text-base px-8 py-4 rounded-lg hover:bg-[#7a97bd] transition-colors"
+            className="inline-flex items-center gap-2 bg-accent text-white font-semibold text-base px-8 py-4 rounded-lg hover:bg-accent-hover transition-colors"
           >
             Start a new screening
             <ArrowRight className="w-5 h-5" />
@@ -88,7 +88,7 @@ export default function Home() {
                   <span>• PEP Tier 1 — Former President of Ukraine</span>
                   <span>• 47 adverse media articles</span>
                 </div>
-                <div className="mt-5 flex items-center gap-1.5 text-[#5b7ba6] text-sm font-semibold group-hover:gap-3 transition-all">
+                <div className="mt-5 flex items-center gap-1.5 text-accent text-sm font-semibold group-hover:gap-3 transition-all">
                   Run this demo
                   <ArrowRight className="w-4 h-4" />
                 </div>
@@ -96,12 +96,12 @@ export default function Home() {
             </Link>
 
             <Link href="/screen?demo=clear" className="group">
-              <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-6 hover:border-[#4f8a6d]/40 hover:bg-[#4f8a6d]/5 transition-all cursor-pointer">
+              <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-6 hover:border-risk-clear/40 hover:bg-risk-clear/5 transition-all cursor-pointer">
                 <div className="flex items-start justify-between mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#4f8a6d]/10 border border-[#4f8a6d]/20 flex items-center justify-center">
-                    <CheckCircle className="w-5 h-5 text-[#4f8a6d]" />
+                  <div className="w-10 h-10 rounded-xl bg-risk-clear/10 border border-risk-clear/20 flex items-center justify-center">
+                    <CheckCircle className="w-5 h-5 text-risk-clear" />
                   </div>
-                  <span className="text-xs font-bold text-[#4f8a6d] bg-[#4f8a6d]/10 border border-[#4f8a6d]/20 px-2.5 py-1 rounded-full">
+                  <span className="text-xs font-bold text-risk-clear bg-risk-clear/10 border border-risk-clear/20 px-2.5 py-1 rounded-full">
                     CLEAR
                   </span>
                 </div>
@@ -112,7 +112,7 @@ export default function Home() {
                   <span>• Not a PEP — no political exposure</span>
                   <span>• 0 adverse media results</span>
                 </div>
-                <div className="mt-5 flex items-center gap-1.5 text-[#5b7ba6] text-sm font-semibold group-hover:gap-3 transition-all">
+                <div className="mt-5 flex items-center gap-1.5 text-accent text-sm font-semibold group-hover:gap-3 transition-all">
                   Run this demo
                   <ArrowRight className="w-4 h-4" />
                 </div>

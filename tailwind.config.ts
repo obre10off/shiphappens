@@ -1,39 +1,38 @@
 import type { Config } from 'tailwindcss';
+import plugin from 'tailwindcss/plugin';
+import {
+  cssVars,
+  fontFamily,
+  fontSize,
+  radius,
+  shadow,
+  tailwindColors,
+} from './lib/theme';
 
 const config: Config = {
-  content: [
-    './app/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/**/*.{js,ts,jsx,tsx,mdx}',
-  ],
+  content: ['./app/**/*.{js,ts,jsx,tsx,mdx}', './components/**/*.{js,ts,jsx,tsx,mdx}'],
   theme: {
     extend: {
+      // All design tokens come from lib/theme.ts — the single source of truth.
       colors: {
-        // Cool slate base
-        navy: {
-          DEFAULT: '#0f172a',
-          800: '#1e293b',
-          700: '#334155',
-          600: '#475569',
-        },
-        // Restrained steel-blue accent (token name kept as `teal` for compatibility)
-        teal: {
-          DEFAULT: '#5b7ba6',
-          400: '#7a97bd',
-          600: '#48637f',
-        },
-        // Desaturated risk signals — these are the only saturated colors in the UI
-        // and only appear on actual results. Merged into Tailwind's default scales.
-        red: {
-          400: '#cf7b72',
-          500: '#c0564b',
-        },
-        amber: {
-          400: '#cda85c',
-          500: '#bf9040',
-        },
+        ...tailwindColors,
+        // Legacy aliases kept so any stragglers don't break (prefer the tokens above).
+        navy: { DEFAULT: tailwindColors.canvas },
+        teal: { DEFAULT: tailwindColors.accent.DEFAULT, 400: tailwindColors.accent.hover },
+      },
+      borderRadius: {
+        // New semantic token; existing rounded-md/lg/xl/2xl keep Tailwind defaults.
+        card: radius.card,
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: [...fontFamily.sans],
+      },
+      fontSize: {
+        '4xl': fontSize['4xl'],
+        '6xl': fontSize['6xl'],
+      },
+      boxShadow: {
+        card: shadow.card,
       },
       animation: {
         'pulse-slow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -42,10 +41,7 @@ const config: Config = {
         'spin-slow': 'spin 1.5s linear infinite',
       },
       keyframes: {
-        fadeIn: {
-          '0%': { opacity: '0' },
-          '100%': { opacity: '1' },
-        },
+        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
         slideUp: {
           '0%': { opacity: '0', transform: 'translateY(16px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
@@ -53,7 +49,13 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // Inject the theme tokens as :root CSS variables so plain CSS (globals.css)
+    // and Tailwind utilities share one source.
+    plugin(({ addBase }) => {
+      addBase({ ':root': cssVars });
+    }),
+  ],
 };
 
 export default config;

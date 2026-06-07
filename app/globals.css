@@ -3,14 +3,11 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --navy: #0f172a;
-  --navy-card: rgba(255, 255, 255, 0.04);
-  --navy-border: rgba(255, 255, 255, 0.08);
-  --teal: #5b7ba6;
-  --teal-dim: rgba(91, 123, 166, 0.1);
-  --teal-border: rgba(91, 123, 166, 0.3);
-}
+/*
+ * Design tokens (--color-*) are injected at :root from lib/theme.ts by the
+ * Tailwind base plugin (see tailwind.config.ts). Reference them here; do not
+ * hardcode hex values.
+ */
 
 * {
   box-sizing: border-box;
@@ -18,7 +15,7 @@
 
 html,
 body {
-  background-color: var(--navy);
+  background-color: var(--color-canvas);
   color: white;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -37,7 +34,7 @@ body {
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(91, 123, 166, 0.4);
+  background: var(--color-accent-strong);
 }
 
 /* Form inputs */
@@ -59,20 +56,20 @@ body {
   color: rgba(255, 255, 255, 0.25);
 }
 .field:focus {
-  border-color: var(--teal);
-  background: rgba(91, 123, 166, 0.06);
+  border-color: var(--color-accent);
+  background: var(--color-accent-dim);
 }
 .field:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
 select.field option {
-  background: #1e293b;
+  background: var(--color-surface);
   color: white;
 }
 
-/* Teal focus ring for interactive elements */
+/* Accent focus ring for interactive elements */
 .focus-teal:focus-visible {
-  outline: 2px solid var(--teal);
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }

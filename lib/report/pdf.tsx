@@ -8,20 +8,12 @@ import {
   Text,
   View,
 } from '@react-pdf/renderer';
-import type { CategoryScore, RiskBand, RiskReport } from '@/lib/contracts/types';
+import type { CategoryScore, RiskReport } from '@/lib/contracts/types';
+import { bandColor, colors, neutral, print, scoreColor } from '@/lib/theme';
 
-const NAVY = '#0f172a';
-const TEAL = '#5b7ba6'; // steel-blue accent
-const RED = '#c0564b';
-const AMBER = '#bf9040';
-const GREEN = '#4f8a6d';
-const MUTED = '#64748b';
-
-const bandColor: Record<RiskBand, string> = {
-  high: RED,
-  review: AMBER,
-  clear: GREEN,
-};
+const NAVY = colors.canvas;
+const TEAL = colors.accent; // steel-blue accent
+const MUTED = neutral[500];
 
 const styles = StyleSheet.create({
   page: { padding: 40, fontSize: 10, color: '#1e293b', fontFamily: 'Helvetica' },
@@ -44,17 +36,17 @@ const styles = StyleSheet.create({
   para: { lineHeight: 1.5, marginBottom: 4 },
   row: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
   rowLabel: { flex: 1, paddingRight: 8 },
-  barTrack: { width: 120, height: 8, backgroundColor: '#e2e8f0', borderRadius: 4, marginRight: 8 },
+  barTrack: { width: 120, height: 8, backgroundColor: print.barTrack, borderRadius: 4, marginRight: 8 },
   barFill: { height: 8, borderRadius: 4 },
   rowScore: { width: 28, textAlign: 'right', fontFamily: 'Helvetica-Bold' },
   timelineItem: { flexDirection: 'row', marginBottom: 3 },
   timelineDate: { width: 70, color: MUTED },
-  source: { color: '#2563eb', marginBottom: 2 },
+  source: { color: print.link, marginBottom: 2 },
   footer: { position: 'absolute', bottom: 24, left: 40, right: 40, fontSize: 8, color: MUTED, textAlign: 'center' },
 });
 
 function ScoreRow({ c }: { c: CategoryScore }) {
-  const color = c.score >= 60 ? RED : c.score >= 25 ? AMBER : MUTED;
+  const color = scoreColor(c.score);
   return (
     <View style={styles.row}>
       <Text style={styles.rowLabel}>{c.label}</Text>

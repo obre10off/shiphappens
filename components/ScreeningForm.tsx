@@ -38,7 +38,7 @@ function Label({ children, required, tip }: { children: React.ReactNode; require
     <div className="flex items-center gap-1.5 mb-1.5">
       <label className="text-sm font-medium text-slate-300">
         {children}
-        {required && <span className="text-[#5b7ba6] ml-0.5">*</span>}
+        {required && <span className="text-accent ml-0.5">*</span>}
       </label>
       {tip && (
         <span className="text-xs text-slate-500 flex items-center gap-0.5">
@@ -77,7 +77,7 @@ export function ScreeningForm({ onSubmit }: { onSubmit: (input: ScreeningInput) 
       {/* Demo prefills */}
       <div className="flex items-center gap-3 flex-wrap">
         <span className="text-xs text-slate-500 flex items-center gap-1.5">
-          <Zap className="w-3.5 h-3.5 text-[#5b7ba6]" /> Quick demo:
+          <Zap className="w-3.5 h-3.5 text-accent" /> Quick demo:
         </span>
         <button
           onClick={() => setForm(DEMO_HIGH_RISK)}
@@ -87,7 +87,7 @@ export function ScreeningForm({ onSubmit }: { onSubmit: (input: ScreeningInput) 
         </button>
         <button
           onClick={() => setForm(DEMO_CLEAR)}
-          className="flex items-center gap-1.5 text-xs font-semibold text-[#4f8a6d] bg-[#4f8a6d]/10 border border-[#4f8a6d]/20 px-3 py-1.5 rounded-full hover:bg-[#4f8a6d]/15 transition-colors"
+          className="flex items-center gap-1.5 text-xs font-semibold text-risk-clear bg-risk-clear/10 border border-risk-clear/20 px-3 py-1.5 rounded-full hover:bg-risk-clear/15 transition-colors"
         >
           <CheckCircle className="w-3 h-3" /> Kovacheva — CLEAR
         </button>
@@ -153,7 +153,7 @@ export function ScreeningForm({ onSubmit }: { onSubmit: (input: ScreeningInput) 
         className={`w-full flex items-center justify-center gap-2 font-bold text-sm py-3 px-6 rounded-xl transition-all focus-teal
           ${
             canSubmit
-              ? 'bg-[#5b7ba6] text-white hover:bg-[#7a97bd]'
+              ? 'bg-accent text-white hover:bg-accent-hover'
               : 'bg-white/5 text-slate-600 cursor-not-allowed'
           }`}
       >
