@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShipHappens — Pitch Deck</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --navy: #0d1b2a;
+    --navy2: #112233;
+    --teal: #00c9a7;
+    --teal2: #00e5c0;
+    --teal-dim: rgba(0,201,167,0.12);
+    --teal-border: rgba(0,201,167,0.3);
+    --white: #ffffff;
+    --gray: #94a3b8;
+    --gray-light: #e2e8f0;
+    --red: #f43f5e;
+    --amber: #f59e0b;
+    --green: #10b981;
+    --slide-w: 1280px;
+    --slide-h: 720px;
+  }
+
+  body {
+    background: #060e18;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    overflow: hidden;
+  }
+
+  .deck {
+    width: var(--slide-w);
+    height: var(--slide-h);
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.7);
+  }
+
+  .slide {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    inset: 0;
+    display: none;
+    background: var(--navy);
+    color: var(--white);
+  }
+  .slide.active { display: flex; }
+
+  /* ── NAV ── */
+  .nav {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(13,27,42,0.92);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0,201,167,0.2);
+    border-radius: 40px;
+    padding: 10px 22px;
+    z-index: 100;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+  }
+  .nav button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 17px;
+    color: var(--gray);
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: all .15s;
+  }
+  .nav button:hover { color: var(--teal); }
+  .nav-dots { display: flex; gap: 6px; }
+  .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #334155;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .dot.active { background: var(--teal); width: 22px; border-radius: 4px; }
+  .counter { font-size: 12px; color: #475569; min-width: 36px; text-align: center; font-variant-numeric: tabular-nums; }
+
+  /* ── SHARED LAYOUT ── */
+  .pad { padding: 52px 64px; flex-direction: column; }
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--teal);
+    background: var(--teal-dim);
+    border: 1px solid var(--teal-border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    margin-bottom: 16px;
+    width: fit-content;
+  }
+  .h1 { font-size: 48px; font-weight: 800; letter-spacing: -1.5px; line-height: 1.1; }
+  .h1 em { font-style: normal; color: var(--teal); }
+  .h2 { font-size: 36px; font-weight: 800; letter-spacing: -1px; line-height: 1.15; }
+  .h2 em { font-style: normal; color: var(--teal); }
+  .sub { font-size: 16px; color: var(--gray); line-height: 1.6; margin-top: 10px; }
+
+  /* grid utility */
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+  /* card */
+  .card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 24px;
+  }
+  .card.teal-border { border-color: var(--teal-border); background: var(--teal-dim); }
+
+  /* teal rule */
+  .rule { width: 48px; height: 3px; background: var(--teal); border-radius: 2px; margin-bottom: 20px; }
+
+  /* ══════════════ SLIDE 1 — TITLE ══════════════ */
+  #s1 {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--navy);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+  #s1 .bg-glow {
+    position: absolute;
+    width: 640px; height: 640px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,201,167,0.18) 0%, transparent 65%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  #s1 .bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,201,167,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,201,167,0.04) 1px, transparent 1px);
+    background-size: 64px 64px;
+    pointer-events: none;
+  }
+  .shield {
+    width: 88px; height: 88px;
+    background: linear-gradient(135deg, var(--teal), var(--teal2));
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    margin: 0 auto 28px;
+    z-index: 1;
+    box-shadow: 0 0 48px rgba(0,201,167,0.4);
+  }
+  .brand { font-size: 56px; font-weight: 900; letter-spacing: -2px; z-index: 1; }
+  .brand span { color: var(--teal); }
+  .tagline {
+    font-size: 20px;
+    color: var(--gray);
+    max-width: 560px;
+    line-height: 1.5;
+    margin: 12px auto 40px;
+    z-index: 1;
+  }
+  .tagline strong { color: var(--white); font-weight: 600; }
+  .s1-chips { display: flex; gap: 12px; justify-content: center; z-index: 1; }
+  .chip {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--white);
+  }
+  .chip span { color: var(--teal); }
+
+  /* ══════════════ SLIDE 2 — PROBLEM ══════════════ */
+  #s2 { padding: 48px 64px 0; flex-direction: column; }
+  .pain-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    flex: 1;
+    padding-bottom: 0;
+  }
+  .pain-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  .pain-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .pain-card.red::after { background: var(--red); }
+  .pain-card.amber::after { background: var(--amber); }
+  .pain-card.teal::after { background: var(--teal); }
+  .pain-icon { font-size: 32px; margin-bottom: 16px; }
+  .pain-stat { font-size: 52px; font-weight: 900; letter-spacing: -2px; line-height: 1; }
+  .pain-card.red .pain-stat { color: var(--red); }
+  .pain-card.amber .pain-stat { color: var(--amber); }
+  .pain-card.teal .pain-stat { color: var(--teal); }
+  .pain-unit { font-size: 22px; font-weight: 700; }
+  .pain-title { font-size: 16px; font-weight: 700; color: var(--white); margin: 8px 0 6px; }
+  .pain-desc { font-size: 13px; color: var(--gray); line-height: 1.6; flex: 1; }
+  .stat-bar {
+    display: flex;
+    background: rgba(255,255,255,0.04);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    margin: 0 -64px;
+  }
+  .stat-bar-item {
+    flex: 1;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+  .stat-bar-item:last-child { border-right: none; }
+  .sb-icon { font-size: 20px; }
+  .sb-text { font-size: 13px; color: var(--gray); line-height: 1.4; }
+  .sb-text strong { color: var(--white); font-weight: 600; }
+
+  /* ══════════════ SLIDE 3 — SOLUTION ══════════════ */
+  #s3 { padding: 48px 64px; flex-direction: column; }
+  .workflow-row {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    flex: 1;
+    margin-top: 8px;
+  }
+  .wstep {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 20px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+  }
+  .wstep-n {
+    width: 26px; height: 26px;
+    background: var(--teal);
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--navy);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+  .wstep-icon { font-size: 24px; margin-bottom: 8px; }
+  .wstep-title { font-size: 13px; font-weight: 700; color: var(--white); margin-bottom: 6px; }
+  .wstep-desc { font-size: 11px; color: var(--gray); line-height: 1.5; }
+  .wstep-source {
+    margin-top: auto;
+    font-size: 10px;
+    color: var(--teal);
+    background: var(--teal-dim);
+    border: 1px solid var(--teal-border);
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin-top: 10px;
+    font-weight: 600;
+  }
+  .warrow {
+    display: flex;
+    align-items: center;
+    color: var(--teal);
+    font-size: 18px;
+    padding: 0 6px;
+    flex-shrink: 0;
+  }
+  .output-row {
+    display: flex;
+    gap: 14px;
+    margin-top: 18px;
+  }
+  .out-item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--teal-dim);
+    border: 1px solid var(--teal-border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--teal);
+  }
+  .out-item span { font-size: 18px; }
+
+  /* ══════════════ SLIDE 4 — LIVE DEMO ══════════════ */
+  #s4 { padding: 48px 64px; flex-direction: column; }
+  .demo-layout { display: flex; gap: 28px; flex: 1; margin-top: 8px; }
+  .demo-browser {
+    flex: 1.1;
+    background: #0a1628;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .browser-bar {
+    background: #0d1f35;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .bdot { width: 10px; height: 10px; border-radius: 50%; }
+  .burl {
+    flex: 1;
+    background: rgba(255,255,255,0.06);
+    border-radius: 5px;
+    height: 22px;
+    margin-left: 8px;
+    padding: 0 10px;
+    font-size: 11px;
+    color: #475569;
+    font-family: monospace;
+    display: flex;
+    align-items: center;
+  }
+  .browser-body { flex: 1; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+  .input-row { display: flex; gap: 8px; }
+  .finput {
+    flex: 1;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 7px;
+    padding: 9px 13px;
+    font-size: 13px;
+    color: var(--white);
+  }
+  .finput.sm { max-width: 110px; flex: none; }
+  .fbtn {
+    background: var(--teal);
+    color: var(--navy);
+    border: none;
+    border-radius: 7px;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: default;
+    white-space: nowrap;
+  }
+  .steps-list { display: flex; flex-direction: column; gap: 7px; }
+  .dstep {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 7px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  .dstep-icon { font-size: 14px; flex-shrink: 0; }
+  .dstep-label { flex: 1; color: #cbd5e1; }
+  .dstep-status { font-size: 11px; font-weight: 700; }
+  .s-done { color: var(--green); }
+  .s-run { color: var(--teal); }
+  .s-wait { color: #334155; }
+  .result-panel {
+    background: rgba(16,185,129,0.08);
+    border: 1px solid rgba(16,185,129,0.3);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .rp-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .rp-badge {
+    background: rgba(244,63,94,0.15);
+    border: 1px solid rgba(244,63,94,0.4);
+    color: var(--red);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+  .rp-name { font-size: 13px; font-weight: 700; color: var(--white); }
+  .rp-body { font-size: 11px; color: #94a3b8; line-height: 1.6; }
+  .rp-sources { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .rp-src {
+    font-size: 10px;
+    background: rgba(0,201,167,0.1);
+    border: 1px solid rgba(0,201,167,0.25);
+    color: var(--teal);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+  .demo-highlights {
+    flex: 0.8;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    justify-content: center;
+  }
+  .dh {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .dh-icon {
+    width: 38px; height: 38px;
+    background: var(--teal-dim);
+    border: 1px solid var(--teal-border);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .dh-title { font-size: 14px; font-weight: 700; color: var(--white); }
+  .dh-desc { font-size: 12px; color: var(--gray); margin-top: 2px; line-height: 1.5; }
+
+  /* ══════════════ SLIDE 5 — RESULTS ══════════════ */
+  #s5 { padding: 48px 64px; flex-direction: column; }
+  .stat-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 24px; }
+  .scard {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 22px;
+    text-align: center;
+  }
+  .scard-val { font-size: 48px; font-weight: 900; letter-spacing: -2px; color: var(--teal); line-height: 1; }
+  .scard-unit { font-size: 20px; font-weight: 700; color: var(--teal); }
+  .scard-lbl { font-size: 12px; color: var(--gray); margin-top: 6px; line-height: 1.4; font-weight: 500; }
+  .comp-table {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    overflow: hidden;
+    flex: 1;
+  }
+  .ct-head {
+    display: grid;
+    grid-template-columns: 1.8fr 1fr 1fr 1fr 1fr 1fr;
+    background: rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .ct-row {
+    display: grid;
+    grid-template-columns: 1.8fr 1fr 1fr 1fr 1fr 1fr;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .ct-row:last-child { border-bottom: none; }
+  .ct-row.hl { background: rgba(0,201,167,0.06); border: 1px solid rgba(0,201,167,0.15); }
+  .ct-cell {
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--gray);
+    display: flex;
+    align-items: center;
+  }
+  .ct-head .ct-cell { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #64748b; }
+  .ct-cell.name { font-weight: 700; color: var(--white); }
+  .ct-row.hl .ct-cell { color: var(--white); }
+  .ct-row.hl .ct-cell.name { color: var(--teal); }
+  .badge-yes { color: var(--green); font-weight: 700; }
+  .badge-no { color: #475569; }
+  .badge-price { color: var(--red); font-weight: 600; }
+  .badge-price.good { color: var(--teal); }
+
+  /* ══════════════ SLIDE 6 — BUSINESS ══════════════ */
+  #s6 { padding: 48px 64px; flex-direction: column; }
+  .biz-layout { display: flex; gap: 24px; flex: 1; margin-top: 8px; }
+  .seg-cards { flex: 1.1; display: flex; flex-direction: column; gap: 14px; }
+  .seg {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .seg.primary { border-color: var(--teal-border); background: var(--teal-dim); }
+  .seg-icon { font-size: 28px; flex-shrink: 0; }
+  .seg-body { flex: 1; }
+  .seg-title { font-size: 15px; font-weight: 700; color: var(--white); }
+  .seg-desc { font-size: 12px; color: var(--gray); margin-top: 2px; line-height: 1.4; }
+  .seg-price { text-align: right; flex-shrink: 0; }
+  .seg-price-val { font-size: 20px; font-weight: 800; color: var(--teal); }
+  .seg-price-lbl { font-size: 11px; color: var(--gray); }
+  .biz-right { flex: 0.9; display: flex; flex-direction: column; gap: 14px; }
+  .market-box {
+    background: linear-gradient(135deg, rgba(0,201,167,0.1), rgba(0,201,167,0.05));
+    border: 1px solid var(--teal-border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .mb-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--teal); margin-bottom: 12px; }
+  .mb-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .mb-bar-wrap { flex: 1; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
+  .mb-bar { height: 100%; border-radius: 3px; background: var(--teal); }
+  .mb-label { font-size: 12px; color: var(--gray); min-width: 36px; }
+  .mb-val { font-size: 13px; font-weight: 700; color: var(--white); min-width: 52px; text-align: right; }
+  .unit-box {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+    padding: 18px;
+    flex: 1;
+  }
+  .ub-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin-bottom: 12px; }
+  .ub-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+  .ub-row span:first-child { color: var(--gray); }
+  .ub-row span:last-child { font-weight: 700; color: var(--white); }
+  .ub-row span.good { color: var(--teal); }
+
+  /* ══════════════ SLIDE 7 — TECH ══════════════ */
+  #s7 { padding: 48px 64px; flex-direction: column; }
+  .tech-layout { display: flex; gap: 32px; flex: 1; margin-top: 8px; align-items: center; }
+  .arch-stack { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+  .alayer {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 14px 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .alayer.teal { border-color: var(--teal-border); background: var(--teal-dim); }
+  .alayer::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: rgba(255,255,255,0.1);
+  }
+  .alayer.teal::before { background: var(--teal); }
+  .al-num { font-size: 11px; font-weight: 700; color: #475569; min-width: 20px; }
+  .al-icon { font-size: 20px; flex-shrink: 0; }
+  .al-body { flex: 1; }
+  .al-title { font-size: 14px; font-weight: 700; color: var(--white); }
+  .al-desc { font-size: 12px; color: var(--gray); margin-top: 2px; }
+  .al-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .al-tag {
+    font-size: 11px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #94a3b8;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+  .alayer.teal .al-tag { background: rgba(0,201,167,0.12); border-color: rgba(0,201,167,0.3); color: var(--teal); }
+  .tech-right { flex: 0.85; display: flex; flex-direction: column; gap: 14px; justify-content: center; }
+  .tech-callout {
+    background: linear-gradient(135deg, rgba(0,201,167,0.12), rgba(0,201,167,0.05));
+    border: 1px solid var(--teal-border);
+    border-radius: 14px;
+    padding: 24px;
+  }
+  .tc-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--teal); margin-bottom: 10px; }
+  .tc-text { font-size: 22px; font-weight: 800; color: var(--white); line-height: 1.3; letter-spacing: -0.5px; }
+  .tc-sub { font-size: 13px; color: var(--gray); margin-top: 8px; line-height: 1.5; }
+  .why-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .wi-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--teal);
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+  .wi-text { font-size: 13px; color: #cbd5e1; line-height: 1.5; }
+  .wi-text strong { color: var(--white); font-weight: 600; }
+
+  /* ══════════════ SLIDE 8 — CLOSE ══════════════ */
+  #s8 {
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background: var(--navy);
+    position: relative;
+    overflow: hidden;
+  }
+  #s8 .bg-glow {
+    position: absolute;
+    width: 800px; height: 800px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,201,167,0.14) 0%, transparent 60%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  #s8 .bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,201,167,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,201,167,0.03) 1px, transparent 1px);
+    background-size: 64px 64px;
+    pointer-events: none;
+  }
+  .hero-num {
+    font-size: 160px;
+    font-weight: 900;
+    color: var(--teal);
+    letter-spacing: -8px;
+    line-height: 1;
+    z-index: 1;
+    text-shadow: 0 0 80px rgba(0,201,167,0.4);
+  }
+  .hero-unit { font-size: 48px; font-weight: 900; color: var(--teal); letter-spacing: -1px; line-height: 1; z-index: 1; margin-top: -12px; }
+  .hero-label { font-size: 22px; color: var(--gray); margin: 12px 0 40px; z-index: 1; letter-spacing: .5px; }
+  .close-chips { display: flex; gap: 14px; z-index: 1; }
+  .cc {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 12px 20px;
+    text-align: center;
+  }
+  .cc-val { font-size: 22px; font-weight: 800; color: var(--white); }
+  .cc-lbl { font-size: 11px; color: var(--gray); margin-top: 3px; }
+</style>
+</head>
+<body>
+<div class="deck">
+
+  <!-- ── SLIDE 1: TITLE ── -->
+  <div class="slide active" id="s1">
+    <div class="bg-grid"></div>
+    <div class="bg-glow"></div>
+    <div class="shield">🛡️</div>
+    <div class="brand">Ship<span>Happens</span></div>
+    <p class="tagline">The <strong>AI employee</strong> that screens any person or company for sanctions, PEP status, and adverse media — <strong>in 8 seconds instead of 45 minutes.</strong></p>
+    <div class="s1-chips">
+      <div class="chip">AML · KYC · PEP</div>
+      <div class="chip">Powered by <span>Claude AI</span></div>
+      <div class="chip">Seed Round · <span>2026</span></div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 2: PROBLEM ── -->
+  <div class="slide" id="s2">
+    <div class="tag">02 · The Problem</div>
+    <div class="h2" style="margin-bottom:24px">Compliance is <em>manual, expensive,</em> and error-prone.</div>
+    <div class="pain-cards">
+      <div class="pain-card red">
+        <div class="pain-icon">⏱️</div>
+        <div class="pain-stat">45 <span class="pain-unit">min</span></div>
+        <div class="pain-title">Per manual check</div>
+        <div class="pain-desc">A compliance analyst must manually search OFAC, UN, EU, and Interpol watchlists — one by one — then scan news sources for adverse media. Every. Single. Client.</div>
+      </div>
+      <div class="pain-card amber">
+        <div class="pain-icon">💸</div>
+        <div class="pain-stat">€80K</div>
+        <div class="pain-title">Annual analyst salary</div>
+        <div class="pain-desc">Plus €30–50K/year for enterprise SaaS subscriptions to Refinitiv World-Check or ComplyAdvantage. SMEs can't afford this — so they cut corners or skip checks entirely.</div>
+      </div>
+      <div class="pain-card teal">
+        <div class="pain-icon">⚖️</div>
+        <div class="pain-stat">100%</div>
+        <div class="pain-title">Of regulated businesses</div>
+        <div class="pain-desc">Banks, fintechs, law firms, crypto exchanges, real estate agencies — all legally required to perform KYC & AML screening per the EU Anti-Money Laundering Directive.</div>
+      </div>
+    </div>
+    <div class="stat-bar">
+      <div class="stat-bar-item">
+        <div class="sb-icon">🏦</div>
+        <div class="sb-text"><strong>Banks & Fintechs</strong> face 6-figure fines for missed checks</div>
+      </div>
+      <div class="stat-bar-item">
+        <div class="sb-icon">🔎</div>
+        <div class="sb-text"><strong>1 in 5 checks</strong> returns false positives that analysts resolve manually</div>
+      </div>
+      <div class="stat-bar-item">
+        <div class="sb-icon">📈</div>
+        <div class="sb-text">Compliance demand growing <strong>15% per year</strong> — supply is not</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 3: SOLUTION ── -->
+  <div class="slide pad" id="s3">
+    <div class="tag">03 · The Solution</div>
+    <div class="h2" style="margin-bottom:24px">One input. Five data sources. <em>One report.</em></div>
+    <div class="workflow-row">
+      <div class="wstep">
+        <div class="wstep-n">1</div>
+        <div class="wstep-icon">📋</div>
+        <div class="wstep-title">Input</div>
+        <div class="wstep-desc">Full name + country<br>+ optional DOB / company</div>
+      </div>
+      <div class="warrow">→</div>
+      <div class="wstep">
+        <div class="wstep-n">2</div>
+        <div class="wstep-icon">🚫</div>
+        <div class="wstep-title">Sanctions</div>
+        <div class="wstep-desc">200+ watchlists: OFAC, EU, UN, UK, Interpol</div>
+        <div class="wstep-source">OpenSanctions</div>
+      </div>
+      <div class="warrow">→</div>
+      <div class="wstep">
+        <div class="wstep-n">3</div>
+        <div class="wstep-icon">🏛️</div>
+        <div class="wstep-title">PEP Check</div>
+        <div class="wstep-desc">Politicians, officials, family & associates</div>
+        <div class="wstep-source">OpenSanctions PEP</div>
+      </div>
+      <div class="warrow">→</div>
+      <div class="wstep">
+        <div class="wstep-n">4</div>
+        <div class="wstep-icon">🔍</div>
+        <div class="wstep-title">Adverse Media</div>
+        <div class="wstep-desc">Fraud · corruption · money laundering hits</div>
+        <div class="wstep-source">Serper / Tavily</div>
+      </div>
+      <div class="warrow">→</div>
+      <div class="wstep">
+        <div class="wstep-n">5</div>
+        <div class="wstep-icon">🤖</div>
+        <div class="wstep-title">AI Synthesis</div>
+        <div class="wstep-desc">Resolves conflicts, handles false positives, explains reasoning</div>
+        <div class="wstep-source">Claude AI</div>
+      </div>
+      <div class="warrow">→</div>
+      <div class="wstep">
+        <div class="wstep-n">6</div>
+        <div class="wstep-icon">📄</div>
+        <div class="wstep-title">PDF Report</div>
+        <div class="wstep-desc">Risk score + evidence trail + recommended action</div>
+        <div class="wstep-source">Audit-ready</div>
+      </div>
+    </div>
+    <div class="output-row">
+      <div class="out-item"><span>✅</span> Clear / Review / High Risk score</div>
+      <div class="out-item"><span>🔗</span> Source citations for every finding</div>
+      <div class="out-item"><span>📥</span> Downloadable PDF with your brand</div>
+      <div class="out-item"><span>⚡</span> Full result in under 8 seconds</div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 4: LIVE DEMO ── -->
+  <div class="slide pad" id="s4">
+    <div class="tag">04 · Live Demo</div>
+    <div class="h2" style="margin-bottom:0">Watch the agent work <em>in real time.</em></div>
+    <div class="demo-layout">
+      <div class="demo-browser">
+        <div class="browser-bar">
+          <div class="bdot" style="background:#ff5f57"></div>
+          <div class="bdot" style="background:#ffbd2e"></div>
+          <div class="bdot" style="background:#28c840"></div>
+          <div class="burl">app.shiphappens.ai/screen</div>
+        </div>
+        <div class="browser-body">
+          <div class="input-row">
+            <div class="finput">Viktor Yanukovych</div>
+            <div class="finput sm">Ukraine</div>
+            <div class="fbtn">Screen →</div>
+          </div>
+          <div class="steps-list">
+            <div class="dstep">
+              <div class="dstep-icon">🚫</div>
+              <div class="dstep-label">Sanctions check — OFAC, EU, UN, UK, Interpol (200+ lists)</div>
+              <div class="dstep-status s-done">✓ Match found</div>
+            </div>
+            <div class="dstep">
+              <div class="dstep-icon">🏛️</div>
+              <div class="dstep-label">PEP screening — politicians, officials, associates</div>
+              <div class="dstep-status s-done">✓ PEP confirmed</div>
+            </div>
+            <div class="dstep">
+              <div class="dstep-icon">🔍</div>
+              <div class="dstep-label">Adverse media scan — fraud, corruption, AML signals</div>
+              <div class="dstep-status s-run">⟳ Scanning news…</div>
+            </div>
+            <div class="dstep">
+              <div class="dstep-icon">🤖</div>
+              <div class="dstep-label">AI synthesis — resolving findings, scoring risk</div>
+              <div class="dstep-status s-wait">○ Pending</div>
+            </div>
+          </div>
+          <div class="result-panel">
+            <div class="rp-top">
+              <div class="rp-badge">🔴 HIGH RISK</div>
+              <div class="rp-name">Viktor Yanukovych — Ukraine</div>
+            </div>
+            <div class="rp-body">Subject is listed on EU, US, and UN sanctions lists since 2014. Confirmed PEP (former President of Ukraine). Extensive adverse media: embezzlement, money laundering, corruption convictions. Do not onboard. Immediate escalation required.</div>
+            <div class="rp-sources">
+              <div class="rp-src">OFAC SDN</div>
+              <div class="rp-src">EU Reg. 269/2014</div>
+              <div class="rp-src">UN Security Council</div>
+              <div class="rp-src">OpenSanctions PEP</div>
+              <div class="rp-src">12 media sources</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="demo-highlights">
+        <div class="dh">
+          <div class="dh-icon">⚡</div>
+          <div>
+            <div class="dh-title">Real-time visual progress</div>
+            <div class="dh-desc">Every step completes visually — builds trust with clients and auditors who need to see the process.</div>
+          </div>
+        </div>
+        <div class="dh">
+          <div class="dh-icon">🧠</div>
+          <div>
+            <div class="dh-title">AI that explains itself</div>
+            <div class="dh-desc">Claude doesn't just flag — it reasons through false positives, cites every source, and writes in plain language anyone can understand.</div>
+          </div>
+        </div>
+        <div class="dh">
+          <div class="dh-icon">📄</div>
+          <div>
+            <div class="dh-title">Audit-ready PDF output</div>
+            <div class="dh-desc">Download and attach directly to your compliance file. No formatting, no copy-paste, no analyst required.</div>
+          </div>
+        </div>
+        <div class="dh">
+          <div class="dh-icon">🔗</div>
+          <div>
+            <div class="dh-title">Drop-in API</div>
+            <div class="dh-desc">One API call, result in JSON + PDF. Embed into any onboarding flow in an afternoon.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 5: RESULTS ── -->
+  <div class="slide pad" id="s5">
+    <div class="tag">05 · Measurable Results</div>
+    <div class="h2" style="margin-bottom:20px">Numbers that <em>close deals.</em></div>
+    <div class="stat-cards">
+      <div class="scard">
+        <div class="scard-val">8<span class="scard-unit">s</span></div>
+        <div class="scard-lbl">Per full compliance check (vs. 45 min manual)</div>
+      </div>
+      <div class="scard">
+        <div class="scard-val">€0<span class="scard-unit">.02</span></div>
+        <div class="scard-lbl">Cost per check (vs. €30–80 with analyst + tools)</div>
+      </div>
+      <div class="scard">
+        <div class="scard-val">200<span class="scard-unit">+</span></div>
+        <div class="scard-lbl">Sanctions & watchlists checked simultaneously</div>
+      </div>
+      <div class="scard">
+        <div class="scard-val">99<span class="scard-unit">%</span></div>
+        <div class="scard-lbl">Cost reduction vs. enterprise alternatives</div>
+      </div>
+    </div>
+    <div class="comp-table">
+      <div class="ct-head">
+        <div class="ct-cell name"></div>
+        <div class="ct-cell">Time/check</div>
+        <div class="ct-cell">Annual cost</div>
+        <div class="ct-cell">AI synthesis</div>
+        <div class="ct-cell">API access</div>
+        <div class="ct-cell">SME-ready</div>
+      </div>
+      <div class="ct-row hl">
+        <div class="ct-cell name">⚡ ShipHappens</div>
+        <div class="ct-cell badge-yes">8 seconds</div>
+        <div class="ct-cell badge-price good">€499/mo</div>
+        <div class="ct-cell badge-yes">✓ Yes</div>
+        <div class="ct-cell badge-yes">✓ Yes</div>
+        <div class="ct-cell badge-yes">✓ Yes</div>
+      </div>
+      <div class="ct-row">
+        <div class="ct-cell name">Refinitiv World-Check</div>
+        <div class="ct-cell">20–45 min</div>
+        <div class="ct-cell badge-price">€50K+/yr</div>
+        <div class="ct-cell badge-no">✗ No</div>
+        <div class="ct-cell badge-yes">✓ Yes</div>
+        <div class="ct-cell badge-no">✗ No</div>
+      </div>
+      <div class="ct-row">
+        <div class="ct-cell name">ComplyAdvantage</div>
+        <div class="ct-cell">10–20 min</div>
+        <div class="ct-cell badge-price">€30K+/yr</div>
+        <div class="ct-cell badge-no">✗ No</div>
+        <div class="ct-cell badge-yes">✓ Yes</div>
+        <div class="ct-cell badge-no">✗ No</div>
+      </div>
+      <div class="ct-row">
+        <div class="ct-cell name">Manual analyst</div>
+        <div class="ct-cell">45 min</div>
+        <div class="ct-cell badge-price">€80K/yr</div>
+        <div class="ct-cell badge-no">✗ No</div>
+        <div class="ct-cell badge-no">✗ No</div>
+        <div class="ct-cell badge-yes">✓ Yes</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 6: BUSINESS CASE ── -->
+  <div class="slide pad" id="s6">
+    <div class="tag">06 · Business Case</div>
+    <div class="h2" style="margin-bottom:0">A <em>$4.7B market</em> — and we're cheaper than their consultant.</div>
+    <div class="biz-layout">
+      <div class="seg-cards">
+        <div class="seg primary">
+          <div class="seg-icon">🏦</div>
+          <div class="seg-body">
+            <div class="seg-title">Fintechs & Neobanks</div>
+            <div class="seg-desc">High onboarding volume, strong automation appetite, familiar with APIs. Currently paying €2K/mo to compliance consultants.</div>
+          </div>
+          <div class="seg-price">
+            <div class="seg-price-val">€499</div>
+            <div class="seg-price-lbl">/month</div>
+          </div>
+        </div>
+        <div class="seg">
+          <div class="seg-icon">⚖️</div>
+          <div class="seg-body">
+            <div class="seg-title">Law Firms</div>
+            <div class="seg-desc">KYC legally required for every client. Manual screening is a time sink every partner feels. No good tooling exists at this price point.</div>
+          </div>
+          <div class="seg-price">
+            <div class="seg-price-val">€499</div>
+            <div class="seg-price-lbl">/month</div>
+          </div>
+        </div>
+        <div class="seg">
+          <div class="seg-icon">₿</div>
+          <div class="seg-body">
+            <div class="seg-title">Crypto Exchanges</div>
+            <div class="seg-desc">Heaviest AML burden, highest willingness to pay. API-first buyers with fastest sales cycles.</div>
+          </div>
+          <div class="seg-price">
+            <div class="seg-price-val">€0.49</div>
+            <div class="seg-price-lbl">/check API</div>
+          </div>
+        </div>
+      </div>
+      <div class="biz-right">
+        <div class="market-box">
+          <div class="mb-title">Global AML Market</div>
+          <div class="mb-row">
+            <div class="mb-label">TAM</div>
+            <div class="mb-bar-wrap"><div class="mb-bar" style="width:100%"></div></div>
+            <div class="mb-val">$4.7B</div>
+          </div>
+          <div class="mb-row">
+            <div class="mb-label">SAM</div>
+            <div class="mb-bar-wrap"><div class="mb-bar" style="width:55%"></div></div>
+            <div class="mb-val">$620M</div>
+          </div>
+          <div class="mb-row">
+            <div class="mb-label">SOM</div>
+            <div class="mb-bar-wrap"><div class="mb-bar" style="width:13%"></div></div>
+            <div class="mb-val">$18M</div>
+          </div>
+          <div style="font-size:11px;color:#64748b;margin-top:8px">↑ 15% CAGR through 2030</div>
+        </div>
+        <div class="unit-box">
+          <div class="ub-title">Unit Economics</div>
+          <div class="ub-row"><span>Cost per check</span><span>~€0.04</span></div>
+          <div class="ub-row"><span>Price per check</span><span class="good">€0.49</span></div>
+          <div class="ub-row"><span>Gross margin (API)</span><span class="good">~92%</span></div>
+          <div class="ub-row"><span>Team plan GM</span><span class="good">~87%</span></div>
+          <div class="ub-row"><span>CAC target</span><span>€1,200</span></div>
+          <div class="ub-row"><span>LTV:CAC target</span><span class="good">12:1</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 7: TECH STACK ── -->
+  <div class="slide pad" id="s7">
+    <div class="tag">07 · Technology</div>
+    <div class="h2" style="margin-bottom:0">Not a wrapper. <em>A real agent.</em></div>
+    <div class="tech-layout">
+      <div class="arch-stack">
+        <div class="alayer">
+          <div class="al-num">5</div>
+          <div class="al-icon">🖥️</div>
+          <div class="al-body">
+            <div class="al-title">Frontend</div>
+            <div class="al-desc">Real-time progress UI, PDF preview, API dashboard</div>
+          </div>
+          <div class="al-tags"><div class="al-tag">React</div><div class="al-tag">TailwindCSS</div><div class="al-tag">WebSockets</div></div>
+        </div>
+        <div class="alayer teal">
+          <div class="al-num">4</div>
+          <div class="al-icon">🤖</div>
+          <div class="al-body">
+            <div class="al-title">AI Synthesis Layer</div>
+            <div class="al-desc">Multi-source reasoning, false positive resolution, plain-language report generation</div>
+          </div>
+          <div class="al-tags"><div class="al-tag">Claude API</div><div class="al-tag">Tool use</div><div class="al-tag">Structured output</div></div>
+        </div>
+        <div class="alayer">
+          <div class="al-num">3</div>
+          <div class="al-icon">🔌</div>
+          <div class="al-body">
+            <div class="al-title">Data Connectors</div>
+            <div class="al-desc">Parallel calls to three independent live data sources</div>
+          </div>
+          <div class="al-tags"><div class="al-tag">OpenSanctions API</div><div class="al-tag">Serper.dev</div><div class="al-tag">Tavily</div></div>
+        </div>
+        <div class="alayer">
+          <div class="al-num">2</div>
+          <div class="al-icon">⚙️</div>
+          <div class="al-body">
+            <div class="al-title">Orchestration & API</div>
+            <div class="al-desc">Async task execution, rate limiting, result caching, PDF generation</div>
+          </div>
+          <div class="al-tags"><div class="al-tag">Node.js</div><div class="al-tag">Redis</div><div class="al-tag">jsPDF</div></div>
+        </div>
+        <div class="alayer">
+          <div class="al-num">1</div>
+          <div class="al-icon">🗄️</div>
+          <div class="al-body">
+            <div class="al-title">Infrastructure</div>
+            <div class="al-desc">Multi-region, SOC 2 roadmap, GDPR-compliant data handling</div>
+          </div>
+          <div class="al-tags"><div class="al-tag">AWS</div><div class="al-tag">PostgreSQL</div><div class="al-tag">Cloudflare</div></div>
+        </div>
+      </div>
+      <div class="tech-right">
+        <div class="tech-callout">
+          <div class="tc-label">Why it's non-trivial</div>
+          <div class="tc-text">"Not a ChatGPT wrapper."</div>
+          <div class="tc-sub">Claude doesn't retrieve — it synthesizes. It reads conflicting signals from three independent sources, resolves ambiguity (common names, transliterations), assesses confidence, and writes an auditable explanation.</div>
+        </div>
+        <div class="why-item">
+          <div class="wi-dot"></div>
+          <div class="wi-text"><strong>Parallel data fetching</strong> — all three sources hit simultaneously, not sequentially. That's why it's 8 seconds, not 30.</div>
+        </div>
+        <div class="why-item">
+          <div class="wi-dot"></div>
+          <div class="wi-text"><strong>1.4M sanctions entries</strong> across 200+ live-updated lists — OpenSanctions is the same data Refinitiv charges €50K/year to access.</div>
+        </div>
+        <div class="why-item">
+          <div class="wi-dot"></div>
+          <div class="wi-text"><strong>Structured output enforced</strong> — every report has a machine-readable risk score, making downstream automation trivial.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 8: CLOSE ── -->
+  <div class="slide" id="s8">
+    <div class="bg-grid"></div>
+    <div class="bg-glow"></div>
+    <div class="hero-num">8</div>
+    <div class="hero-unit">seconds.</div>
+    <div class="hero-label">That's how long a full compliance check takes.</div>
+    <div class="close-chips">
+      <div class="cc">
+        <div class="cc-val">€0.02</div>
+        <div class="cc-lbl">Per check</div>
+      </div>
+      <div class="cc">
+        <div class="cc-val">200+</div>
+        <div class="cc-lbl">Watchlists</div>
+      </div>
+      <div class="cc">
+        <div class="cc-val">0</div>
+        <div class="cc-lbl">Analysts needed</div>
+      </div>
+      <div class="cc">
+        <div class="cc-val">99%</div>
+        <div class="cc-lbl">Cost reduction</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<!-- NAV -->
+<div class="nav">
+  <button onclick="go(cur-1)">←</button>
+  <div class="nav-dots" id="dots"></div>
+  <span class="counter" id="ctr">1 / 8</span>
+  <button onclick="go(cur+1)">→</button>
+</div>
+
+<script>
+  const N = 8;
+  let cur = 1;
+  const dotsEl = document.getElementById('dots');
+  for (let i = 1; i <= N; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 1 ? ' active' : '');
+    d.onclick = () => go(i);
+    dotsEl.appendChild(d);
+  }
+  function go(n) {
+    if (n < 1 || n > N) return;
+    document.getElementById('s' + cur).classList.remove('active');
+    dotsEl.children[cur - 1].classList.remove('active');
+    cur = n;
+    document.getElementById('s' + cur).classList.add('active');
+    dotsEl.children[cur - 1].classList.add('active');
+    document.getElementById('ctr').textContent = cur + ' / ' + N;
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') go(cur + 1);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') go(cur - 1);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --navy: #0d1b2a;
+  --navy-card: rgba(255, 255, 255, 0.04);
+  --navy-border: rgba(255, 255, 255, 0.08);
+  --teal: #00c9a7;
+  --teal-dim: rgba(0, 201, 167, 0.1);
+  --teal-border: rgba(0, 201, 167, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background-color: var(--navy);
+  color: white;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 201, 167, 0.4);
+}
+
+/* Form inputs */
+.field {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: 14px;
+  color: white;
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.field::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
+.field:focus {
+  border-color: var(--teal);
+  background: rgba(0, 201, 167, 0.06);
+}
+.field:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+select.field option {
+  background: #112233;
+  color: white;
+}
+
+/* Teal focus ring for interactive elements */
+.focus-teal:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
