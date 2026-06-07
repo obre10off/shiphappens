@@ -5,8 +5,8 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { CategoryScore } from '@/lib/contracts/types';
 
 function barColor(score: number): string {
-  if (score >= 60) return '#ef4444';
-  if (score >= 25) return '#f59e0b';
+  if (score >= 60) return '#c0564b';
+  if (score >= 25) return '#bf9040';
   return '#475569';
 }
 
@@ -44,7 +44,7 @@ function ScoreRow({ c }: { c: CategoryScore }) {
                 href={e}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[11px] text-[#00c9a7] bg-[#00c9a7]/10 border border-[#00c9a7]/20 px-2 py-0.5 rounded hover:bg-[#00c9a7]/20 transition-colors max-w-[220px] truncate"
+                className="text-[11px] text-[#5b7ba6] bg-[#5b7ba6]/10 border border-[#5b7ba6]/20 px-2 py-0.5 rounded hover:bg-[#5b7ba6]/20 transition-colors max-w-[220px] truncate"
               >
                 {e.replace(/^https?:\/\/(www\.)?/, '')}
               </a>

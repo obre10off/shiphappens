@@ -18,7 +18,7 @@ import { CategoryScoreList } from './CategoryScoreList';
 const BAND_META: Record<RiskBand, { label: string; color: string; ring: string; bg: string; Icon: typeof XCircle }> = {
   high: { label: 'HIGH RISK', color: 'text-red-400', ring: 'border-red-500/50', bg: 'bg-red-500/8', Icon: XCircle },
   review: { label: 'REVIEW', color: 'text-amber-400', ring: 'border-amber-500/50', bg: 'bg-amber-500/8', Icon: AlertTriangle },
-  clear: { label: 'CLEAR', color: 'text-[#00c9a7]', ring: 'border-[#00c9a7]/50', bg: 'bg-[#00c9a7]/8', Icon: CheckCircle },
+  clear: { label: 'CLEAR', color: 'text-[#4f8a6d]', ring: 'border-[#4f8a6d]/50', bg: 'bg-[#4f8a6d]/8', Icon: CheckCircle },
 };
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -114,11 +114,11 @@ export function RiskDashboard({ report, onReset }: { report: RiskReport; onReset
             {timeline.map((t, i) => (
               <div key={i} className="flex gap-3">
                 <div className="flex flex-col items-center flex-shrink-0">
-                  <Clock className="w-3.5 h-3.5 text-[#00c9a7] mt-0.5" />
+                  <Clock className="w-3.5 h-3.5 text-[#5b7ba6] mt-0.5" />
                   {i < timeline.length - 1 && <div className="w-px flex-1 bg-white/10 mt-1" />}
                 </div>
                 <div className="pb-1">
-                  <div className="text-xs font-semibold text-[#00c9a7]">{t.date || 'Date unknown'}</div>
+                  <div className="text-xs font-semibold text-[#5b7ba6]">{t.date || 'Date unknown'}</div>
                   <div className="text-sm text-slate-300">{t.event}</div>
                 </div>
               </div>
@@ -137,7 +137,7 @@ export function RiskDashboard({ report, onReset }: { report: RiskReport; onReset
                 href={s.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-[#00c9a7] hover:text-[#00e5c0] transition-colors group"
+                className="flex items-center gap-2 text-sm text-[#5b7ba6] hover:text-[#7a97bd] transition-colors group"
               >
                 <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />
                 <span className="truncate">{s.note ? `${s.note} — ` : ''}{s.url.replace(/^https?:\/\/(www\.)?/, '')}</span>
@@ -152,7 +152,7 @@ export function RiskDashboard({ report, onReset }: { report: RiskReport; onReset
         <button
           onClick={downloadPdf}
           disabled={downloading}
-          className="flex-1 flex items-center justify-center gap-2 bg-[#00c9a7] text-[#0d1b2a] font-bold py-3 px-5 rounded-xl hover:bg-[#00e5c0] transition-colors disabled:opacity-60"
+          className="flex-1 flex items-center justify-center gap-2 bg-[#5b7ba6] text-white font-bold py-3 px-5 rounded-xl hover:bg-[#7a97bd] transition-colors disabled:opacity-60"
         >
           {downloading ? <Loader className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4" />}
           {downloading ? 'Generating…' : 'Download PDF report'}

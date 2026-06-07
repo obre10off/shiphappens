@@ -3,9 +3,9 @@
 import type { RiskBand } from '@/lib/contracts/types';
 
 const BAND_COLOR: Record<RiskBand, string> = {
-  high: '#ef4444',
-  review: '#f59e0b',
-  clear: '#00c9a7',
+  high: '#c0564b',
+  review: '#bf9040',
+  clear: '#4f8a6d',
 };
 
 export function ScoreGauge({
@@ -52,9 +52,9 @@ export function ScoreGauge({
         <div className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
           Weighted score
         </div>
-        <WeightRow label="Sanctions + PEP" value={weights.sanctions} color="#ef4444" />
-        <WeightRow label="Adverse media" value={weights.adverseMedia} color="#f59e0b" />
-        <WeightRow label="Social" value={weights.social} color="#00c9a7" />
+        <WeightRow label="Sanctions + PEP" value={weights.sanctions} color="#94a3b8" />
+        <WeightRow label="Adverse media" value={weights.adverseMedia} color="#64748b" />
+        <WeightRow label="Social" value={weights.social} color="#475569" />
       </div>
     </div>
   );

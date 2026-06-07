@@ -45,20 +45,20 @@ export function ProgressStream({
                 done
                   ? hasMatches
                     ? 'border-red-500/30 bg-red-500/5'
-                    : 'border-[#00c9a7]/20 bg-[#00c9a7]/5'
+                    : 'border-[#4f8a6d]/20 bg-[#4f8a6d]/5'
                   : running
-                    ? 'border-[#00c9a7]/40 bg-[#00c9a7]/8'
+                    ? 'border-[#5b7ba6]/40 bg-[#5b7ba6]/8'
                     : 'border-white/[0.06] bg-white/[0.02]'
               }`}
           >
             <div className="flex-shrink-0">
               {running ? (
-                <Loader className="w-4 h-4 text-[#00c9a7] animate-spin" />
+                <Loader className="w-4 h-4 text-[#5b7ba6] animate-spin" />
               ) : done ? (
                 hasMatches ? (
                   <AlertTriangle className="w-4 h-4 text-red-400" />
                 ) : (
-                  <CheckCircle className="w-4 h-4 text-[#00c9a7]" />
+                  <CheckCircle className="w-4 h-4 text-[#4f8a6d]" />
                 )
               ) : (
                 <div className="w-4 h-4 rounded-full border border-white/15" />
@@ -66,7 +66,7 @@ export function ProgressStream({
             </div>
             <span
               className={`flex-1 text-sm font-medium ${
-                running ? 'text-[#00c9a7]' : done ? 'text-white' : 'text-slate-600'
+                running ? 'text-[#5b7ba6]' : done ? 'text-white' : 'text-slate-600'
               }`}
             >
               {done ? DONE_LABELS[p.phase] : LABELS[p.phase]}
@@ -74,7 +74,7 @@ export function ProgressStream({
             {done && p.phase !== 'synthesis' && (
               <span
                 className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                  (p.matches ?? 0) > 0 ? 'bg-red-500/15 text-red-400' : 'bg-[#00c9a7]/15 text-[#00c9a7]'
+                  (p.matches ?? 0) > 0 ? 'bg-red-500/15 text-red-400' : 'bg-[#4f8a6d]/15 text-[#4f8a6d]'
                 }`}
               >
                 {(p.matches ?? 0) > 0 ? `${p.matches} hit${p.matches !== 1 ? 's' : ''}` : 'clear'}
@@ -94,7 +94,7 @@ export function ProgressStream({
           {onRetry && (
             <button
               onClick={onRetry}
-              className="flex items-center gap-1.5 text-sm font-semibold text-[#00c9a7] hover:text-[#00e5c0] transition-colors focus-teal"
+              className="flex items-center gap-1.5 text-sm font-semibold text-[#5b7ba6] hover:text-[#7a97bd] transition-colors focus-teal"
             >
               <RotateCcw className="w-4 h-4" />
               Retry

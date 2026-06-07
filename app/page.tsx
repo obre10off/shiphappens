@@ -3,20 +3,20 @@ import { Shield, Zap, FileText, ArrowRight, AlertTriangle, CheckCircle } from 'l
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#0d1b2a] flex flex-col">
+    <main className="min-h-screen bg-[#0f172a] flex flex-col">
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-4 border-b border-white/5">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-[#00c9a7] flex items-center justify-center">
-            <Shield className="w-4 h-4 text-[#0d1b2a]" strokeWidth={2.5} />
+          <div className="w-8 h-8 rounded-lg bg-[#5b7ba6] flex items-center justify-center">
+            <Shield className="w-4 h-4 text-[#0f172a]" strokeWidth={2.5} />
           </div>
           <span className="font-bold text-lg tracking-tight">
-            Ship<span className="text-[#00c9a7]">Happens</span>
+            Ship<span className="text-[#5b7ba6]">Happens</span>
           </span>
         </div>
         <Link
           href="/screen"
-          className="flex items-center gap-2 bg-[#00c9a7] text-[#0d1b2a] font-semibold text-sm px-4 py-2 rounded-lg hover:bg-[#00e5c0] transition-colors"
+          className="flex items-center gap-2 bg-[#5b7ba6] text-white font-semibold text-sm px-4 py-2 rounded-lg hover:bg-[#7a97bd] transition-colors"
         >
           Start Screening
           <ArrowRight className="w-4 h-4" />
@@ -25,32 +25,28 @@ export default function Home() {
 
       {/* Hero */}
       <section className="flex-1 flex flex-col items-center justify-center px-6 py-20 text-center relative overflow-hidden">
-        {/* Glow */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[#00c9a7]/10 blur-[100px]" />
-        </div>
-        {/* Grid pattern */}
+        {/* Subtle grid pattern */}
         <div
-          className="absolute inset-0 pointer-events-none opacity-30"
+          className="absolute inset-0 pointer-events-none opacity-20"
           style={{
             backgroundImage:
-              'linear-gradient(rgba(0,201,167,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,201,167,0.04) 1px, transparent 1px)',
+              'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
             backgroundSize: '64px 64px',
           }}
         />
 
         <div className="relative z-10 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-[#00c9a7]/10 border border-[#00c9a7]/30 rounded-full px-4 py-1.5 mb-8">
-            <Zap className="w-3.5 h-3.5 text-[#00c9a7]" />
-            <span className="text-[#00c9a7] text-xs font-semibold uppercase tracking-widest">
+          <div className="inline-flex items-center gap-2 bg-white/[0.04] border border-white/10 rounded-full px-4 py-1.5 mb-8">
+            <Zap className="w-3.5 h-3.5 text-slate-400" />
+            <span className="text-slate-400 text-xs font-semibold uppercase tracking-widest">
               AI Compliance Agent
             </span>
           </div>
 
-          <h1 className="text-5xl sm:text-7xl font-black tracking-tighter leading-none mb-6">
-            <span className="text-[#00c9a7]">8 seconds.</span>
+          <h1 className="text-4xl sm:text-6xl font-bold tracking-tight leading-tight mb-6 text-white">
+            Screening in 8 seconds.
             <br />
-            Audit-ready.
+            <span className="text-slate-400">Audit-ready every time.</span>
           </h1>
 
           <p className="text-lg text-slate-400 max-w-xl mx-auto leading-relaxed mb-10">
@@ -60,7 +56,7 @@ export default function Home() {
 
           <Link
             href="/screen"
-            className="inline-flex items-center gap-2 bg-[#00c9a7] text-[#0d1b2a] font-bold text-base px-8 py-4 rounded-xl hover:bg-[#00e5c0] transition-all hover:scale-105 shadow-[0_0_40px_rgba(0,201,167,0.3)]"
+            className="inline-flex items-center gap-2 bg-[#5b7ba6] text-white font-semibold text-base px-8 py-4 rounded-lg hover:bg-[#7a97bd] transition-colors"
           >
             Start a new screening
             <ArrowRight className="w-5 h-5" />
@@ -92,7 +88,7 @@ export default function Home() {
                   <span>• PEP Tier 1 — Former President of Ukraine</span>
                   <span>• 47 adverse media articles</span>
                 </div>
-                <div className="mt-5 flex items-center gap-1.5 text-[#00c9a7] text-sm font-semibold group-hover:gap-3 transition-all">
+                <div className="mt-5 flex items-center gap-1.5 text-[#5b7ba6] text-sm font-semibold group-hover:gap-3 transition-all">
                   Run this demo
                   <ArrowRight className="w-4 h-4" />
                 </div>
@@ -100,12 +96,12 @@ export default function Home() {
             </Link>
 
             <Link href="/screen?demo=clear" className="group">
-              <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-6 hover:border-[#00c9a7]/40 hover:bg-[#00c9a7]/5 transition-all cursor-pointer">
+              <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-6 hover:border-[#4f8a6d]/40 hover:bg-[#4f8a6d]/5 transition-all cursor-pointer">
                 <div className="flex items-start justify-between mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#00c9a7]/10 border border-[#00c9a7]/20 flex items-center justify-center">
-                    <CheckCircle className="w-5 h-5 text-[#00c9a7]" />
+                  <div className="w-10 h-10 rounded-xl bg-[#4f8a6d]/10 border border-[#4f8a6d]/20 flex items-center justify-center">
+                    <CheckCircle className="w-5 h-5 text-[#4f8a6d]" />
                   </div>
-                  <span className="text-xs font-bold text-[#00c9a7] bg-[#00c9a7]/10 border border-[#00c9a7]/20 px-2.5 py-1 rounded-full">
+                  <span className="text-xs font-bold text-[#4f8a6d] bg-[#4f8a6d]/10 border border-[#4f8a6d]/20 px-2.5 py-1 rounded-full">
                     CLEAR
                   </span>
                 </div>
@@ -116,7 +112,7 @@ export default function Home() {
                   <span>• Not a PEP — no political exposure</span>
                   <span>• 0 adverse media results</span>
                 </div>
-                <div className="mt-5 flex items-center gap-1.5 text-[#00c9a7] text-sm font-semibold group-hover:gap-3 transition-all">
+                <div className="mt-5 flex items-center gap-1.5 text-[#5b7ba6] text-sm font-semibold group-hover:gap-3 transition-all">
                   Run this demo
                   <ArrowRight className="w-4 h-4" />
                 </div>
@@ -137,7 +133,7 @@ export default function Home() {
             { val: '0', lbl: 'Analysts needed' },
           ].map(({ val, lbl }) => (
             <div key={lbl}>
-              <div className="text-xl font-black text-[#00c9a7]">{val}</div>
+              <div className="text-xl font-bold text-white">{val}</div>
               <div className="text-xs text-slate-500 mt-0.5">{lbl}</div>
             </div>
           ))}

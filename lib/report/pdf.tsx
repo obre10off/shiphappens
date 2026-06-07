@@ -10,16 +10,17 @@ import {
 } from '@react-pdf/renderer';
 import type { CategoryScore, RiskBand, RiskReport } from '@/lib/contracts/types';
 
-const NAVY = '#0d1b2a';
-const TEAL = '#00c9a7';
-const RED = '#ef4444';
-const AMBER = '#f59e0b';
+const NAVY = '#0f172a';
+const TEAL = '#5b7ba6'; // steel-blue accent
+const RED = '#c0564b';
+const AMBER = '#bf9040';
+const GREEN = '#4f8a6d';
 const MUTED = '#64748b';
 
 const bandColor: Record<RiskBand, string> = {
   high: RED,
   review: AMBER,
-  clear: TEAL,
+  clear: GREEN,
 };
 
 const styles = StyleSheet.create({

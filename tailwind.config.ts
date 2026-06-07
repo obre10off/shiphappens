@@ -8,16 +8,28 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Cool slate base
         navy: {
-          DEFAULT: '#0d1b2a',
-          800: '#112233',
-          700: '#162d44',
-          600: '#1e3a55',
+          DEFAULT: '#0f172a',
+          800: '#1e293b',
+          700: '#334155',
+          600: '#475569',
         },
+        // Restrained steel-blue accent (token name kept as `teal` for compatibility)
         teal: {
-          DEFAULT: '#00c9a7',
-          400: '#00e5c0',
-          600: '#00a88c',
+          DEFAULT: '#5b7ba6',
+          400: '#7a97bd',
+          600: '#48637f',
+        },
+        // Desaturated risk signals — these are the only saturated colors in the UI
+        // and only appear on actual results. Merged into Tailwind's default scales.
+        red: {
+          400: '#cf7b72',
+          500: '#c0564b',
+        },
+        amber: {
+          400: '#cda85c',
+          500: '#bf9040',
         },
       },
       fontFamily: {

@@ -18,11 +18,11 @@ function Header() {
     <header className="border-b border-white/5 px-5 py-3.5">
       <div className="max-w-3xl mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-[#00c9a7] flex items-center justify-center">
-            <Shield className="w-3.5 h-3.5 text-[#0d1b2a]" strokeWidth={2.5} />
+          <div className="w-7 h-7 rounded-lg bg-[#5b7ba6] flex items-center justify-center">
+            <Shield className="w-3.5 h-3.5 text-[#0f172a]" strokeWidth={2.5} />
           </div>
           <span className="font-bold text-sm tracking-tight">
-            Ship<span className="text-[#00c9a7]">Happens</span>
+            Ship<span className="text-[#5b7ba6]">Happens</span>
           </span>
         </Link>
         <span className="text-xs text-slate-500">KYC / AML screening</span>
@@ -105,7 +105,7 @@ function ScreenInner() {
   const report = useMock ? mockReport : live.report;
 
   return (
-    <div className="min-h-screen bg-[#0d1b2a] flex flex-col">
+    <div className="min-h-screen bg-[#0f172a] flex flex-col">
       <Header />
       <main className="flex-1 px-5 py-8 sm:py-10">
         <div className="max-w-3xl mx-auto">
@@ -134,8 +134,8 @@ export default function ScreenPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#0d1b2a] flex items-center justify-center">
-          <Loader className="w-6 h-6 text-[#00c9a7] animate-spin" />
+        <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
+          <Loader className="w-6 h-6 text-[#5b7ba6] animate-spin" />
         </div>
       }
     >

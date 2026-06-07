@@ -4,12 +4,12 @@
 @tailwind utilities;
 
 :root {
-  --navy: #0d1b2a;
+  --navy: #0f172a;
   --navy-card: rgba(255, 255, 255, 0.04);
   --navy-border: rgba(255, 255, 255, 0.08);
-  --teal: #00c9a7;
-  --teal-dim: rgba(0, 201, 167, 0.1);
-  --teal-border: rgba(0, 201, 167, 0.3);
+  --teal: #5b7ba6;
+  --teal-dim: rgba(91, 123, 166, 0.1);
+  --teal-border: rgba(91, 123, 166, 0.3);
 }
 
 * {
@@ -37,7 +37,7 @@ body {
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 201, 167, 0.4);
+  background: rgba(91, 123, 166, 0.4);
 }
 
 /* Form inputs */
@@ -60,14 +60,14 @@ body {
 }
 .field:focus {
   border-color: var(--teal);
-  background: rgba(0, 201, 167, 0.06);
+  background: rgba(91, 123, 166, 0.06);
 }
 .field:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
 select.field option {
-  background: #112233;
+  background: #1e293b;
   color: white;
 }
 
