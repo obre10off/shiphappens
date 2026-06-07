@@ -2,7 +2,7 @@
 
 > **Living memory of this project.** Keep this file current — see the rule in
 > [CLAUDE.md](./CLAUDE.md). Update it whenever a plan file changes or a build step ships.
-> Last updated: 2026-06-07 (added EU Sanctions Tracker as a second source check after the primary sanctions check).
+> Last updated: 2026-06-07 (added a "review"-band mock fixture + per-step timeouts in the mock workflow).
 
 ## What we're building
 
@@ -79,7 +79,16 @@ PEP status, and adverse media in ~8s instead of 45 min.* Built for a hackathon.
 
 ## Progress log
 
-- **2026-06-07** — **Feature-flagged the agent tool-call visuals.** Added `lib/config.ts` as the
+- **2026-06-07** — **"Review"-band mock fixture + per-step mock timeouts.** Added
+  `mockRiskReportReview` (the real Oleg Nevzorov run — `band: review`, score 33, empty
+  sanctions/EU, rich adverse media: 14 sources, 10-entry timeline, one high-risk activity flag) to
+  `lib/contracts/mocks.ts` alongside `mockInputReview`/`mockSanctionsReview`/`mockEuSanctionsReview`/
+  `mockAdverseMediaReview`. `?mock=1` now picks it when the name matches `/nevzorov/i` (clear →
+  kovacheva/asdf/qwerty, else high). Replaced the uniform 1.4s-per-phase cadence in `runMock`
+  (`app/screen/page.tsx`) with a `PHASE_DURATIONS_MS` map (sanctions 1.6s · eu_sanctions 1.2s ·
+  adverse_media 4.5s · synthesis 1.8s, `PHASE_GAP_MS` 200ms) walked via a cumulative `cursor`, so each
+  step has its own timeout and adverse media visibly dominates — mirroring the real run's
+  `durationMs`. `tsc` clean, no lint errors. Added `lib/config.ts` as the
   single source of truth for feature flags, with `featureFlags.showAgentToolCalls` (default
   **false**). The `ToolCallStream` ("Agent tool calls") render on `/screen` is now gated behind that
   flag; the agent's tool-calling loop is unchanged — only the visual surface is hidden. Flip the flag

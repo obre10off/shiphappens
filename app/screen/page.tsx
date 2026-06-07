@@ -5,10 +5,11 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Loader, Shield } from 'lucide-react';
 import type { RiskReport, ScreeningInput } from '@/lib/contracts/types';
-import { mockRiskReport, mockRiskReportClear } from '@/lib/contracts/mocks';
+import { mockRiskReport, mockRiskReportClear, mockRiskReportReview } from '@/lib/contracts/mocks';
 import {
   PHASE_ORDER,
   useScreening,
+  type Phase,
   type PhaseState,
   type ToolCallState,
 } from '@/lib/client/useScreening';
@@ -19,6 +20,17 @@ import { RiskDashboard } from '@/components/RiskDashboard';
 import { featureFlags } from '@/lib/config';
 
 type View = 'form' | 'running' | 'done';
+
+// Per-step durations for the mock workflow. Mirrors a real run where the
+// sanctions/EU checks are quick API lookups and adverse-media is deep research.
+const PHASE_DURATIONS_MS: Record<Phase, number> = {
+  sanctions: 1600,
+  eu_sanctions: 1200,
+  adverse_media: 4500,
+  social: 1000,
+  synthesis: 1800,
+};
+const PHASE_GAP_MS = 200;
 
 function mockSanctionsSummary(report: RiskReport): string {
   const s = report.sanctions;
@@ -84,7 +96,12 @@ function ScreenInner() {
 
   const runMock = (input: ScreeningInput) => {
     const isClear = /kovacheva|asdf|qwerty/i.test(input.name);
-    const report = isClear ? mockRiskReportClear : mockRiskReport;
+    const isReview = /nevzorov/i.test(input.name);
+    const report = isClear
+      ? mockRiskReportClear
+      : isReview
+        ? mockRiskReportReview
+        : mockRiskReport;
     const order = PHASE_ORDER;
     setMockPhases(order.map((phase) => ({ phase, status: 'pending' })));
     setMockToolCalls([]);
@@ -125,7 +142,14 @@ function ScreenInner() {
       },
     };
 
-    order.forEach((phase, i) => {
+    // Walk the phases sequentially, giving each its own timeout so the run feels
+    // like the real workflow (quick lookups, slow deep adverse-media research).
+    let cursor = 0;
+    order.forEach((phase) => {
+      const startAt = cursor;
+      const doneAt = startAt + PHASE_DURATIONS_MS[phase];
+      cursor = doneAt + PHASE_GAP_MS;
+
       setTimeout(() => {
         setMockPhases((prev) =>
           prev.map((p) => (p.phase === phase ? { ...p, status: 'running' } : p)),
@@ -137,7 +161,7 @@ function ScreenInner() {
             { tool: t.tool, status: 'running', args: t.args },
           ]);
         }
-      }, i * 1400);
+      }, startAt);
       setTimeout(() => {
         const matches =
           phase === 'sanctions'
@@ -158,16 +182,13 @@ function ScreenInner() {
             ),
           );
         }
-      }, i * 1400 + 1100);
+      }, doneAt);
     });
 
-    setTimeout(
-      () => {
-        setMockReport({ ...report, input });
-        setView('done');
-      },
-      order.length * 1400 + 200,
-    );
+    setTimeout(() => {
+      setMockReport({ ...report, input });
+      setView('done');
+    }, cursor);
   };
 
   const handleSubmit = (input: ScreeningInput) => {

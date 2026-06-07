@@ -207,6 +207,220 @@ export const mockRiskReport: RiskReport = {
   durationMs: 6800,
 };
 
+// ── Review-band fixture (Oleg Nevzorov) ──────────────────────────────────────
+// Captured from a real run; drives the `?mock=1` demo for a "review" verdict.
+export const mockInputReview: ScreeningInput = {
+  name: 'Oleg Nevzorov',
+  country: 'Bulgaria',
+};
+
+export const mockSanctionsReview: SanctionsResult = {
+  matches: [],
+  totalMatches: 0,
+  bestScore: 0,
+  isPep: false,
+  isSanctioned: false,
+  datasetsHit: [],
+  scope: 'default',
+};
+
+export const mockEuSanctionsReview: EuSanctionsResult = {
+  matches: [],
+  totalMatches: 0,
+  bestScore: 0,
+  isListed: false,
+  source: 'EU Sanctions Tracker (data.europa.eu) — consolidated EU financial sanctions + travel bans',
+  snapshotDate: '2026-06-07T10:00:59.944+00:00',
+};
+
+const NEVZOROV_SUMMARY = [
+  '**Overview**',
+  '',
+  "Oleg Nevzorov is a Ukrainian national from Odesa, founder and head of KYB Corporation (also referred to as KUB/Cube Corporation), active in large-scale real estate development in Bulgaria and Ukraine. He is the central figure in what Bulgarian authorities have described as the country's biggest scandal of the year: the alleged illegal construction of 104 buildings in the protected Baba Alino locality near Varna.",
+  '',
+  '**Key Findings**',
+  '',
+  '- **Illegal construction / "Illegal City"**: In late May 2026, Bulgarian authorities exposed a complex of 104 structures built without permits on approximately 10 hectares inside a Natura 2000 forest zone near Golden Sands, Varna. The project was marketed as "Forest Club" and sold to Ukrainian and Bulgarian buyers [1][3].',
+  '',
+  '- **29 detentions**: During investigative operations on 28 May 2026, 29 Ukrainian and Moldovan nationals were detained in connection with the Baba Alino complex [2][4].',
+  '',
+  '- **Money laundering and organised crime probe**: Bulgaria\'s Interior Minister Ivan Demerdzhiev confirmed that the General Directorate for Combating Organized Crime (GDBOP) is investigating the case alongside economic police, with data pointing to money laundering. The minister described the construction as "only the tip of the iceberg" [3][8][12].',
+  '',
+  '- **Intelligence investigation**: Bulgarian intelligence (DANS) was reportedly investigating Nevzorov for money laundering, connections to Russian intelligence services, and allegations of human trafficking and drug trafficking, according to court documents [1].',
+  '',
+  "- **Russian shadow fleet / money laundering**: BNT sources alleged money laundering linked to proceeds from illicit trade conducted through Russia's so-called shadow fleet [7].",
+  '',
+  '- **Deportation order reversed**: DANS head Denyo Denev signed a deportation order and ten-year entry ban against Nevzorov on 3 July 2025; the order was unexpectedly revoked on 17 July 2025, reportedly following intervention by Ukraine\'s ambassador Olesya Ilashchuk and, according to some Bulgarian media, at the request of GERB leader Boyko Borisov [4][7][13].',
+  '',
+  '- **Political protection allegations**: Bulgarian authorities are investigating whether the reversal of the deportation order was made at the political level, and whether municipal and state officials facilitated illegal construction activities [8][9][13].',
+  '',
+  '- **Fled Bulgaria**: After searches on 28 May 2026, Nevzorov disappeared from Varna. He reportedly crossed into Romania via a northern Bulgarian border crossing and then travelled to Turkey. MP Boyko Rashkov stated Nevzorov may be evading military mobilisation in Ukraine [3][11].',
+  '',
+  '- **Ukrainian criminal history**: Multiple criminal cases have been filed against Nevzorov in Ukraine, including charges of falsifying financial statements and documents to obtain bank loans illegally, alleged tax evasion of approximately 23 million hryvnias, asset freezes dating to 2018, and allegations of double-selling apartments in Odesa construction projects [1][5][6].',
+  '',
+  '- **Illegal firearms**: An investigation is underway in Ukraine for alleged illegal possession of firearms [5][6].',
+  '',
+  "- **Political connections in Ukraine**: Nevzorov is accused of close ties to Gennady Trukhanov, long-time mayor of Odesa, whose political circle allegedly provided institutional protection for KYB Corporation's large-scale projects despite ongoing criminal cases [5][6].",
+  '',
+  '- **Pro-Russian political financing**: Nevzorov allegedly financially supported a pro-Russian Ukrainian political party in 2020 [10].',
+  '',
+  '- **Father implicated**: His father Vladimir Nevzorov is also under investigation in Ukraine for document fraud and embezzlement through fake bank loans [5][6].',
+  '',
+  '**Risk Drivers**',
+  '',
+  '- Active investigations in both Bulgaria and Ukraine across multiple serious offences (money laundering, fraud, illegal construction, possible organised crime links).',
+  '- Alleged political protection at high levels in Bulgaria and Ukraine, including possible foreign diplomatic interference.',
+  '- Subject of DANS deportation order (subsequently reversed under disputed circumstances).',
+  '- Currently a fugitive: located outside Bulgaria (Turkey) and evading authorities.',
+  '- Connections alleged to Russian intelligence services and Russia-linked financial networks.',
+].join('\n');
+
+export const mockAdverseMediaReview: AdverseMediaResult = {
+  name: 'Oleg Nevzorov',
+  badPress: true,
+  badPressLast5Years: true,
+  highRiskActivitiesFlag: true,
+  highRiskActivities: ['Hospitality and leisure sector'],
+  summary: NEVZOROV_SUMMARY,
+  sources: [
+    {
+      url: 'https://www.novinite.com/articles/238829/The+Ukrainian+Investor%2C+the+Illegal+City%2C+and+the+Political+Cover%3A+Bulgaria%27s+Biggest+Scandal+of+the+Year',
+      note: 'Background on Nevzorov, KYB Corporation, illegal construction, Bulgarian intelligence investigation, and Ukrainian adverse history',
+    },
+    {
+      url: 'https://antikor.info/en/articles/841818-delo_baba_alino_v_bolgarii_zaderhali_29_ukraintsev_i_moldavan_iz-za_nezakonnogo_megaproekta_moshennika_olega_nevzorova',
+      note: 'Baba Alino case: 29 detentions, overview of Nevzorov\'s legal troubles in Bulgaria',
+    },
+    {
+      url: 'https://www.novinite.com/articles/238882/Baba+Alino+Update%3A+Nevzorov+in+Turkey%2C+Money+Laundering+Probe+Widens%2C+KYB+Pushes+Back',
+      note: 'Nevzorov located in Turkey; money laundering probe widened; GDBOP involvement confirmed; deportation order background',
+    },
+    {
+      url: 'https://rozsliduvach.info/news/254084-the_baba_alino_syndicate_how_odesa_developer_oleh_nevzorov_illegally_built_104_houses_in_bulgaria_and_fled_in_a_vehicle_linked_to_the_ukrainian_embajay/print',
+      note: 'Details on deportation order signed July 2025, reversal on 17 July 2025, Ukrainian ambassador intervention, vehicle seen at Ukrainian embassy',
+    },
+    {
+      url: 'https://fakti.bg/en/amp/razsledvania/1058153-a-long-time-mayor-of-odessa-and-a-gas-monopolist-were-among-the-patrons-of-the-kub-group',
+      note: 'Ukrainian criminal cases: falsified financial documents, bank loan fraud, firearms, political connections to Trukhanov and Odessagaz',
+    },
+    {
+      url: 'https://fakti.bg/en/razsledvania/1058153-a-long-time-mayor-of-odessa-and-a-gas-monopolist-were-among-the-patrons-of-the-kub-group',
+      note: 'KYB/KUB Corporation criminal background in Ukraine, father Vladimir Nevzorov also under investigation',
+    },
+    {
+      url: 'https://bntnews.bg/news/the-alleged-illegal-town-near-varna-who-is-oleg-nevzorov-and-what-is-known-about-his-business-interests-1396228news.html',
+      note: 'Deportation order dates (3 July and 17 July 2025); money laundering linked to Russian shadow fleet',
+    },
+    {
+      url: 'https://bntnews.bg/news/minister-of-interior-authorities-have-information-on-oleg-nevzorov%E2%80%99s-movements-1397034news.html',
+      note: 'Interior Minister Demerdzhiev: GDBOP involvement, political interference indications, thousands of documents seized',
+    },
+    {
+      url: 'https://fakti.bg/en/bulgaria/1059164-ivan-demerdjiev-ukrainskiat-poslanik-u-nas-se-e-namesil-v-sluchaa-s-oleg-nevzorov',
+      note: 'Interior Minister confirms Ukrainian ambassador intervention; investigation into political and municipal connections',
+    },
+    {
+      url: 'https://www.bta.bg/en/news/bulgaria/1139346-media-review-june-3',
+      note: 'Nevzorov allegedly financed pro-Russian Ukrainian political party in 2020; BNT security sources on Russian-linked money laundering',
+    },
+    {
+      url: 'https://www.bta.bg/en/news/bulgaria/1139372-owner-of-ukrainian-corporation-kyb-currently-in-turkiye-mp-rashkov-says',
+      note: 'MP Rashkov confirms Nevzorov in Turkey, likely evading military mobilisation',
+    },
+    {
+      url: 'https://bnrnews.bg/en/post/484168/nationwide-checks-launched-into-illegal-construction-projects',
+      note: 'Nationwide inspections launched; Interior Ministry searching for Nevzorov; political interference and money laundering indications',
+    },
+    {
+      url: 'https://fakti.bg/en/razsledvania/1057789-ukrainian-media-construction-scandal-in-varna-may-escalate-into-political-confrontation-between-sofia-and-kiev',
+      note: 'Ukrainian media: deportation reversal allegedly linked to GERB leader Borisov; ambassador described as hidden accomplice',
+    },
+    {
+      url: 'https://eualive.net/did-the-bulgarian-authorities-allow-an-illegal-town-to-rise-near-varna',
+      note: 'Three documents giving Nevzorov carte blanche for construction; DANS persona non grata order and reversal',
+    },
+  ],
+  timeline: [
+    { date: '2018', event: 'Asset freezes against Oleg Nevzorov initiated in Ukraine, linked to alleged financial fraud and property schemes in Odesa.' },
+    { date: '2020', event: 'Nevzorov reportedly financially supported a pro-Russian Ukrainian political party.' },
+    { date: '2021', event: 'Nevzorov included in list of most influential Odesa residents by Odesa Media rating (also listed in 2020).' },
+    { date: '2022-02', event: 'Russia invades Ukraine; Nevzorov relocates to Bulgaria weeks later and registers multiple companies under the KYB Corporation brand in Varna.' },
+    { date: '2023', event: 'Bulgarian authorities first receive signals about possible illegal construction at Baba Alino near Varna; project reportedly continues expanding despite signals.' },
+    { date: '2025-07-03', event: 'DANS acting head Denyo Denev signs order deporting Nevzorov from Bulgaria and banning him from entry for ten years.' },
+    { date: '2025-07-17', event: "Deportation order unexpectedly revoked by Denev, reportedly following intervention by Ukraine's ambassador Olesya Ilashchuk and allegedly at the request of GERB leader Boyko Borisov." },
+    { date: '2026-05-28', event: 'Bulgarian authorities conduct mass searches of all KYB/Baba Alino premises; 29 Ukrainian and Moldovan nationals detained. Nevzorov disappears from Varna.' },
+    { date: '2026-05', event: "Interior Minister Demerdzhiev confirms GDBOP is investigating the case for money laundering and organised crime; describes construction as 'only the tip of the iceberg'." },
+    { date: '2026-06', event: 'MP Boyko Rashkov states Nevzorov is in Turkey, having crossed into Romania via a northern Bulgarian border checkpoint; Nevzorov reportedly evading Ukrainian military mobilisation. Interior Minister confirms authorities have information on his movements.' },
+  ],
+};
+
+const NEVZOROV_HIGH_RISK_KEYS: { key: string; label: string }[] = [
+  { key: 'mining-and-mineral-extraction-e-g-diamonds-precious-metals', label: 'Mining and mineral extraction (e.g. diamonds, precious metals)' },
+  { key: 'oil-gas-and-energy', label: 'Oil, gas and energy' },
+  { key: 'weapons-and-dual-use-goods', label: 'Weapons and dual-use goods' },
+  { key: 'trading-in-valuable-goods-art-antiques-coinage-jewelry-yachts-planes-fur-industry-textile-clothing-leather-shoe-industry-livestock', label: 'Trading in valuable goods (art, antiques, coinage, jewelry, yachts, planes, fur industry, textile, clothing, leather, shoe industry, livestock)' },
+  { key: 'crypto-products-non-fungible-tokens-nfts-or-other-products-with-unusual-complexity', label: 'Crypto products, non-fungible tokens (NFTs) or other products with unusual complexity' },
+  { key: 'crowdfunding', label: 'Crowdfunding' },
+  { key: 'gambling', label: 'Gambling' },
+  { key: 'real-estate-e-g-large-scale-development-construction-company-ownership', label: 'Real estate (e.g. large-scale development, construction company ownership)' },
+  { key: 'coffeeshops-and-growshops', label: 'Coffeeshops and growshops' },
+  { key: 'professional-sports', label: 'Professional sports' },
+  { key: 'charities-and-religious-institutions', label: 'Charities and religious institutions' },
+  { key: 'transport-and-shipping', label: 'Transport and shipping' },
+  { key: 'advisory-and-consultancy-services-when-underlying-activity-is-high-risk', label: 'Advisory and consultancy services (when underlying activity is high-risk)' },
+  { key: 'private-banking', label: 'Private banking' },
+  { key: 'intellectual-property-patents-and-royalties', label: 'Intellectual property, patents and royalties' },
+  { key: 'cash-intensive-sectors', label: 'Cash-intensive sectors' },
+  { key: 'scrap-trade-and-car-dealers', label: 'Scrap-trade and car dealers' },
+  { key: 'online-shops', label: 'Online shops' },
+  { key: 'telecommunications', label: 'Telecommunications' },
+  { key: 'hospitality-and-leisure-sector', label: 'Hospitality and leisure sector' },
+  { key: 'waste-processing-and-hazardous-substances', label: 'Waste processing and hazardous substances' },
+  { key: 'forestry', label: 'Forestry' },
+  { key: 'electronics', label: 'Electronics' },
+  { key: 'employment-agencies', label: 'Employment agencies' },
+  { key: 'tobacco-and-tobacco-related-products', label: 'Tobacco and tobacco-related products' },
+  { key: 'pharmaceuticals', label: 'Pharmaceuticals' },
+  { key: 'genetic-manipulation', label: 'Genetic manipulation' },
+];
+
+export const mockRiskReportReview: RiskReport = {
+  input: mockInputReview,
+  band: 'review',
+  overallScore: 33,
+  weights: {
+    sanctions: 0.6666666666666667,
+    adverseMedia: 0.33333333333333337,
+    social: 0,
+  },
+  sanctions: mockSanctionsReview,
+  euSanctions: mockEuSanctionsReview,
+  adverseMedia: mockAdverseMediaReview,
+  social: null,
+  highRiskActivityScores: NEVZOROV_HIGH_RISK_KEYS.map(({ key, label }) => ({
+    key,
+    label,
+    present: false,
+    score: 0,
+    evidence: [],
+  })),
+  adverseMediaScores: [
+    { key: 'sanctioned', label: 'On a sanctions list', present: false, score: 0, evidence: [] },
+    { key: 'pep', label: 'Politically Exposed Person', present: false, score: 0, evidence: [] },
+    { key: 'bad_press', label: 'Adverse media (any time)', present: true, score: 60, evidence: [] },
+    { key: 'bad_press_recent', label: 'Adverse media (last 5 years)', present: true, score: 100, evidence: [] },
+    { key: 'high_risk_activity', label: 'High-risk activity involvement', present: true, score: 50, evidence: [] },
+  ],
+  summary: NEVZOROV_SUMMARY,
+  recommendation:
+    'Do not proceed yet — conduct enhanced due diligence (EDD) before any decision. Verify identity and ' +
+    'establish source of wealth and source of funds. Review reasons: Adverse media (any time); Adverse media ' +
+    '(last 5 years); High-risk activity involvement.',
+  sources: mockAdverseMediaReview.sources.slice(0, 13),
+  generatedAt: '2026-06-07T13:40:44.173Z',
+  durationMs: 121379,
+};
+
 export const mockRiskReportClear: RiskReport = {
   input: mockInputClear,
   band: 'clear',
