@@ -2,7 +2,7 @@
 
 > **Living memory of this project.** Keep this file current — see the rule in
 > [CLAUDE.md](./CLAUDE.md). Update it whenever a plan file changes or a build step ships.
-> Last updated: 2026-06-07 (feature-flagged agent tool-call visuals via `lib/config.ts`; investor/demo pitch deck at `/presentation`).
+> Last updated: 2026-06-07 (bilingual EN/BG pitch deck at `/en/presentation` & `/bg/presentation`, light-only, real demo video).
 
 ## What we're building
 
@@ -79,17 +79,21 @@ PEP status, and adverse media in ~8s instead of 45 min.* Built for a hackathon.
   **false**). The `ToolCallStream` ("Agent tool calls") render on `/screen` is now gated behind that
   flag; the agent's tool-calling loop is unchanged — only the visual surface is hidden. Flip the flag
   in `lib/config.ts` to re-enable.
-- **2026-06-07** — **Pitch deck added** (`app/presentation/page.tsx`). A self-contained,
-  client-side full-screen slide deck (12 slides) at `/presentation`, on-theme (DM Sans, white
-  canvas / `bg-night` dark slides, single indigo accent, two-dot mark). Keyboard nav
-  (←/→/Space/PageUp-Down/Home/End), click arrows, clickable progress dots, slide counter +
-  progress bar. Hybrid investor/demo narrative: problem → human factor → false-positive chain
-  reaction → enforcement stakes → solution (3-step) → **YouTube demo embed** → speed before/after
-  → value (4 pillars) → market (TAM/SAM) → vision (ongoing monitoring + deeper research) → close.
-  Stats are researched + footnoted (LexisNexis $206B FCC cost, 31–60% manual KYC, $2k+/review,
-  90–95% false positives, ~$4B 2025 AML fines incl. crypto $1B+, RegTech ~$22B→~$85B @ ~21% CAGR).
-  **Demo video: set `YOUTUBE_VIDEO_ID` at the top of the file** (currently `''` → styled play
-  placeholder). `next build` clean; verified in-browser across light/dark slides.
+- **2026-06-07** — **Pitch deck added — now bilingual (EN/BG), light-only.** A self-contained,
+  client-side full-screen slide deck (12 slides), on-theme (DM Sans, white canvas, single indigo
+  accent, two-dot mark). **All slides are uniform light — no dark backgrounds** (per user request).
+  Structure: shared `components/PresentationDeck.tsx` (layout + keyboard nav ←/→/Space/PageUp-Down/
+  Home/End, click arrows, clickable progress dots, counter, progress bar, EN/BG language switcher)
+  driven entirely by `lib/presentation/content.ts` (`en` + `bg` dictionaries, typed
+  `PresentationContent`). Routes: **`/en/presentation`** (English) and **`/bg/presentation`**
+  (Bulgarian); **`/presentation` 307-redirects to `/en/presentation`**. Hybrid investor/demo
+  narrative: problem → human factor → false-positive chain reaction → enforcement stakes →
+  solution (3-step) → **YouTube demo embed** → speed before/after → value (4 pillars) → market
+  (TAM/SAM) → vision (ongoing monitoring + deeper research) → close. Stats researched + footnoted
+  (LexisNexis $206B FCC cost, 31–60% manual KYC, $2k+/review, 90–95% false positives, ~$4B 2025
+  AML fines incl. crypto $1B+, RegTech ~$22B→~$85B @ ~21% CAGR). **Demo video id is
+  `DEMO_VIDEO_ID = 'rZh0m8bg67k'` in `lib/presentation/content.ts`.** `next build` clean; both
+  locales + redirect verified in-browser.
 - **2026-06-07** — **Relevant-citations + meaningful-tags pass** (follow-up):
   (1) **Summary no longer truncates** — `generateObject` now sets `maxOutputTokens: 8000`; the prompt
   insists every sentence/`**` is closed; the `Markdown` renderer strips stray unclosed `**`.
