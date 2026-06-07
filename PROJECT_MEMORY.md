@@ -2,7 +2,7 @@
 
 > **Living memory of this project.** Keep this file current — see the rule in
 > [CLAUDE.md](./CLAUDE.md). Update it whenever a plan file changes or a build step ships.
-> Last updated: 2026-06-07 (full implementation landed).
+> Last updated: 2026-06-07 (added agent tool-calling visualization).
 
 ## What we're building
 
@@ -79,3 +79,15 @@ PEP status, and adverse media in ~8s instead of 45 min.* Built for a hackathon.
   **Tavily** (user decision) and capped it at 5 results. Fixed OpenSanctions PEP/sanction detection
   (`properties.topics` fallback). 33 unit tests green (+2 live skipped). `next build` clean. Verified live
   end-to-end against real Anthropic + Tavily + OpenSanctions keys.
+- **2026-06-07** — Fixed adverse-media source links pointing to root domains. The LLM was emitting the
+  `sources` URLs itself and collapsing them to domains. Switched the schema to **ref-based citations**
+  (`sources: [{ ref, note }]`), updated `FULL_SYSTEM_PROMPT` to cite the numbered `[n]` search results,
+  and resolve refs back to the exact Tavily deep links in `sanitizeAdverseMedia(obj, hits)`. Invalid
+  refs are dropped, results deduped by URL. Added a unit test for the resolution.
+- **2026-06-07** — Added an **agent tool-calling visualization** to the running view. Extended the NDJSON
+  protocol with a `tool` event (`{ tool, status: call|result, args, summary, ok }`), emitted from each
+  tool's `execute` AND the deterministic fallback in `lib/agent/agent.ts`. `useScreening` now tracks
+  `toolCalls[]`; new `components/ToolCallStream.tsx` renders expandable agent-style cards (tool
+  signature, source, pretty-printed args, ✓/spinner/⚠ status, one-line result summary). Wired into
+  `app/screen/page.tsx` for both live and mock modes (mock synthesizes the calls/summaries from the
+  fixture report). Verified live in-browser. 34 tests green, `tsc` clean.

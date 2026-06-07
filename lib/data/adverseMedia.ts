@@ -23,8 +23,10 @@ Guidelines:
 - The summary must be plain text.
 
 5. Sources:
-- Provide a list of research sources as objects with: { "url": "...", "note": "optional explanation" }
-- Only include URLs that directly support stated facts. Use an empty array [] if none are found.
+- The SEARCH RESULTS below are numbered [1], [2], [3], … Cite them by that number.
+- Provide a list of research sources as objects with: { "ref": <the [n] number of the search result>, "note": "optional explanation" }
+- "ref" MUST be the integer index of a search result you actually used. Never invent a ref or a URL.
+- Only cite results that directly support stated facts. Use an empty array [] if none are found.
 
 6. Timeline:
 - Produce a "timeline" array of objects in chronological order ordered oldest to newest.
@@ -55,7 +57,7 @@ Return results in JSON with this structure:
 "highRiskActivitiesFlag": boolean,
 "highRiskActivities": string[],
 "summary": string,
-"sources": [ { "url": string, "note": string (optional) } ],
+"sources": [ { "ref": number, "note": string (optional) } ],
 "timeline": [ { "date": string | "", "event": string } ]
 }
 `.trim();

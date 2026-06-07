@@ -11,6 +11,7 @@ import type {
   SanctionsResult,
   ScreeningInput,
   ScreenEvent,
+  ToolName,
 } from '@/lib/contracts/types';
 
 export type Phase = 'sanctions' | 'adverse_media' | 'social' | 'synthesis';
@@ -21,6 +22,14 @@ export interface PhaseState {
   status: PhaseStatus;
   detail?: string;
   matches?: number;
+}
+
+export interface ToolCallState {
+  tool: ToolName;
+  status: 'running' | 'done';
+  args?: Record<string, unknown>;
+  summary?: string;
+  ok?: boolean;
 }
 
 export const PHASE_ORDER: Phase[] = ['sanctions', 'adverse_media', 'synthesis'];
@@ -48,6 +57,7 @@ export function parseChunk(buffer: string): { events: ScreenEvent[]; rest: strin
 
 export function useScreening() {
   const [phases, setPhases] = useState<PhaseState[]>(initialPhases);
+  const [toolCalls, setToolCalls] = useState<ToolCallState[]>([]);
   const [report, setReport] = useState<RiskReport | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
@@ -58,6 +68,7 @@ export function useScreening() {
   const reset = useCallback(() => {
     abortRef.current?.abort();
     setPhases(initialPhases());
+    setToolCalls([]);
     setReport(null);
     setError(null);
     setIsRunning(false);
@@ -79,6 +90,18 @@ export function useScreening() {
             : p,
         ),
       );
+    } else if (e.type === 'tool') {
+      setToolCalls((prev) => {
+        if (e.status === 'call') {
+          // New invocation (or restart) — upsert a running entry.
+          const next = prev.filter((t) => t.tool !== e.tool);
+          return [...next, { tool: e.tool, status: 'running', args: e.args }];
+        }
+        // 'result' — mark the matching call done.
+        return prev.map((t) =>
+          t.tool === e.tool ? { ...t, status: 'done', summary: e.summary, ok: e.ok } : t,
+        );
+      });
     } else if (e.type === 'partial') {
       if (e.sanctions) setPartialSanctions(e.sanctions);
       if (e.adverseMedia) setPartialAdverse(e.adverseMedia);
@@ -147,6 +170,7 @@ export function useScreening() {
     start,
     reset,
     phases,
+    toolCalls,
     report,
     error,
     isRunning,

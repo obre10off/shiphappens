@@ -42,11 +42,13 @@ async function call(
   const body: Record<string, unknown> = {
     query,
     search_depth: 'advanced',
-    topic: 'news',
+    topic: 'general',
     max_results: 5,
     include_answer: false,
   };
-  if (country) body.country = country;
+  // Tavily's `country` expects a full lowercase country name (e.g. "bulgaria"),
+  // NOT an ISO code — an invalid value returns HTTP 400. We retry without it below.
+  if (country) body.country = country.toLowerCase();
 
   try {
     let res: Response | undefined;
@@ -62,6 +64,11 @@ async function call(
           signal: controller.signal,
         });
         if (res.ok) break;
+        // An unrecognized country yields 400 — drop it and retry once unfiltered.
+        if (res.status === 400 && body.country && attempt === 0) {
+          delete body.country;
+          continue;
+        }
         if (res.status >= 500 && attempt === 0) continue;
         throw new TavilyError(`Tavily ${res.status}`, res.status);
       } catch (err) {

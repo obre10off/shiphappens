@@ -8,7 +8,6 @@ import { z } from 'zod';
 import { FULL_SYSTEM_PROMPT } from '@/lib/data/adverseMedia';
 import { adverseMediaSchema, sanitizeAdverseMedia } from '@/lib/agent/schema';
 import { MODEL_ID } from '@/lib/agent/prompts';
-import { toIso2 } from '@/lib/sanctions/countries';
 import type { AdverseMediaResult } from '@/lib/contracts/types';
 import { searchWeb, type SearchHit } from './tavily';
 
@@ -62,11 +61,17 @@ export async function analyzeAdverseMedia(args: AdverseArgs): Promise<AdverseMed
   try {
     hits = await searchWeb(
       { name: args.name, company: args.company, country: args.country, freeText: args.freeText },
-      { country: toIso2(args.country) },
+      // Tavily wants a full country name (e.g. "bulgaria"), not an ISO-2 code.
+      { country: args.country },
+    );
+    console.log(
+      `[tavily] ${args.name} (${args.country}) → ${hits.length} hit(s)\n` +
+        hits.map((h, i) => `  [${i + 1}] ${h.link}`).join('\n'),
     );
   } catch (err) {
     // Search failed — still ask the model, but it will have no grounding.
     hits = [];
+    console.error(`[tavily] search failed for ${args.name}:`, err instanceof Error ? err.message : err);
     if (!process.env.ANTHROPIC_API_KEY) {
       return degraded(args.name, err instanceof Error ? err.message : 'search failed');
     }
@@ -79,7 +84,7 @@ export async function analyzeAdverseMedia(args: AdverseArgs): Promise<AdverseMed
       system: FULL_SYSTEM_PROMPT,
       prompt: buildContext(args, hits),
     });
-    const sanitized = sanitizeAdverseMedia(object);
+    const sanitized = sanitizeAdverseMedia(object, hits);
     // Ensure the name field reflects the subject we screened.
     return { ...sanitized, name: sanitized.name || args.name };
   } catch (err) {

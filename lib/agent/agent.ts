@@ -26,6 +26,28 @@ export interface ScreeningBundle {
 
 type Emit = (e: ScreenEvent) => void;
 
+function sanctionsSummary(res: SanctionsResult): string {
+  if (res.error) return `failed — ${res.error}`;
+  const flags = [
+    res.isSanctioned ? 'SANCTIONED' : null,
+    res.isPep ? 'PEP' : null,
+  ].filter(Boolean);
+  const base = `${res.totalMatches} match${res.totalMatches === 1 ? '' : 'es'} · best score ${Math.round(
+    res.bestScore * 100,
+  )}%`;
+  return flags.length ? `${base} · ${flags.join(' · ')}` : base;
+}
+
+function adverseSummary(res: AdverseMediaResult): string {
+  if (res.error) return `failed — ${res.error}`;
+  const flags = [
+    res.badPressLast5Years ? 'recent adverse media' : res.badPress ? 'adverse media' : null,
+    res.highRiskActivitiesFlag ? `${res.highRiskActivities.length} high-risk activit${res.highRiskActivities.length === 1 ? 'y' : 'ies'}` : null,
+  ].filter(Boolean);
+  const base = `${res.sources.length} source${res.sources.length === 1 ? '' : 's'}`;
+  return flags.length ? `${base} · ${flags.join(' · ')}` : `${base} · no adverse findings`;
+}
+
 export async function runScreening(
   input: ScreeningInput,
   onEvent: Emit = () => {},
@@ -45,8 +67,16 @@ export async function runScreening(
       }),
       execute: async (args) => {
         onEvent({ type: 'phase', phase: 'sanctions', status: 'start' });
+        onEvent({ type: 'tool', tool: 'searchSanctions', status: 'call', args });
         const res = await searchSanctions(args);
         captured.sanctions = res;
+        onEvent({
+          type: 'tool',
+          tool: 'searchSanctions',
+          status: 'result',
+          summary: sanctionsSummary(res),
+          ok: !res.error,
+        });
         onEvent({ type: 'phase', phase: 'sanctions', status: 'done', matches: res.totalMatches });
         onEvent({ type: 'partial', sanctions: res });
         return res;
@@ -65,8 +95,16 @@ export async function runScreening(
       }),
       execute: async (args) => {
         onEvent({ type: 'phase', phase: 'adverse_media', status: 'start' });
+        onEvent({ type: 'tool', tool: 'searchGoogle', status: 'call', args });
         const res = await analyzeAdverseMedia(args);
         captured.adverseMedia = res;
+        onEvent({
+          type: 'tool',
+          tool: 'searchGoogle',
+          status: 'result',
+          summary: adverseSummary(res),
+          ok: !res.error,
+        });
         onEvent({
           type: 'phase',
           phase: 'adverse_media',
@@ -94,7 +132,20 @@ export async function runScreening(
   // Deterministic fallback — guarantee both signals exist.
   if (!captured.sanctions) {
     onEvent({ type: 'phase', phase: 'sanctions', status: 'start' });
+    onEvent({
+      type: 'tool',
+      tool: 'searchSanctions',
+      status: 'call',
+      args: { name: input.name, dateOfBirth: input.dateOfBirth, country: input.country, company: input.company },
+    });
     captured.sanctions = await searchSanctions(input);
+    onEvent({
+      type: 'tool',
+      tool: 'searchSanctions',
+      status: 'result',
+      summary: sanctionsSummary(captured.sanctions),
+      ok: !captured.sanctions.error,
+    });
     onEvent({
       type: 'phase',
       phase: 'sanctions',
@@ -105,7 +156,20 @@ export async function runScreening(
   }
   if (!captured.adverseMedia) {
     onEvent({ type: 'phase', phase: 'adverse_media', status: 'start' });
+    onEvent({
+      type: 'tool',
+      tool: 'searchGoogle',
+      status: 'call',
+      args: { name: input.name, dateOfBirth: input.dateOfBirth, country: input.country, company: input.company, freeText: input.freeText },
+    });
     captured.adverseMedia = await analyzeAdverseMedia(input);
+    onEvent({
+      type: 'tool',
+      tool: 'searchGoogle',
+      status: 'result',
+      summary: adverseSummary(captured.adverseMedia),
+      ok: !captured.adverseMedia.error,
+    });
     onEvent({
       type: 'phase',
       phase: 'adverse_media',

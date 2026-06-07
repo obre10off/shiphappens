@@ -46,6 +46,25 @@ describe('sanitizeAdverseMedia', () => {
     expect(out.highRiskActivities).toEqual([]);
     expect(out.highRiskActivitiesFlag).toBe(false);
   });
+
+  it('resolves ref-based sources to the real deep URLs and drops bad refs', () => {
+    const hits = [
+      { link: 'https://news.example.com/article-a', title: 'Article A' },
+      { link: 'https://news.example.com/article-b', title: 'Article B' },
+    ];
+    const out = sanitizeAdverseMedia(
+      {
+        name: 'X', badPress: true, badPressLast5Years: false, highRiskActivitiesFlag: false,
+        highRiskActivities: [], summary: '',
+        sources: [{ ref: 2, note: 'fraud charge' }, { ref: 99 }],
+        timeline: [],
+      },
+      hits,
+    );
+    expect(out.sources).toEqual([
+      { url: 'https://news.example.com/article-b', note: 'fraud charge' },
+    ]);
+  });
 });
 
 describe('runScreening', () => {

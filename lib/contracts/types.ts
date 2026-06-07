@@ -93,6 +93,8 @@ export interface RiskReport {
 }
 
 // ── Streaming protocol (Part 2 → Part 4 over SSE / NDJSON) ──────────────
+export type ToolName = 'searchSanctions' | 'searchGoogle';
+
 export type ScreenEvent =
   | {
       type: 'phase';
@@ -100,6 +102,15 @@ export type ScreenEvent =
       status: 'start' | 'done';
       detail?: string;
       matches?: number;
+    }
+  | {
+      // A concrete agent tool invocation — surfaced for the tool-calling UI.
+      type: 'tool';
+      tool: ToolName;
+      status: 'call' | 'result';
+      args?: Record<string, unknown>; // present on 'call'
+      summary?: string; // present on 'result' — one-line outcome
+      ok?: boolean; // present on 'result' — false if the tool degraded
     }
   | { type: 'partial'; sanctions?: SanctionsResult; adverseMedia?: AdverseMediaResult }
   | { type: 'report'; report: RiskReport } // terminal success
