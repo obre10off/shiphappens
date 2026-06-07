@@ -12,12 +12,9 @@ import {
   ChevronRight,
   Clock,
   FileText,
-  Gauge,
-  Globe2,
   Scale,
   Search,
   ShieldCheck,
-  Sparkles,
   TrendingUp,
   Zap,
 } from 'lucide-react';
@@ -116,7 +113,6 @@ export default function PresentationDeck({
   const stakesTagIcons: LucideIcon[] = [Scale, AlertTriangle, Banknote];
   const solutionIcons: LucideIcon[] = [Search, ShieldCheck, FileText];
   const valueIcons: LucideIcon[] = [Zap, Brain, Banknote, Scale];
-  const visionIcons: LucideIcon[] = [Gauge, Sparkles];
 
   const slides: { id: string; label: string; render: () => React.ReactNode }[] = [
     // 01 — Title
@@ -405,62 +401,7 @@ export default function PresentationDeck({
       ),
     },
 
-    // 10 — Market
-    {
-      id: 'market',
-      label: t.market.label,
-      render: () => (
-        <div>
-          <Kicker>{t.market.kicker}</Kicker>
-          <StreamingText text={t.market.heading} className={HEADING} />
-          <div className="mt-14 grid gap-5 sm:grid-cols-3">
-            {t.market.stats.map((s, i) => (
-              <BigStat
-                key={s.label}
-                value={s.value}
-                label={s.label}
-                accent={i === 0 ? 'ink' : 'indigo'}
-                index={i}
-              />
-            ))}
-          </div>
-          <Reveal index={3} className="mt-10">
-            <div className="flex items-center gap-3 rounded-2xl border border-line bg-surface-alt px-6 py-4">
-              <Globe2 className="h-5 w-5 shrink-0 text-accent" />
-              <span className="text-sm text-ink">{t.market.note}</span>
-            </div>
-          </Reveal>
-          <Sources label={t.ui.sources} items={t.market.sources} />
-        </div>
-      ),
-    },
-
-    // 11 — Vision
-    {
-      id: 'vision',
-      label: t.vision.label,
-      render: () => (
-        <div>
-          <Kicker>{t.vision.kicker}</Kicker>
-          <StreamingText text={t.vision.heading} className={HEADING} />
-          <div className="mt-14 grid gap-5 sm:grid-cols-2">
-            {t.vision.items.map((item, i) => {
-              const Icon = visionIcons[i] ?? Sparkles;
-              return (
-                <Reveal key={item} index={i} className="rounded-2xl border border-line bg-surface p-8">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10">
-                    <Icon className="h-6 w-6 text-accent" />
-                  </span>
-                  <h3 className="mt-6 text-xl font-medium text-ink">{item}</h3>
-                </Reveal>
-              );
-            })}
-          </div>
-        </div>
-      ),
-    },
-
-    // 12 — Closing
+    // 10 — Closing
     {
       id: 'closing',
       label: t.closing.label,

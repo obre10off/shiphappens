@@ -44,8 +44,6 @@ export interface PresentationContent {
     sources: string[];
   };
   value: SectionBase & { pillars: string[] };
-  market: SectionBase & { stats: Stat[]; note: string; sources: string[] };
-  vision: SectionBase & { items: string[] };
   closing: { label: string; title1: string; title2: string; cta: string; contact: string };
 }
 
@@ -269,24 +267,6 @@ export const bg: PresentationContent = {
       'Значителни икономии',
       'Репутационна и правна защита',
     ],
-  },
-  market: {
-    label: 'Пазарът',
-    kicker: 'Пазарът',
-    heading: 'Растящ, задължителен разход.',
-    stats: [
-      { value: '$206 млрд.', label: 'разход за съответствие / година (SAM)' },
-      { value: '~$22 млрд.', label: 'RegTech пазар днес (2025)' },
-      { value: '~$85 млрд.', label: 'RegTech до 2035 г., ~21% CAGR' },
-    ],
-    note: 'Всяка регулирана институция е купувач — защото законът я задължава.',
-    sources: ['Precedence Research (2025)', 'LexisNexis Risk Solutions (2023)'],
-  },
-  vision: {
-    label: 'Накъде продължаваме',
-    kicker: 'Накъде продължаваме',
-    heading: 'От еднократна проверка към постоянна сигурност.',
-    items: ['Постоянен мониторинг на контрагенти', 'По-задълбочено проучване'],
   },
   closing: {
     label: 'Заключение',
