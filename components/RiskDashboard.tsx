@@ -1,0 +1,173 @@
+'use client';
+
+import { useState } from 'react';
+import {
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  ExternalLink,
+  FileDown,
+  Loader,
+  RotateCcw,
+  XCircle,
+} from 'lucide-react';
+import type { RiskBand, RiskReport } from '@/lib/contracts/types';
+import { ScoreGauge } from './ScoreGauge';
+import { CategoryScoreList } from './CategoryScoreList';
+
+const BAND_META: Record<RiskBand, { label: string; color: string; ring: string; bg: string; Icon: typeof XCircle }> = {
+  high: { label: 'HIGH RISK', color: 'text-red-400', ring: 'border-red-500/50', bg: 'bg-red-500/8', Icon: XCircle },
+  review: { label: 'REVIEW', color: 'text-amber-400', ring: 'border-amber-500/50', bg: 'bg-amber-500/8', Icon: AlertTriangle },
+  clear: { label: 'CLEAR', color: 'text-[#00c9a7]', ring: 'border-[#00c9a7]/50', bg: 'bg-[#00c9a7]/8', Icon: CheckCircle },
+};
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-5">
+      <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+export function RiskDashboard({ report, onReset }: { report: RiskReport; onReset?: () => void }) {
+  const [downloading, setDownloading] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
+  const meta = BAND_META[report.band];
+  const { Icon } = meta;
+  const timeline = report.adverseMedia?.timeline ?? [];
+
+  const downloadPdf = async () => {
+    setDownloading(true);
+    setPdfError(null);
+    try {
+      const res = await fetch('/api/report/pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(report),
+      });
+      if (!res.ok) throw new Error(`PDF failed (${res.status})`);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `risk-report-${report.input.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setPdfError(err instanceof Error ? err.message : 'Download failed');
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4 animate-fade-in">
+      {/* Header band + gauge */}
+      <div className={`rounded-2xl border-2 ${meta.ring} ${meta.bg} p-6`}>
+        <div className="flex flex-wrap items-center justify-between gap-6">
+          <div>
+            <div className="flex items-center gap-2.5 mb-1">
+              <Icon className={`w-7 h-7 ${meta.color}`} />
+              <span className={`text-2xl font-black tracking-tight ${meta.color}`}>{meta.label}</span>
+            </div>
+            <p className="text-sm text-slate-400">
+              {report.input.name}
+              {report.input.country ? ` · ${report.input.country}` : ''}
+              {report.input.dateOfBirth ? ` · ${report.input.dateOfBirth}` : ''}
+              {' · '}
+              {(report.durationMs / 1000).toFixed(1)}s
+            </p>
+          </div>
+          <ScoreGauge score={report.overallScore} band={report.band} weights={report.weights} />
+        </div>
+      </div>
+
+      {/* Summary + recommendation */}
+      <Section title="Summary">
+        <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-line">{report.summary}</p>
+      </Section>
+
+      <div className={`rounded-2xl border-2 ${meta.ring} ${meta.bg} p-5`}>
+        <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">
+          Recommended action
+        </h3>
+        <p className="text-sm text-slate-100 leading-relaxed">{report.recommendation}</p>
+      </div>
+
+      {/* Adverse-media signals */}
+      <Section title="Adverse-media signals">
+        <CategoryScoreList items={report.adverseMediaScores} />
+      </Section>
+
+      {/* High-risk activities */}
+      <Section title={`High-risk activities (${report.highRiskActivityScores.filter((c) => c.present).length} flagged)`}>
+        <CategoryScoreList items={report.highRiskActivityScores} collapsible />
+      </Section>
+
+      {/* Timeline */}
+      {timeline.length > 0 && (
+        <Section title="Timeline">
+          <div className="space-y-3">
+            {timeline.map((t, i) => (
+              <div key={i} className="flex gap-3">
+                <div className="flex flex-col items-center flex-shrink-0">
+                  <Clock className="w-3.5 h-3.5 text-[#00c9a7] mt-0.5" />
+                  {i < timeline.length - 1 && <div className="w-px flex-1 bg-white/10 mt-1" />}
+                </div>
+                <div className="pb-1">
+                  <div className="text-xs font-semibold text-[#00c9a7]">{t.date || 'Date unknown'}</div>
+                  <div className="text-sm text-slate-300">{t.event}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+
+      {/* Sources */}
+      {report.sources.length > 0 && (
+        <Section title={`Sources (${report.sources.length})`}>
+          <div className="space-y-1.5">
+            {report.sources.map((s, i) => (
+              <a
+                key={i}
+                href={s.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sm text-[#00c9a7] hover:text-[#00e5c0] transition-colors group"
+              >
+                <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />
+                <span className="truncate">{s.note ? `${s.note} — ` : ''}{s.url.replace(/^https?:\/\/(www\.)?/, '')}</span>
+              </a>
+            ))}
+          </div>
+        </Section>
+      )}
+
+      {/* Actions */}
+      <div className="flex flex-col sm:flex-row gap-3 pt-1">
+        <button
+          onClick={downloadPdf}
+          disabled={downloading}
+          className="flex-1 flex items-center justify-center gap-2 bg-[#00c9a7] text-[#0d1b2a] font-bold py-3 px-5 rounded-xl hover:bg-[#00e5c0] transition-colors disabled:opacity-60"
+        >
+          {downloading ? <Loader className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4" />}
+          {downloading ? 'Generating…' : 'Download PDF report'}
+        </button>
+        {onReset && (
+          <button
+            onClick={onReset}
+            className="flex items-center justify-center gap-2 border border-white/10 text-slate-300 font-medium py-3 px-5 rounded-xl hover:bg-white/5 transition-colors text-sm"
+          >
+            <RotateCcw className="w-4 h-4" />
+            New screening
+          </button>
+        )}
+      </div>
+      {pdfError && <p className="text-sm text-red-400">{pdfError}</p>}
+    </div>
+  );
+}
