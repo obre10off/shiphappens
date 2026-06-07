@@ -2,7 +2,7 @@
 
 > **Living memory of this project.** Keep this file current — see the rule in
 > [CLAUDE.md](./CLAUDE.md). Update it whenever a plan file changes or a build step ships.
-> Last updated: 2026-06-07 (added investor/demo pitch deck at `/presentation`).
+> Last updated: 2026-06-07 (feature-flagged agent tool-call visuals via `lib/config.ts`; investor/demo pitch deck at `/presentation`).
 
 ## What we're building
 
@@ -74,6 +74,11 @@ PEP status, and adverse media in ~8s instead of 45 min.* Built for a hackathon.
 
 ## Progress log
 
+- **2026-06-07** — **Feature-flagged the agent tool-call visuals.** Added `lib/config.ts` as the
+  single source of truth for feature flags, with `featureFlags.showAgentToolCalls` (default
+  **false**). The `ToolCallStream` ("Agent tool calls") render on `/screen` is now gated behind that
+  flag; the agent's tool-calling loop is unchanged — only the visual surface is hidden. Flip the flag
+  in `lib/config.ts` to re-enable.
 - **2026-06-07** — **Pitch deck added** (`app/presentation/page.tsx`). A self-contained,
   client-side full-screen slide deck (12 slides) at `/presentation`, on-theme (DM Sans, white
   canvas / `bg-night` dark slides, single indigo accent, two-dot mark). Keyboard nav
