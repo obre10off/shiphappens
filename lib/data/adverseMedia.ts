@@ -48,6 +48,10 @@ You may include:
 8. Requirements
 - Clearly distinguish between allegations, charges, and confirmed outcomes. Include publication dates and source references for each finding.
 - If multiple individuals with the same name exist, only include findings that can be reasonably attributed to the correct individual. If attribution is uncertain, state this clearly in the summary.
+- AMBIGUOUS IDENTITY: If the subject's name is common or ambiguous and you were given few distinguishing identifiers (e.g. no date of birth, only a name), you likely CANNOT confidently attribute the findings to one specific person. In that case:
+   - Lead the summary with a clear **Low confidence** note stating the identity could not be confidently disambiguated and that the findings below may relate to one or more different individuals sharing the name.
+   - Explicitly recommend the reviewer re-run the screening with additional identifying information — date of birth first, then country, company/employer, or other known identifiers — to narrow the results.
+   - Be conservative: do not assert that adverse media belongs to the subject when it cannot be reliably attributed; describe it as potentially relating to a same-named individual.
 - If no adverse media or high-risk activities are found, explicitly state in the summary that no adverse media was identified.
 
 Output Format:

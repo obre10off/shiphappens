@@ -9,6 +9,7 @@ import type {
   SanctionsResult,
   ScreeningInput,
   SocialMediaResult,
+  Source,
 } from './types';
 
 export const mockInput: ScreeningInput = {
@@ -444,4 +445,346 @@ export const mockRiskReportClear: RiskReport = {
   sources: [],
   generatedAt: '2026-06-07T12:00:00.000Z',
   durationMs: 7200,
+};
+
+// ── High-band, ambiguous-identity fixture (Ivan Ivanov) ──────────────────────
+// Real run for an extremely common name → multiple distinct PEP matches +
+// per-individual adverse media + an explicit low-confidence note. Drives `?mock=2`.
+export const mockInputAmbiguous: ScreeningInput = {
+  name: 'Ivan Ivanov',
+  country: 'Bulgaria',
+};
+
+export const mockSanctionsAmbiguous: SanctionsResult = {
+  matches: [
+    {
+      id: 'Q20500051',
+      caption: 'Ivan Ivanov',
+      schema: 'Person',
+      score: 1,
+      match: true,
+      datasets: ['ann_pep_positions', 'everypolitician', 'wd_peps', 'wd_categories', 'wikidata'],
+      topics: ['role.pol', 'role.pep'],
+      properties: {
+        classification: ['National government (unknown status)'],
+        position: [
+          'member of the Bulgarian National Assembly (2001-2005)',
+          'member of the Bulgarian National Assembly (1997-)',
+          'member of the Bulgarian National Assembly (2009-2013)',
+          'member of the Bulgarian National Assembly (2005-2005)',
+          'National Assembly (member, 2005-2009)',
+          'chairperson',
+          'substitute member of the Parliamentary Assembly of the Council of Europe (1997-2001)',
+          'National Assembly (member, 2009-2013)',
+          'member of the Bulgarian National Assembly (2005-2009)',
+          'Representative of the Parliamentary Assembly of the Council of Europe (2005-2009)',
+        ],
+        wikidataId: ['Q20500051'],
+        lastName: ['Ivanov'],
+        country: ['bg'],
+        topics: ['role.pol', 'role.pep'],
+        citizenship: ['bg'],
+        alias: ['Iwan Nikolaew Iwanow', 'IVAN NIKOLAEV IVANOV'],
+        birthDate: ['1945-07-24'],
+        name: ['Ivan Nikolaev Ivanov', 'Иван Николаев Иванов', 'Iwan Iwanow', 'Ivan Ivanov'],
+        notes: ['Bulgarian politician'],
+        gender: ['male'],
+        birthPlace: ['Plovdiv'],
+        wikipediaUrl: [
+          'https://bg.wikipedia.org/wiki/%D0%98%D0%B2%D0%B0%D0%BD_%D0%98%D0%B2%D0%B0%D0%BD%D0%BE%D0%B2_(%D0%BF%D0%BE%D0%BB%D0%B8%D1%82%D0%B8%D0%BA)',
+        ],
+      },
+      sourceUrl: 'https://www.opensanctions.org/entities/Q20500051/',
+    },
+    {
+      id: 'Q28603835',
+      caption: 'Ivan Ivanov',
+      schema: 'Person',
+      score: 1,
+      match: true,
+      datasets: ['wd_categories', 'wd_peps', 'wikidata'],
+      topics: ['role.pep'],
+      properties: {
+        topics: ['role.pep'],
+        wikidataId: ['Q28603835'],
+        country: ['bg'],
+        birthDate: ['1942-11-13'],
+        name: ['Ivan Minçev Ivanov', 'Iwan Iwanow', 'Ivan Ivanov', 'Иван Иванов'],
+        alias: ['Iwan Mintschew Iwanow', 'Ivan Minchev Ivanov', 'Иван Минчев Иванов'],
+        notes: ['ingenieur'],
+        birthPlace: ['Maglizh'],
+        wikipediaUrl: [
+          'https://bg.wikipedia.org/wiki/%D0%98%D0%B2%D0%B0%D0%BD_%D0%98%D0%B2%D0%B0%D0%BD%D0%BE%D0%B2_(%D0%91%D0%9A%D0%9F)',
+        ],
+        lastName: ['Ivanov'],
+        position: ['member of the Bulgarian National Assembly'],
+        gender: ['male'],
+      },
+      sourceUrl: 'https://www.opensanctions.org/entities/Q28603835/',
+    },
+    {
+      id: 'Q110070915',
+      caption: 'Ivan Ivanov',
+      schema: 'Person',
+      score: 1,
+      match: true,
+      datasets: ['ann_pep_positions', 'everypolitician', 'wd_peps', 'wd_categories', 'wikidata'],
+      topics: ['role.pol', 'role.pep'],
+      properties: {
+        classification: ['National government (unknown status)'],
+        email: ['i.ivanov@parliament.bg'],
+        topics: ['role.pol', 'role.pep'],
+        country: ['bg'],
+        citizenship: ['bg'],
+        birthDate: ['1975-08-13'],
+        position: [
+          'Minister of Regional Development and Public Works (2025-2026)',
+          'member of the Bulgarian National Assembly (2024-2025)',
+          'member of the Bulgarian National Assembly (2021-2021)',
+          'member of the Bulgarian National Assembly (2014-2017)',
+          'member of the Bulgarian National Assembly (2017-2021)',
+          'National Assembly (member, 2017-)',
+          'member of the Bulgarian National Assembly (2013-2014)',
+          'National Assembly (member, 2013-2014)',
+          'member of the Bulgarian National Assembly (2023-2024)',
+          'member of the Bulgarian National Assembly (2022-2023)',
+          'Minister of Agriculture (2021-2022)',
+          'member of the Bulgarian National Assembly (2026-)',
+          'National Assembly (member, 2014-2017)',
+          'member of the Bulgarian National Assembly (2024-2024)',
+        ],
+        alias: ['Иван Валентинов Иванов', 'IVAN VALENTINOV IVANOV', 'Iwan Walentinow Iwanow'],
+        name: [
+          'Иван Иванов',
+          'Ivan Valentinov Ivanov',
+          'Iwan Iwanow',
+          'Ivan Ivanov',
+          'ИВАН ВАЛЕНТИНОВ ИВАНОВ',
+        ],
+        wikidataId: ['Q110070915'],
+        notes: ['politician in Bulgaria'],
+        gender: ['male'],
+        education: ['Sofia University'],
+        birthPlace: ['Shumen'],
+        wikipediaUrl: ['https://en.wikipedia.org/wiki/Ivan_Ivanov_(politician,_born_1975)'],
+      },
+      sourceUrl: 'https://www.opensanctions.org/entities/Q110070915/',
+    },
+    {
+      id: 'Q30723983',
+      caption: 'Ivan Ivanov',
+      schema: 'Person',
+      score: 1,
+      match: true,
+      datasets: ['wd_categories', 'wd_peps', 'wikidata'],
+      topics: ['role.pep'],
+      properties: {
+        country: ['bg'],
+        topics: ['role.pep'],
+        birthDate: ['1918'],
+        name: ['Иван Иванов', 'Iwan Iwanow', 'Ivan Ivanov', 'Ivan Ivanov Ivanov'],
+        wikidataId: ['Q30723983'],
+        position: ['member of the Bulgarian National Assembly'],
+        wikipediaUrl: [
+          'https://bg.wikipedia.org/wiki/%D0%98%D0%B2%D0%B0%D0%BD_%D0%98%D0%B2%D0%B0%D0%BD%D0%BE%D0%B2_(%D0%93%D0%B0%D0%B1%D1%80%D0%BE%D0%B2%D0%BE)',
+        ],
+        birthPlace: ['Velkovtsi'],
+        notes: ['Bulgar siyasetçi'],
+        gender: ['male'],
+        alias: ['Иван Иванов Иванов', 'Iwan Iwanow Iwanow'],
+        lastName: ['Ivanov'],
+      },
+      sourceUrl: 'https://www.opensanctions.org/entities/Q30723983/',
+    },
+    {
+      id: 'Q116056154',
+      caption: 'Ivan Ivanov',
+      schema: 'Person',
+      score: 1,
+      match: true,
+      datasets: ['everypolitician', 'wikidata', 'ann_pep_positions'],
+      topics: ['role.pep', 'role.pol'],
+      properties: {
+        classification: ['National government (past)'],
+        alias: ['Иван Георгиев Иванов', 'Ivan Georgiev Ivanov'],
+        birthDate: ['1949-10-19'],
+        citizenship: ['bg'],
+        position: [
+          'National Assembly (member, 2005-2009)',
+          'member of the Bulgarian National Assembly (2007-2009)',
+        ],
+        name: ['Ivan Ivanov2', 'Иван Иванов', 'Ivan Ivanov', 'ИВАН ГЕОРГИЕВ ИВАНОВ'],
+        country: ['bg'],
+        topics: ['role.pep', 'role.pol'],
+        wikidataId: ['Q116056154'],
+        notes: ['Bulgarian politician (born 1949)'],
+        birthPlace: ['Straldzha'],
+        gender: ['male'],
+      },
+      sourceUrl: 'https://www.opensanctions.org/entities/Q116056154/',
+    },
+  ],
+  totalMatches: 5,
+  bestScore: 1,
+  isPep: true,
+  isSanctioned: false,
+  datasetsHit: ['ann_pep_positions', 'everypolitician', 'wd_peps', 'wd_categories', 'wikidata'],
+  scope: 'default',
+};
+
+const IVANOV_ADVERSE_SUMMARY = `**Overview**
+
+**Low confidence** — "Ivan Ivanov" is an extremely common Bulgarian name. The search results surface at least four distinct individuals sharing this name. The findings below are attributed separately to each identifiable individual; reviewers should re-run screening with additional identifiers (date of birth, employer, role, or other known details) to confirm which individual is the subject of this screening.
+
+**Individual 1: Former Deputy Head of GDBOP (Organized Crime Police)**
+
+- **Ivan Ivanov**, former Deputy Director of Bulgaria's Unit for Combating Organized Crime (**GDBOP**), was **arrested in early 2008** following allegations of connections to organized crime figures and firms [2][3].
+- His arrest triggered a **large-scale corruption scandal** within Bulgaria's Interior Ministry, ultimately leading to the **resignation of Interior Minister Rumen Petkov** in April 2008 [2][4].
+- He was **convicted** on charges of **abuse of power** and **falsifying official documents**, receiving a **suspended sentence of 1.5 years** on October 2, 2008 [2].
+- A **third charge of leaking classified information** to persons under active investigation by the Interior Ministry was pending without verdict at the time of reporting [1][2].
+
+**Individual 2: Weightlifting Champion / National Team Coach**
+
+- **Ivan Ivanov**, an **Olympic champion** and senior coach of Bulgaria's national **weightlifting** team, was **detained in connection with a corruption scandal** at the Ministry of Sports [5].
+- He was **released on bail** (5,000 BGN) by the Sofia City Court, while his son — **Ivan Ivanov Jr.** — remained in detention on suspicion of **soliciting and receiving bribes** of approximately **62,000 BGN** from the head of a sports federation in exchange for facilitating **1.2 million BGN in state funding** for a European championship [5].
+- Both father and son were **indicted and referred to trial** for corruption related to the weightlifting federation, as reported in **August 2025** [6].
+- Ivanov Sr. is a member of the **management board of the weightlifting federation**, which links him to the underlying funding scheme [5].
+
+**Individual 3: Socialist MP / Short-lived Deputy Interior Minister (2013)**
+
+- **Ivan Ivanov**, a Bulgarian Socialist Party (**BSP**) **Member of Parliament**, was briefly **appointed Deputy Interior Minister in June 2013** but was dismissed hours later without formally taking office [7][8].
+- Reports highlighted ties between his father and the controversial **SIC business group**, influential during Bulgaria's 1990s democratic transition [8].
+- Bulgaria's **Constitutional Court ruled unanimously** in October 2013 that Ivanov retained his parliamentary seat, as he never formally assumed the deputy minister role [7][8].
+
+**Individual 4: Current Minister of Regional Development and Public Works**
+
+- **Ivan Valentinov Ivanov** (born August 13, 1975, Shumen) is a BSP politician who served as **Minister of Agriculture and Food (2021–2022)** and was appointed **Minister of Regional Development and Public Works** on January 16, 2025 [9][10].
+- He has been a **Member of Parliament** almost continuously since 2013 [10].
+- No adverse media was identified for this individual specifically.
+
+**Risk Drivers**
+
+- **Adverse media confirmed** for at least two individuals (GDBOP official; weightlifting coach/father-son pair), including criminal conviction, corruption allegations, and bribery charges.
+- **badPressLast5Years = true** due to the 2025 indictment of the weightlifting coach and his son [6].
+- **High-risk activities** identified: involvement in **professional sports** governance (weightlifting federation) and related **advisory/consultancy** roles, with corruption in state funding allocation [5][6].
+- **Identity disambiguation is critical**: reviewers must supply additional identifiers before treating any of the above adverse findings as attributable to the specific subject.`;
+
+const IVANOV_ADVERSE_SOURCES: Source[] = [
+  {
+    url: 'https://www.occrp.org/en/feature/former-bulgarian-oc-official-sentenced',
+    note: 'OCCRP report on former GDBOP official Ivan Ivanov facing charges of leaking secrets',
+  },
+  {
+    url: 'https://www.novinite.com/articles/97515/Former+Deputy+Head+of+Bulgaria%27s+Organized+Crime+Police+Gets+Suspended+Sentence',
+    note: 'Novinite: Former GDBOP Deputy Director Ivan Ivanov receives suspended 1.5-year sentence for abuse of power',
+  },
+  {
+    url: 'https://balkaninsight.com/2008/03/18/senior-bulgarian-police-official-arrested/bi/all-balkan-countries',
+    note: 'Balkan Insight: Senior Bulgarian police official (Ivan Ivanov) arrested in 2008 for leaking information and abuse of authority',
+  },
+  {
+    url: 'https://www.novinite.com/articles/97872/Sofia+Military+Court+Begins+Trial+Against+Former+Criminal+Police+Director',
+    note: 'Novinite: Sofia Military Court trial context; Ivan Ivanov arrest triggered wider corruption scandal',
+  },
+  {
+    url: 'https://boulevardbulgaria.bg/articles/shtangistat-ivan-ivanov-e-pusnat-na-svoboda-po-deloto-za-koruptsiya-sinat-mu-ostava-v-aresta',
+    note: 'Boulevard Bulgaria: Weightlifting champion Ivan Ivanov released on bail; son Ivan Ivanov Jr. remains detained for bribery',
+  },
+  {
+    url: 'https://bnrnews.bg/horizont/post/2577/ivan-ivanov-i-sinat-mu-otivat-na-sad-za-koruptsiya-vav-vdiganeto-na-tezhesti',
+    note: 'BNR Horizont (August 2025): Ivan Ivanov and son referred to trial for corruption in weightlifting',
+  },
+  {
+    url: 'https://www.constcourt.bg/en/act-806',
+    note: "Bulgarian Constitutional Court ruling on Ivan Ivanov MP's appointment and dismissal as Deputy Interior Minister",
+  },
+  {
+    url: 'https://sofiaglobe.com/2013/10/22/bulgarias-constitutional-court-decides-ivan-ivanov-is-still-an-mp',
+    note: 'Sofia Globe: Constitutional Court rules Ivan Ivanov retains MP seat; ties to SIC business group noted',
+  },
+  {
+    url: 'https://www.oecd-events.org/e/rdpc-ministerial/en/speaker/828fe454-5c05-f011-aaa7-6045bd9d3cdc/ivan-ivanov',
+    note: 'OECD profile: Ivan Ivanov, current Minister of Regional Development and Public Works, Bulgaria',
+  },
+  {
+    url: 'https://circulargaia.org/speaker/ivan-ivanov',
+    note: 'Circular Gaia: Ivan Valentinov Ivanov biography — Minister of Regional Development, former Agriculture Minister',
+  },
+];
+
+export const mockAdverseMediaAmbiguous: AdverseMediaResult = {
+  name: 'Ivan Ivanov',
+  badPress: true,
+  badPressLast5Years: true,
+  highRiskActivitiesFlag: true,
+  highRiskActivities: [],
+  summary: IVANOV_ADVERSE_SUMMARY,
+  sources: IVANOV_ADVERSE_SOURCES,
+  timeline: [
+    { date: '2008-01', event: 'Ivan Ivanov (former GDBOP Deputy Director) arrested following allegations of connections to organized crime and leaking classified information to suspects under investigation.' },
+    { date: '2008-04', event: "Interior Minister Rumen Petkov resigned amid the corruption scandal triggered by Ivan Ivanov's arrest." },
+    { date: '2008-10-02', event: 'Ivan Ivanov (former GDBOP Deputy Director) convicted of abuse of power and falsifying documents; receives a suspended sentence of 1.5 years. Third charge (leaking classified information) pending.' },
+    { date: '2013-06-19', event: 'Socialist MP Ivan Ivanov appointed Deputy Interior Minister, then dismissed hours later without formally assuming office.' },
+    { date: '2013-10-22', event: "Bulgaria's Constitutional Court unanimously rules that MP Ivan Ivanov retains his parliamentary seat, as he never formally took office as Deputy Minister." },
+    { date: '2021', event: 'Ivan Valentinov Ivanov appointed Minister of Agriculture and Food in the cabinet of Kiril Petkov.' },
+    { date: '2022', event: "Ivan Valentinov Ivanov's term as Minister of Agriculture and Food ends." },
+    { date: '2025-01-16', event: 'Ivan Valentinov Ivanov appointed Minister of Regional Development and Public Works in the government of Prime Minister Rosen Zhelyazkov.' },
+    { date: '2025-08-21', event: 'Ivan Ivanov (Olympic weightlifting champion and national team coach) and his son Ivan Ivanov Jr. referred to trial for corruption related to a 1.2 million BGN state funding scheme for the weightlifting federation.' },
+  ],
+};
+
+export const mockRiskReportAmbiguous: RiskReport = {
+  input: mockInputAmbiguous,
+  band: 'high',
+  overallScore: 80,
+  weights: {
+    sanctions: 0.6666666666666667,
+    adverseMedia: 0.33333333333333337,
+    social: 0,
+  },
+  sanctions: mockSanctionsAmbiguous,
+  euSanctions: mockEuSanctionsClear,
+  adverseMedia: mockAdverseMediaAmbiguous,
+  social: null,
+  highRiskActivityScores: NEVZOROV_HIGH_RISK_KEYS.map(({ key, label }) => ({
+    key,
+    label,
+    present: false,
+    score: 0,
+    evidence: [],
+  })),
+  adverseMediaScores: [
+    { key: 'sanctioned', label: 'On a sanctions list', present: false, score: 0, evidence: [] },
+    {
+      key: 'pep',
+      label: 'Politically Exposed Person',
+      present: true,
+      score: 70,
+      evidence: [
+        'member of the Bulgarian National Assembly (2001-2005)',
+        'member of the Bulgarian National Assembly (1997-)',
+        'member of the Bulgarian National Assembly (2009-2013)',
+        'member of the Bulgarian National Assembly (2005-2005)',
+      ],
+    },
+    { key: 'bad_press', label: 'Adverse media (any time)', present: true, score: 60, evidence: [] },
+    { key: 'bad_press_recent', label: 'Adverse media (last 5 years)', present: true, score: 100, evidence: [] },
+    { key: 'high_risk_activity', label: 'High-risk activity involvement', present: true, score: 50, evidence: [] },
+  ],
+  summary: `Subject confirmed Politically Exposed Person.\n\n${IVANOV_ADVERSE_SUMMARY}`,
+  recommendation:
+    'Decline the prospective relationship and escalate to compliance / the MLRO. Do not accept funds ' +
+    'or proceed with the investment. Consider filing a Suspicious Activity Report (SAR) if a relationship ' +
+    'or transaction was already initiated, and retain the full evidence trail. Drivers: Politically Exposed ' +
+    'Person; Adverse media (any time); Adverse media (last 5 years); High-risk activity involvement.',
+  sources: [
+    ...IVANOV_ADVERSE_SOURCES,
+    { url: 'https://www.opensanctions.org/entities/Q20500051/', note: 'OpenSanctions: Ivan Ivanov' },
+    { url: 'https://www.opensanctions.org/entities/Q28603835/', note: 'OpenSanctions: Ivan Ivanov' },
+    { url: 'https://www.opensanctions.org/entities/Q110070915/', note: 'OpenSanctions: Ivan Ivanov' },
+    { url: 'https://www.opensanctions.org/entities/Q30723983/', note: 'OpenSanctions: Ivan Ivanov' },
+    { url: 'https://www.opensanctions.org/entities/Q116056154/', note: 'OpenSanctions: Ivan Ivanov' },
+  ],
+  generatedAt: '2026-06-07T13:56:36.705Z',
+  durationMs: 110311,
 };

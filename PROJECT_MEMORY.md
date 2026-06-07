@@ -2,7 +2,7 @@
 
 > **Living memory of this project.** Keep this file current — see the rule in
 > [CLAUDE.md](./CLAUDE.md). Update it whenever a plan file changes or a build step ships.
-> Last updated: 2026-06-07 (EU Sanctions Tracker as a second source check; demo-grade `/screen` form polish: card pop-out + country autocomplete).
+> Last updated: 2026-06-07 (added `?mock=2` Ivan Ivanov ambiguous-identity high-band fixture).
 
 ## What we're building
 
@@ -95,6 +95,36 @@ PEP status, and adverse media in ~8s instead of 45 min.* Built for a hackathon.
   warning by merging demo prefills over `empty` (`{ ...empty, ...DEMO_* }`). `next build` + `tsc`
   clean; verified in-browser (desktop + 390px mobile, filter/select/prefill flows, clean console).
 - **2026-06-07** — **Feature-flagged the agent tool-call visuals.** Added `lib/config.ts` as the
+- **2026-06-07** — **`?mock=2` ambiguous-identity high-band fixture (Ivan Ivanov).** Added
+  `mockRiskReportAmbiguous` (+ `mockInputAmbiguous`/`mockSanctionsAmbiguous`/`mockAdverseMediaAmbiguous`)
+  to `lib/contracts/mocks.ts` — a real run for an extremely common Bulgarian name: 5 distinct PEP
+  matches (OpenSanctions, `isPep: true`, not sanctioned), empty EU, and per-individual adverse media
+  with an explicit **Low confidence** disambiguation note + 9-entry timeline + 15 sources (10 media + 5
+  OpenSanctions entities). Demonstrates the new ambiguous-identity prompt guidance end-to-end. The
+  `mock` query param is now a value, not a flag: `app/screen/page.tsx` treats `mock=1`|`mock=2` as mock
+  mode, `mock=2` always serves the Ivan Ivanov fixture, `mock=1` keeps name-based selection
+  (clear/review/high). Reused `NEVZOROV_HIGH_RISK_KEYS` + `mockEuSanctionsClear`; `Source` added to the
+  type import. `tsc` clean, 45 tests green.
+
+- **2026-06-07** — **Ambiguous-identity / low-confidence guidance in the adverse-media prompt.**
+  Extended guideline 8 of `FULL_SYSTEM_PROMPT` (`lib/data/adverseMedia.ts`): when the subject's name
+  is common/ambiguous and few distinguishing identifiers were supplied (e.g. name only, no DOB), the
+  model must lead the `summary` with a **Low confidence** note that the identity couldn't be
+  disambiguated, explicitly recommend re-running with more identifiers (DOB first, then country/
+  company/other), and stay conservative about attributing adverse media to the subject. No schema
+  change — the signal is surfaced in the summary text. The subject block in `buildContext`
+  (`lib/google/tool.ts`) already omits DOB when absent, so the model can detect the bare-name case.
+
+- **2026-06-07** — **"Review"-band mock fixture + per-step mock timeouts.** Added
+  `mockRiskReportReview` (the real Oleg Nevzorov run — `band: review`, score 33, empty
+  sanctions/EU, rich adverse media: 14 sources, 10-entry timeline, one high-risk activity flag) to
+  `lib/contracts/mocks.ts` alongside `mockInputReview`/`mockSanctionsReview`/`mockEuSanctionsReview`/
+  `mockAdverseMediaReview`. `?mock=1` now picks it when the name matches `/nevzorov/i` (clear →
+  kovacheva/asdf/qwerty, else high). Replaced the uniform 1.4s-per-phase cadence in `runMock`
+  (`app/screen/page.tsx`) with a `PHASE_DURATIONS_MS` map (sanctions 1.6s · eu_sanctions 1.2s ·
+  adverse_media 4.5s · synthesis 1.8s, `PHASE_GAP_MS` 200ms) walked via a cumulative `cursor`, so each
+  step has its own timeout and adverse media visibly dominates — mirroring the real run's
+  `durationMs`. `tsc` clean, no lint errors. Added `lib/config.ts` as the
   single source of truth for feature flags, with `featureFlags.showAgentToolCalls` (default
   **false**). The `ToolCallStream` ("Agent tool calls") render on `/screen` is now gated behind that
   flag; the agent's tool-calling loop is unchanged — only the visual surface is hidden. Flip the flag

@@ -5,7 +5,12 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Loader, Shield } from 'lucide-react';
 import type { RiskReport, ScreeningInput } from '@/lib/contracts/types';
-import { mockRiskReport, mockRiskReportClear, mockRiskReportReview } from '@/lib/contracts/mocks';
+import {
+  mockRiskReport,
+  mockRiskReportAmbiguous,
+  mockRiskReportClear,
+  mockRiskReportReview,
+} from '@/lib/contracts/mocks';
 import {
   PHASE_ORDER,
   useScreening,
@@ -83,7 +88,8 @@ function Header() {
 
 function ScreenInner() {
   const searchParams = useSearchParams();
-  const useMock = searchParams.get('mock') === '1';
+  const mockParam = searchParams.get('mock');
+  const useMock = mockParam === '1' || mockParam === '2';
 
   const live = useScreening();
   const [view, setView] = useState<View>('form');
@@ -95,13 +101,18 @@ function ScreenInner() {
   const [mockReport, setMockReport] = useState<RiskReport | null>(null);
 
   const runMock = (input: ScreeningInput) => {
+    // `?mock=2` always serves the ambiguous-identity (Ivan Ivanov) fixture; `?mock=1`
+    // picks a fixture by name (clear / review / high).
     const isClear = /kovacheva|asdf|qwerty/i.test(input.name);
     const isReview = /nevzorov/i.test(input.name);
-    const report = isClear
-      ? mockRiskReportClear
-      : isReview
-        ? mockRiskReportReview
-        : mockRiskReport;
+    const report =
+      mockParam === '2'
+        ? mockRiskReportAmbiguous
+        : isClear
+          ? mockRiskReportClear
+          : isReview
+            ? mockRiskReportReview
+            : mockRiskReport;
     const order = PHASE_ORDER;
     setMockPhases(order.map((phase) => ({ phase, status: 'pending' })));
     setMockToolCalls([]);
