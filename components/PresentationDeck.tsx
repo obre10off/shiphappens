@@ -125,20 +125,20 @@ export default function PresentationDeck({
       label: t.title.label,
       render: () => (
         <div className="flex flex-col items-center text-center">
-          <span className="relative mb-8 inline-block h-12 w-16" aria-hidden>
-            <span className="absolute left-0 top-2 h-7 w-7 rounded-full bg-accent" />
-            <span className="absolute left-7 top-2 h-7 w-7 rounded-full bg-ink" />
+          <span className="relative mb-12 inline-block h-20 w-28" aria-hidden>
+            <span className="absolute left-0 top-3 h-12 w-12 rounded-full bg-accent sm:h-14 sm:w-14" />
+            <span className="absolute left-12 top-3 h-12 w-12 rounded-full bg-ink sm:left-14 sm:h-14 sm:w-14" />
           </span>
-          <h1 className="text-6xl font-medium leading-[1.02] tracking-[-0.03em] text-ink sm:text-7xl">
+          <h1 className="text-8xl font-medium leading-[0.98] tracking-[-0.04em] text-ink sm:text-9xl">
             {t.title.product}
           </h1>
           <StreamingText
             text={t.title.subtitle}
             speed={45}
             startDelay={350}
-            className="mt-6 justify-center text-xl leading-relaxed text-muted"
+            className="mt-8 justify-center text-3xl leading-relaxed text-muted sm:text-4xl"
           />
-          <Reveal index={0} base={1600} className="mt-10">
+          <Reveal index={0} base={1600} className="mt-14">
             <div className="flex items-center gap-3 text-sm text-faint">
               <span>{t.ui.briefing}</span>
               <span className="h-1 w-1 rounded-full bg-faint/60" />
