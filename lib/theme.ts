@@ -3,17 +3,15 @@
 // SINGLE SOURCE OF TRUTH for the design system: colors, risk palette, radii,
 // typography, spacing and elevation tokens.
 //
-// Theme: warm "parchment" light theme.
-//   Base palette (muted warm neutrals, given):
-//     #2B2A28 espresso · #6B6258 taupe · #C9A86A gold · #EFE2C8 parchment ·
-//     #FFF9EF cream
-//   Accent (vibrant, chosen): deep teal #0E7C7B — the complement to the warm
-//   gold/cream neutrals; premium and clearly distinct from the risk colors.
+// Theme: minimal "editorial fintech" — modelled on godiligent.ai.
+//   White canvas · near-black ink · light-gray panels · near-black dark
+//   sections · a single electric-indigo accent (#5251FA), used sparingly.
+//   Typeface: DM Sans (medium weight, tight negative tracking on headlines).
 //
 // Consumed in three places, all derived from this one file:
 //   1. tailwind.config.ts  → maps these into Tailwind tokens (bg-canvas,
-//      text-ink, text-muted, bg-accent, text-risk-high, …) and injects them as
-//      :root CSS variables.
+//      text-ink, text-muted, bg-accent, bg-night, text-risk-high, …) and
+//      injects them as :root CSS variables.
 //   2. globals.css         → references the injected CSS variables (--color-*).
 //   3. Runtime/SSR code that needs raw values (charts, the @react-pdf report)
 //      imports the objects directly: `import { risk } from '@/lib/theme'`.
@@ -22,56 +20,57 @@
 // in components — add a token here and use it.
 // ────────────────────────────────────────────────────────────────────────────
 
-/** Core surface + brand palette (warm light theme). */
+/** Core surface + brand palette (white / near-black / indigo). */
 export const colors = {
-  /** App background (warm cream). */
-  canvas: '#FFF9EF',
+  /** App background. */
+  canvas: '#FFFFFF',
   /** Raised card / panel surface. */
   surface: '#FFFFFF',
-  /** Secondary fill — chips, bar tracks, subtle panels (parchment). */
-  surfaceAlt: '#EFE2C8',
-  /** Hairline border / divider over surfaces. */
-  border: 'rgba(43, 42, 40, 0.12)',
+  /** Subtle gray fill — product mocks, chips, bar tracks, panels. */
+  surfaceAlt: '#F5F5F6',
+  /** Hairline border / divider. */
+  border: 'rgba(0, 0, 0, 0.10)',
 
-  /** Vibrant accent — deep teal, complement to the warm neutrals. */
-  accent: '#0E7C7B',
-  accentHover: '#0A605F',
-  accentMuted: '#5FA3A1',
-  /** Text/icon color that sits on top of the accent. */
-  onAccent: '#FFF9EF',
+  /** Near-black used for dark sections, CTA bands and the announcement bar. */
+  night: '#0A0A0A',
+  nightAlt: '#1F1F1F',
 
-  /** Muted warm gold — secondary/decorative accent. */
-  gold: '#C9A86A',
+  /** Electric-indigo accent — used sparingly (logo mark, links, highlights). */
+  accent: '#5251FA',
+  accentHover: '#3F3EE0',
+  accentMuted: '#A5A5FC',
+  /** Text/icon color that sits on the accent or on dark sections. */
+  onAccent: '#FFFFFF',
 } as const;
 
-/** Text colors (warm). */
+/** Text colors. */
 export const text = {
-  ink: '#2B2A28', // primary
-  muted: '#6B6258', // secondary
-  faint: '#938A7D', // tertiary / labels
+  ink: '#0A0A0A', // primary
+  muted: '#52525B', // secondary
+  faint: '#9A9A9A', // tertiary / labels
 } as const;
 
-/** Neutral warm ramp for muted UI and non-semantic chart marks. */
+/** Neutral gray ramp for muted UI and non-semantic chart marks. */
 export const neutral = {
-  300: '#D8CDB8',
-  400: '#A89F92',
-  500: '#6B6258',
-  600: '#4A453F',
+  300: '#E4E4E7',
+  400: '#A1A1AA',
+  500: '#71717A',
+  600: '#3F3F46',
 } as const;
 
 /**
- * Risk signal palette — warm-harmonized but still clearly semantic. These are
- * the saturated signal colors and appear only on actual results. `400` shades
- * are for text/icons, base for fills, borders and bars.
+ * Risk signal palette — clean and legible on white. These are the saturated
+ * signal colors and appear only on actual results. `400` shades are for
+ * text/icons, base for fills, borders and bars.
  */
 export const risk = {
-  high: '#B23A2E', // warm brick red
-  highText: '#C25548',
-  review: '#B97D1E', // warm amber/ochre (distinct from the muted gold)
-  reviewText: '#C28A33',
-  clear: '#3F7D5A', // muted forest green
+  high: '#DC2626', // red
+  highText: '#DC2626',
+  review: '#D97706', // amber
+  reviewText: '#D97706',
+  clear: '#16A34A', // green
   /** Absent / zero-score category. */
-  none: '#B8AE9E',
+  none: '#A1A1AA',
 } as const;
 
 export type RiskBand = 'high' | 'review' | 'clear';
@@ -119,20 +118,21 @@ export const fontSize = {
   '6xl': '3.75rem',
 } as const;
 
+/** DM Sans — the Diligent typeface. */
 export const fontFamily = {
-  sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+  sans: ['DM Sans', 'system-ui', '-apple-system', 'sans-serif'],
 } as const;
 
 /** Layout tokens. */
 export const layout = {
   container: '48rem', // ~ max-w-3xl
-  containerWide: '56rem', // ~ max-w-4xl
+  containerWide: '64rem', // ~ max-w-5xl
 } as const;
 
-/** Elevation — soft warm shadows for the light theme. */
+/** Elevation — soft, subtle shadows for the light theme. */
 export const shadow = {
-  card: '0 1px 2px rgba(43, 42, 40, 0.06)',
-  raised: '0 6px 24px rgba(43, 42, 40, 0.08)',
+  card: '0 1px 2px rgba(10, 10, 10, 0.04)',
+  raised: '0 10px 40px rgba(10, 10, 10, 0.08)',
 } as const;
 
 export const zIndex = {
@@ -150,10 +150,11 @@ export const tailwindColors = {
   surface: colors.surface,
   'surface-alt': colors.surfaceAlt,
   line: colors.border,
+  night: colors.night,
+  'night-alt': colors.nightAlt,
   ink: text.ink,
   muted: text.muted,
   faint: text.faint,
-  gold: colors.gold,
   cream: colors.onAccent,
   accent: {
     DEFAULT: colors.accent,
@@ -166,7 +167,7 @@ export const tailwindColors = {
     clear: risk.clear,
     none: risk.none,
   },
-  // Warm overrides merged into Tailwind's default red/amber scales so utility
+  // Overrides merged into Tailwind's default red/amber scales so utility
   // classes like `text-red-400` / `bg-amber-500/10` stay on-brand.
   red: { 400: risk.highText, 500: risk.high },
   amber: { 400: risk.reviewText, 500: risk.review },
@@ -178,15 +179,15 @@ export const cssVars: Record<string, string> = {
   '--color-surface': colors.surface,
   '--color-surface-alt': colors.surfaceAlt,
   '--color-line': colors.border,
+  '--color-night': colors.night,
   '--color-ink': text.ink,
   '--color-muted': text.muted,
   '--color-accent': colors.accent,
   '--color-accent-hover': colors.accentHover,
-  '--color-accent-dim': 'rgba(14, 124, 123, 0.08)',
-  '--color-gold': colors.gold,
-  '--color-placeholder': 'rgba(43, 42, 40, 0.4)',
-  '--color-scroll-thumb': '#D8CDB8',
-  '--color-scroll-thumb-hover': '#6B6258',
+  '--color-accent-dim': 'rgba(82, 81, 250, 0.06)',
+  '--color-placeholder': 'rgba(10, 10, 10, 0.4)',
+  '--color-scroll-thumb': '#D4D4D8',
+  '--color-scroll-thumb-hover': '#A1A1AA',
   '--color-risk-high': risk.high,
   '--color-risk-review': risk.review,
   '--color-risk-clear': risk.clear,

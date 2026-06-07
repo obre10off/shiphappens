@@ -1,149 +1,334 @@
 import Link from 'next/link';
-import { Shield, Zap, FileText, ArrowRight, AlertTriangle, CheckCircle } from 'lucide-react';
+import {
+  AlertTriangle,
+  ArrowRight,
+  Check,
+  CheckCircle,
+  FileText,
+  Loader2,
+  Search,
+  ShieldCheck,
+} from 'lucide-react';
 
-export default function Home() {
+/** Two-dot brand mark (indigo + ink), echoing the Diligent logo. */
+function LogoMark({ className = '' }: { className?: string }) {
   return (
-    <main className="min-h-screen bg-canvas flex flex-col">
-      {/* Nav */}
-      <nav className="flex items-center justify-between px-6 py-4 border-b border-line">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center">
-            <Shield className="w-4 h-4 text-cream" strokeWidth={2.5} />
-          </div>
-          <span className="font-bold text-lg tracking-tight">
-            Ship<span className="text-accent">Happens</span>
-          </span>
+    <span className={`relative inline-block h-5 w-7 ${className}`} aria-hidden>
+      <span className="absolute left-0 top-1 h-3 w-3 rounded-full bg-accent" />
+      <span className="absolute left-3 top-1 h-3 w-3 rounded-full bg-ink" />
+    </span>
+  );
+}
+
+function Wordmark() {
+  return (
+    <div className="flex items-center gap-2.5">
+      <LogoMark />
+      <span className="text-[17px] font-semibold tracking-tight text-ink">ShipHappens</span>
+    </div>
+  );
+}
+
+function AnnouncementBar() {
+  return (
+    <div className="bg-night text-cream">
+      <div className="mx-auto flex max-w-6xl items-center justify-center gap-2 px-6 py-2.5 text-[13px]">
+        <span aria-hidden>🛰️</span>
+        <span className="text-white/90">
+          Real sanctions, PEP &amp; adverse-media screening in ~8 seconds
+        </span>
+        <Link href="/screen" className="inline-flex items-center gap-1 font-medium text-white hover:text-accent-muted">
+          Try it live <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function Nav() {
+  return (
+    <nav className="sticky top-0 z-20 border-b border-line bg-canvas/80 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <Link href="/">
+          <Wordmark />
+        </Link>
+        <div className="hidden items-center gap-8 text-sm text-muted md:flex">
+          <a href="#how" className="hover:text-ink transition-colors">How it works</a>
+          <a href="#demo" className="hover:text-ink transition-colors">Live demo</a>
+          <a href="#trust" className="hover:text-ink transition-colors">Coverage</a>
         </div>
         <Link
           href="/screen"
-          className="flex items-center gap-2 bg-accent text-cream font-semibold text-sm px-4 py-2 rounded-lg hover:bg-accent-hover transition-colors"
+          className="inline-flex items-center gap-2 rounded-lg bg-ink px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
         >
-          Start Screening
-          <ArrowRight className="w-4 h-4" />
+          Start screening
+          <ArrowRight className="h-4 w-4" />
         </Link>
-      </nav>
+      </div>
+    </nav>
+  );
+}
 
-      {/* Hero */}
-      <section className="flex-1 flex flex-col items-center justify-center px-6 py-20 text-center relative overflow-hidden">
-        {/* Subtle grid pattern */}
-        <div
-          className="absolute inset-0 pointer-events-none opacity-40"
-          style={{
-            backgroundImage:
-              'linear-gradient(rgba(43,42,40,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(43,42,40,0.04) 1px, transparent 1px)',
-            backgroundSize: '64px 64px',
-          }}
-        />
+/** Hero product mock — mirrors Diligent's "analyzing the alert" checklist card. */
+function ScreeningMock() {
+  const done = [
+    'Checking OpenSanctions (sanctions + PEP)',
+    'Scanning adverse media (web + AI)',
+    'Building the evidence trail',
+  ];
+  return (
+    <div className="rounded-2xl border border-line bg-surface-alt p-4 shadow-[0_10px_40px_rgba(10,10,10,0.06)] sm:p-6">
+      <div className="flex items-center justify-between rounded-xl bg-surface px-4 py-3 shadow-sm">
+        <div className="flex items-center gap-2.5">
+          <LogoMark />
+          <span className="text-sm font-medium text-ink">ShipHappens is screening the subject</span>
+        </div>
+        <span className="rounded-full bg-surface-alt px-2.5 py-1 text-xs font-medium text-muted">
+          Viktor Y.
+        </span>
+      </div>
 
-        <div className="relative z-10 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-surface border border-line rounded-full px-4 py-1.5 mb-8 shadow-card">
-            <Zap className="w-3.5 h-3.5 text-muted" />
-            <span className="text-muted text-xs font-semibold uppercase tracking-widest">
-              AI Compliance Agent
+      <div className="mt-4 space-y-3 px-1">
+        {done.map((label) => (
+          <div key={label} className="flex items-center gap-3">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-ink">
+              <Check className="h-3 w-3 text-white" strokeWidth={3} />
             </span>
+            <span className="text-sm text-ink">{label}</span>
           </div>
+        ))}
+        <div className="flex items-center gap-3">
+          <Loader2 className="h-5 w-5 animate-spin text-accent" />
+          <span className="text-sm text-muted">Synthesizing risk report…</span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
-          <h1 className="text-4xl sm:text-6xl font-bold tracking-tight leading-tight mb-6 text-ink">
-            Screening in 8 seconds.
+function Hero() {
+  return (
+    <section className="mx-auto max-w-6xl px-6 pt-16 pb-20 sm:pt-24">
+      <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+        <div>
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1 text-xs font-medium text-muted">
+            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+            AI compliance agent
+          </div>
+          <h1 className="text-5xl font-medium leading-[1.02] tracking-[-0.03em] text-ink sm:text-6xl">
+            AI agents for
             <br />
-            <span className="text-muted">Audit-ready every time.</span>
+            KYC/AML screening
           </h1>
-
-          <p className="text-lg text-muted max-w-xl mx-auto leading-relaxed mb-10">
+          <p className="mt-6 max-w-md text-lg leading-relaxed text-muted">
             Screen any person or company against 200+ sanctions lists, PEP databases, and adverse
-            media — instantly. No analyst. No wait. No guesswork.
+            media — and get an audit-ready risk report in about eight seconds.
           </p>
-
-          <Link
-            href="/screen"
-            className="inline-flex items-center gap-2 bg-accent text-cream font-semibold text-base px-8 py-4 rounded-lg hover:bg-accent-hover transition-colors"
-          >
-            Start a new screening
-            <ArrowRight className="w-5 h-5" />
-          </Link>
-        </div>
-      </section>
-
-      {/* Demo scenarios */}
-      <section className="px-6 pb-16">
-        <div className="max-w-4xl mx-auto">
-          <p className="text-center text-xs font-semibold uppercase tracking-widest text-faint mb-6">
-            Try a live demo
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Link href="/screen?demo=high-risk" className="group">
-              <div className="bg-surface border border-line rounded-2xl p-6 hover:border-red-500/40 hover:bg-red-500/5 transition-all cursor-pointer">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-                    <AlertTriangle className="w-5 h-5 text-red-400" />
-                  </div>
-                  <span className="text-xs font-bold text-red-400 bg-red-500/10 border border-red-500/20 px-2.5 py-1 rounded-full">
-                    HIGH RISK
-                  </span>
-                </div>
-                <div className="font-bold text-ink text-lg mb-1">Viktor Yanukovych</div>
-                <div className="text-muted text-sm mb-4">Individual · Ukraine</div>
-                <div className="flex flex-col gap-1.5 text-xs text-faint">
-                  <span>• 4 sanctions matches (OFAC, EU, UN, UK)</span>
-                  <span>• PEP Tier 1 — Former President of Ukraine</span>
-                  <span>• 47 adverse media articles</span>
-                </div>
-                <div className="mt-5 flex items-center gap-1.5 text-accent text-sm font-semibold group-hover:gap-3 transition-all">
-                  Run this demo
-                  <ArrowRight className="w-4 h-4" />
-                </div>
-              </div>
+          <div className="mt-8 flex flex-wrap items-center gap-4">
+            <Link
+              href="/screen"
+              className="inline-flex items-center gap-2 rounded-lg bg-ink px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90"
+            >
+              Start a screening
+              <ArrowRight className="h-4 w-4" />
             </Link>
-
-            <Link href="/screen?demo=clear" className="group">
-              <div className="bg-surface border border-line rounded-2xl p-6 hover:border-risk-clear/40 hover:bg-risk-clear/5 transition-all cursor-pointer">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-risk-clear/10 border border-risk-clear/20 flex items-center justify-center">
-                    <CheckCircle className="w-5 h-5 text-risk-clear" />
-                  </div>
-                  <span className="text-xs font-bold text-risk-clear bg-risk-clear/10 border border-risk-clear/20 px-2.5 py-1 rounded-full">
-                    CLEAR
-                  </span>
-                </div>
-                <div className="font-bold text-ink text-lg mb-1">Maria Kovacheva</div>
-                <div className="text-muted text-sm mb-4">Individual · Bulgaria</div>
-                <div className="flex flex-col gap-1.5 text-xs text-faint">
-                  <span>• 0 sanctions matches</span>
-                  <span>• Not a PEP — no political exposure</span>
-                  <span>• 0 adverse media results</span>
-                </div>
-                <div className="mt-5 flex items-center gap-1.5 text-accent text-sm font-semibold group-hover:gap-3 transition-all">
-                  Run this demo
-                  <ArrowRight className="w-4 h-4" />
-                </div>
-              </div>
-            </Link>
+            <a
+              href="#demo"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-ink hover:text-accent"
+            >
+              See a live demo
+              <ArrowRight className="h-4 w-4" />
+            </a>
           </div>
         </div>
-      </section>
 
-      {/* Stats bar */}
-      <div className="border-t border-line px-6 py-5">
-        <div className="max-w-4xl mx-auto grid grid-cols-3 sm:grid-cols-5 gap-6 text-center">
-          {[
-            { val: '8s', lbl: 'Per check' },
-            { val: '200+', lbl: 'Watchlists' },
-            { val: '1.4M', lbl: 'Sanctions entries' },
-            { val: '€0.02', lbl: 'Unit cost' },
-            { val: '0', lbl: 'Analysts needed' },
-          ].map(({ val, lbl }) => (
-            <div key={lbl}>
-              <div className="text-xl font-bold text-ink">{val}</div>
-              <div className="text-xs text-faint mt-0.5">{lbl}</div>
+        <ScreeningMock />
+      </div>
+    </section>
+  );
+}
+
+function Trust() {
+  const stats = [
+    { val: '8s', lbl: 'Per screening' },
+    { val: '200+', lbl: 'Watchlists' },
+    { val: '1.4M', lbl: 'Sanctions entries' },
+    { val: '€0.02', lbl: 'Unit cost' },
+  ];
+  return (
+    <section id="trust" className="border-y border-line bg-surface-alt">
+      <div className="mx-auto max-w-6xl px-6 py-12">
+        <p className="text-center text-sm text-muted">
+          Built for compliance teams at fintechs, banks and payment firms
+        </p>
+        <div className="mx-auto mt-8 grid max-w-3xl grid-cols-2 gap-8 sm:grid-cols-4">
+          {stats.map((s) => (
+            <div key={s.lbl} className="text-center">
+              <div className="text-3xl font-medium tracking-tight text-ink">{s.val}</div>
+              <div className="mt-1 text-xs text-faint">{s.lbl}</div>
             </div>
           ))}
         </div>
       </div>
+    </section>
+  );
+}
 
-      {/* Footer */}
-      <footer className="border-t border-line px-6 py-4 text-center text-xs text-faint">
-        © 2026 ShipHappens · hello@shiphappens.ai
-      </footer>
+function HowItWorks() {
+  const steps = [
+    {
+      icon: Search,
+      title: 'Enter the subject',
+      body: 'Name, date of birth, country and optional company or case context — that is all the agent needs.',
+    },
+    {
+      icon: ShieldCheck,
+      title: 'The agent screens',
+      body: 'It checks OpenSanctions for sanctions and PEP hits, then scans the web for adverse media and high-risk activity.',
+    },
+    {
+      icon: FileText,
+      title: 'Get an audit-ready report',
+      body: 'A weighted risk band and score, per-signal evidence, a timeline, cited sources and a downloadable PDF.',
+    },
+  ];
+  return (
+    <section id="how" className="mx-auto max-w-6xl px-6 py-24">
+      <h2 className="max-w-2xl text-3xl font-medium tracking-[-0.02em] text-ink sm:text-4xl">
+        From a name to a defensible decision.
+      </h2>
+      <p className="mt-4 max-w-xl text-muted">
+        One agent runs the whole workflow an analyst would — in seconds, with the evidence attached.
+      </p>
+      <div className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-3">
+        {steps.map(({ icon: Icon, title, body }, i) => (
+          <div key={title} className="bg-canvas p-7">
+            <div className="flex items-center gap-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-surface-alt text-ink">
+                <Icon className="h-5 w-5" />
+              </span>
+              <span className="text-xs font-semibold text-faint">0{i + 1}</span>
+            </div>
+            <h3 className="mt-5 text-lg font-medium text-ink">{title}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted">{body}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function DemoCards() {
+  return (
+    <section id="demo" className="mx-auto max-w-6xl px-6 pb-24">
+      <div className="mb-8 flex items-end justify-between">
+        <h2 className="text-3xl font-medium tracking-[-0.02em] text-ink sm:text-4xl">
+          Try a live demo.
+        </h2>
+        <Link href="/screen" className="hidden items-center gap-1.5 text-sm font-medium text-accent hover:text-accent-hover sm:inline-flex">
+          Screen someone else
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <Link href="/screen?demo=high-risk" className="group">
+          <div className="h-full rounded-2xl border border-line bg-surface p-6 transition-colors hover:border-ink/30">
+            <div className="mb-5 flex items-start justify-between">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/10">
+                <AlertTriangle className="h-5 w-5 text-red-500" />
+              </span>
+              <span className="rounded-full bg-red-500/10 px-2.5 py-1 text-xs font-semibold text-red-500">
+                HIGH RISK
+              </span>
+            </div>
+            <div className="text-lg font-medium text-ink">Viktor Yanukovych</div>
+            <div className="mt-1 text-sm text-muted">Individual · Ukraine</div>
+            <ul className="mt-4 space-y-1.5 text-sm text-faint">
+              <li>Sanctions hits across OFAC, EU, UN, UK</li>
+              <li>Confirmed PEP — former head of state</li>
+              <li>Extensive recent adverse media</li>
+            </ul>
+            <div className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-accent group-hover:gap-2.5 transition-all">
+              Run this demo
+              <ArrowRight className="h-4 w-4" />
+            </div>
+          </div>
+        </Link>
+
+        <Link href="/screen?demo=clear" className="group">
+          <div className="h-full rounded-2xl border border-line bg-surface p-6 transition-colors hover:border-ink/30">
+            <div className="mb-5 flex items-start justify-between">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-risk-clear/10">
+                <CheckCircle className="h-5 w-5 text-risk-clear" />
+              </span>
+              <span className="rounded-full bg-risk-clear/10 px-2.5 py-1 text-xs font-semibold text-risk-clear">
+                CLEAR
+              </span>
+            </div>
+            <div className="text-lg font-medium text-ink">Maria Kovacheva</div>
+            <div className="mt-1 text-sm text-muted">Individual · Bulgaria</div>
+            <ul className="mt-4 space-y-1.5 text-sm text-faint">
+              <li>No sanctions matches</li>
+              <li>Not a politically exposed person</li>
+              <li>No adverse media found</li>
+            </ul>
+            <div className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-accent group-hover:gap-2.5 transition-all">
+              Run this demo
+              <ArrowRight className="h-4 w-4" />
+            </div>
+          </div>
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+function CtaBand() {
+  return (
+    <section className="bg-night">
+      <div className="mx-auto max-w-6xl px-6 py-20 text-center">
+        <h2 className="mx-auto max-w-2xl text-4xl font-medium leading-tight tracking-[-0.02em] text-white sm:text-5xl">
+          Stop manual screening.
+          <br />
+          Start deciding.
+        </h2>
+        <p className="mx-auto mt-5 max-w-md text-white/60">
+          Replace a 45-minute manual check with an audit-ready report in seconds.
+        </p>
+        <Link
+          href="/screen"
+          className="mt-8 inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 text-sm font-medium text-ink transition-opacity hover:opacity-90"
+        >
+          Start a screening
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="border-t border-line">
+      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 text-sm text-faint sm:flex-row">
+        <Wordmark />
+        <span>© 2026 ShipHappens · hello@shiphappens.ai</span>
+      </div>
+    </footer>
+  );
+}
+
+export default function Home() {
+  return (
+    <main className="min-h-screen bg-canvas">
+      <AnnouncementBar />
+      <Nav />
+      <Hero />
+      <Trust />
+      <HowItWorks />
+      <DemoCards />
+      <CtaBand />
+      <Footer />
     </main>
   );
 }
