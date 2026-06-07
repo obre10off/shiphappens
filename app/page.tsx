@@ -24,7 +24,7 @@ function Wordmark() {
   return (
     <div className="flex items-center gap-2.5">
       <LogoMark />
-      <span className="text-[17px] font-semibold tracking-tight text-ink">ShipHappens</span>
+      <span className="text-[17px] font-semibold tracking-tight text-ink">Clavis</span>
     </div>
   );
 }
@@ -81,7 +81,7 @@ function ScreeningMock() {
       <div className="flex items-center justify-between rounded-xl bg-surface px-4 py-3 shadow-sm">
         <div className="flex items-center gap-2.5">
           <LogoMark />
-          <span className="text-sm font-medium text-ink">ShipHappens is screening the subject</span>
+          <span className="text-sm font-medium text-ink">Clavis is screening the subject</span>
         </div>
         <span className="rounded-full bg-surface-alt px-2.5 py-1 text-xs font-medium text-muted">
           Viktor Y.
@@ -312,7 +312,7 @@ function Footer() {
     <footer className="border-t border-line">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 text-sm text-faint sm:flex-row">
         <Wordmark />
-        <span>© 2026 ShipHappens · hello@shiphappens.ai</span>
+        <span>© 2026 Clavis · hello@clavis.ai</span>
       </div>
     </footer>
   );

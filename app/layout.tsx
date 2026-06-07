@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'ShipHappens — AI Compliance Screening',
+  title: 'Clavis — AI Compliance Screening',
   description:
     'Sanctions, PEP, and adverse media screening in 8 seconds. Audit-ready reports powered by AI.',
 };

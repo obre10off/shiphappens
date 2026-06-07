@@ -1,4 +1,4 @@
-# ShipHappens — KYC Auditing Tool · Dev & Implementation Plan
+# Clavis — KYC Auditing Tool · Dev & Implementation Plan
 
 > An AI compliance analyst that screens a person/company against the **OpenSanctions**
 > database, scans for **adverse media** via Google + LLM, and (time permitting) checks

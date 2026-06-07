@@ -1,4 +1,4 @@
-# Project Memory — ShipHappens (Compliance Analyst Agent)
+# Project Memory — Clavis (Compliance Analyst Agent)
 
 > **Living memory of this project.** Keep this file current — see the rule in
 > [CLAUDE.md](./CLAUDE.md). Update it whenever a plan file changes or a build step ships.

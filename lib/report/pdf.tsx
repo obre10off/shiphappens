@@ -70,7 +70,7 @@ export function RiskReportDocument({ report }: { report: RiskReport }) {
         <View style={styles.header}>
           <View>
             <Text style={styles.brand}>
-              Ship<Text style={styles.brandAccent}>Happens</Text>
+              Clavis
             </Text>
             <Text style={styles.sub}>KYC / AML Screening Report</Text>
             <Text style={styles.sub}>{subjectLine}</Text>
@@ -143,7 +143,7 @@ export function RiskReportDocument({ report }: { report: RiskReport }) {
         ) : null}
 
         <Text style={styles.footer} fixed>
-          ShipHappens — automated screening. Review by a qualified compliance officer is required
+          Clavis — automated screening. Review by a qualified compliance officer is required
           before any decision.
         </Text>
       </Page>

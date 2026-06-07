@@ -49,7 +49,7 @@ function Header() {
             <Shield className="w-3.5 h-3.5 text-cream" strokeWidth={2.5} />
           </div>
           <span className="font-bold text-sm tracking-tight">
-            Ship<span className="text-accent">Happens</span>
+            Clavis
           </span>
         </Link>
         <span className="text-xs text-faint">KYC / AML screening</span>
