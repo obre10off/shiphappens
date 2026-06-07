@@ -9,16 +9,16 @@ import {
   View,
 } from '@react-pdf/renderer';
 import type { CategoryScore, RiskReport } from '@/lib/contracts/types';
-import { bandColor, colors, neutral, print, scoreColor } from '@/lib/theme';
+import { bandColor, colors, print, scoreColor } from '@/lib/theme';
 
-const NAVY = colors.canvas;
-const TEAL = colors.accent; // steel-blue accent
-const MUTED = neutral[500];
+const INK = print.ink; // primary heading/text on the white page
+const TEAL = colors.accent; // teal accent
+const MUTED = print.muted;
 
 const styles = StyleSheet.create({
-  page: { padding: 40, fontSize: 10, color: '#1e293b', fontFamily: 'Helvetica' },
+  page: { padding: 40, fontSize: 10, color: INK, fontFamily: 'Helvetica' },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 },
-  brand: { fontSize: 16, fontFamily: 'Helvetica-Bold', color: NAVY },
+  brand: { fontSize: 16, fontFamily: 'Helvetica-Bold', color: INK },
   brandAccent: { color: TEAL },
   sub: { fontSize: 9, color: MUTED, marginTop: 2 },
   bandBox: { padding: 10, borderRadius: 6, alignItems: 'flex-end' },
@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 11,
     fontFamily: 'Helvetica-Bold',
-    color: NAVY,
+    color: INK,
     marginBottom: 8,
     textTransform: 'uppercase',
     letterSpacing: 0.5,

@@ -15,17 +15,17 @@ type View = 'form' | 'running' | 'done';
 
 function Header() {
   return (
-    <header className="border-b border-white/5 px-5 py-3.5">
+    <header className="border-b border-line px-5 py-3.5">
       <div className="max-w-3xl mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-accent flex items-center justify-center">
-            <Shield className="w-3.5 h-3.5 text-canvas" strokeWidth={2.5} />
+            <Shield className="w-3.5 h-3.5 text-cream" strokeWidth={2.5} />
           </div>
           <span className="font-bold text-sm tracking-tight">
             Ship<span className="text-accent">Happens</span>
           </span>
         </Link>
-        <span className="text-xs text-slate-500">KYC / AML screening</span>
+        <span className="text-xs text-faint">KYC / AML screening</span>
       </div>
     </header>
   );
@@ -113,7 +113,7 @@ function ScreenInner() {
 
           {view === 'running' && (
             <div className="animate-slide-up">
-              <h2 className="text-2xl font-bold text-white mb-4">Running screening…</h2>
+              <h2 className="text-2xl font-bold text-ink mb-4">Running screening…</h2>
               <ProgressStream
                 phases={phases}
                 subject={subject}

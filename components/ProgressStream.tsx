@@ -30,7 +30,7 @@ export function ProgressStream({
 }) {
   return (
     <div className="space-y-2.5">
-      <p className="text-slate-400 text-sm mb-4">Screening {subject || 'subject'} across all databases…</p>
+      <p className="text-muted text-sm mb-4">Screening {subject || 'subject'} across all databases…</p>
 
       {phases.map((p) => {
         const running = p.status === 'running';
@@ -48,7 +48,7 @@ export function ProgressStream({
                     : 'border-risk-clear/20 bg-risk-clear/5'
                   : running
                     ? 'border-accent/40 bg-accent/8'
-                    : 'border-white/[0.06] bg-white/[0.02]'
+                    : 'border-line bg-surface'
               }`}
           >
             <div className="flex-shrink-0">
@@ -61,12 +61,12 @@ export function ProgressStream({
                   <CheckCircle className="w-4 h-4 text-risk-clear" />
                 )
               ) : (
-                <div className="w-4 h-4 rounded-full border border-white/15" />
+                <div className="w-4 h-4 rounded-full border border-line" />
               )}
             </div>
             <span
               className={`flex-1 text-sm font-medium ${
-                running ? 'text-accent' : done ? 'text-white' : 'text-slate-600'
+                running ? 'text-accent' : done ? 'text-ink' : 'text-faint'
               }`}
             >
               {done ? DONE_LABELS[p.phase] : LABELS[p.phase]}
@@ -90,7 +90,7 @@ export function ProgressStream({
             <AlertTriangle className="w-4 h-4" />
             Screening failed
           </div>
-          <p className="text-sm text-slate-400 mb-3">{error}</p>
+          <p className="text-sm text-muted mb-3">{error}</p>
           {onRetry && (
             <button
               onClick={onRetry}

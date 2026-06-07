@@ -21,7 +21,7 @@ export function ScoreGauge({
     <div className="flex items-center gap-5">
       <div className="relative w-32 h-32 flex-shrink-0">
         <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90">
-          <circle cx="60" cy="60" r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="10" />
+          <circle cx="60" cy="60" r={r} fill="none" stroke="rgba(43,42,40,0.10)" strokeWidth="10" />
           <circle
             cx="60"
             cy="60"
@@ -38,12 +38,12 @@ export function ScoreGauge({
           <span className="text-3xl font-black" style={{ color }}>
             {Math.round(score)}
           </span>
-          <span className="text-[10px] text-slate-500 font-medium">/ 100</span>
+          <span className="text-[10px] text-faint font-medium">/ 100</span>
         </div>
       </div>
 
       <div className="space-y-1.5">
-        <div className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
+        <div className="text-xs font-semibold text-faint uppercase tracking-widest">
           Weighted score
         </div>
         <WeightRow label="Sanctions + PEP" value={weights.sanctions} color={neutral[400]} />
@@ -58,8 +58,8 @@ function WeightRow({ label, value, color }: { label: string; value: number; colo
   return (
     <div className="flex items-center gap-2 text-xs">
       <span className="w-1.5 h-1.5 rounded-full" style={{ background: color }} />
-      <span className="text-slate-400 w-28">{label}</span>
-      <span className="text-slate-300 font-semibold tabular-nums">
+      <span className="text-muted w-28">{label}</span>
+      <span className="text-ink font-semibold tabular-nums">
         {Math.round(value * 100)}%
       </span>
     </div>

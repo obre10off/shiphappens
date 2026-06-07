@@ -23,8 +23,8 @@ const BAND_META: Record<RiskBand, { label: string; color: string; ring: string; 
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-5">
-      <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">{title}</h3>
+    <div className="rounded-2xl border border-line bg-surface p-5">
+      <h3 className="text-xs font-semibold text-faint uppercase tracking-widest mb-4">{title}</h3>
       {children}
     </div>
   );
@@ -73,7 +73,7 @@ export function RiskDashboard({ report, onReset }: { report: RiskReport; onReset
               <Icon className={`w-7 h-7 ${meta.color}`} />
               <span className={`text-2xl font-black tracking-tight ${meta.color}`}>{meta.label}</span>
             </div>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-muted">
               {report.input.name}
               {report.input.country ? ` · ${report.input.country}` : ''}
               {report.input.dateOfBirth ? ` · ${report.input.dateOfBirth}` : ''}
@@ -87,14 +87,14 @@ export function RiskDashboard({ report, onReset }: { report: RiskReport; onReset
 
       {/* Summary + recommendation */}
       <Section title="Summary">
-        <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-line">{report.summary}</p>
+        <p className="text-sm text-ink leading-relaxed whitespace-pre-line">{report.summary}</p>
       </Section>
 
       <div className={`rounded-2xl border-2 ${meta.ring} ${meta.bg} p-5`}>
-        <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">
+        <h3 className="text-xs font-semibold text-faint uppercase tracking-widest mb-2">
           Recommended action
         </h3>
-        <p className="text-sm text-slate-100 leading-relaxed">{report.recommendation}</p>
+        <p className="text-sm text-ink leading-relaxed">{report.recommendation}</p>
       </div>
 
       {/* Adverse-media signals */}
@@ -115,11 +115,11 @@ export function RiskDashboard({ report, onReset }: { report: RiskReport; onReset
               <div key={i} className="flex gap-3">
                 <div className="flex flex-col items-center flex-shrink-0">
                   <Clock className="w-3.5 h-3.5 text-accent mt-0.5" />
-                  {i < timeline.length - 1 && <div className="w-px flex-1 bg-white/10 mt-1" />}
+                  {i < timeline.length - 1 && <div className="w-px flex-1 bg-line mt-1" />}
                 </div>
                 <div className="pb-1">
                   <div className="text-xs font-semibold text-accent">{t.date || 'Date unknown'}</div>
-                  <div className="text-sm text-slate-300">{t.event}</div>
+                  <div className="text-sm text-ink">{t.event}</div>
                 </div>
               </div>
             ))}
@@ -152,7 +152,7 @@ export function RiskDashboard({ report, onReset }: { report: RiskReport; onReset
         <button
           onClick={downloadPdf}
           disabled={downloading}
-          className="flex-1 flex items-center justify-center gap-2 bg-accent text-white font-bold py-3 px-5 rounded-xl hover:bg-accent-hover transition-colors disabled:opacity-60"
+          className="flex-1 flex items-center justify-center gap-2 bg-accent text-cream font-bold py-3 px-5 rounded-xl hover:bg-accent-hover transition-colors disabled:opacity-60"
         >
           {downloading ? <Loader className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4" />}
           {downloading ? 'Generating…' : 'Download PDF report'}
@@ -160,7 +160,7 @@ export function RiskDashboard({ report, onReset }: { report: RiskReport; onReset
         {onReset && (
           <button
             onClick={onReset}
-            className="flex items-center justify-center gap-2 border border-white/10 text-slate-300 font-medium py-3 px-5 rounded-xl hover:bg-white/5 transition-colors text-sm"
+            className="flex items-center justify-center gap-2 border border-line text-ink font-medium py-3 px-5 rounded-xl hover:bg-surface-alt transition-colors text-sm"
           >
             <RotateCcw className="w-4 h-4" />
             New screening

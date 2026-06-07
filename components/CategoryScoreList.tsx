@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { CategoryScore } from '@/lib/contracts/types';
-import { scoreColor } from '@/lib/theme';
+import { neutral, scoreColor } from '@/lib/theme';
 
 function isUrl(s: string): boolean {
   return /^https?:\/\//i.test(s);
@@ -14,10 +14,10 @@ function ScoreRow({ c }: { c: CategoryScore }) {
   return (
     <div className={`py-2.5 ${c.present ? '' : 'opacity-50'}`}>
       <div className="flex items-center gap-3">
-        <span className={`flex-1 text-sm ${c.present ? 'text-slate-200 font-medium' : 'text-slate-500'}`}>
+        <span className={`flex-1 text-sm ${c.present ? 'text-ink font-medium' : 'text-faint'}`}>
           {c.label}
         </span>
-        <div className="w-28 h-2 rounded-full bg-white/8 overflow-hidden flex-shrink-0">
+        <div className="w-28 h-2 rounded-full bg-surface-alt overflow-hidden flex-shrink-0">
           <div
             className="h-full rounded-full"
             style={{ width: `${c.score}%`, background: color, transition: 'width 0.6s ease' }}
@@ -25,7 +25,7 @@ function ScoreRow({ c }: { c: CategoryScore }) {
         </div>
         <span
           className="text-xs font-bold tabular-nums w-7 text-right flex-shrink-0"
-          style={{ color: c.present ? color : '#475569' }}
+          style={{ color: c.present ? color : neutral[400] }}
         >
           {c.score}
         </span>
@@ -46,7 +46,7 @@ function ScoreRow({ c }: { c: CategoryScore }) {
             ) : (
               <span
                 key={i}
-                className="text-[11px] text-slate-400 bg-white/5 border border-white/10 px-2 py-0.5 rounded"
+                className="text-[11px] text-muted bg-surface-alt border border-line px-2 py-0.5 rounded"
               >
                 {e}
               </span>
@@ -72,7 +72,7 @@ export function CategoryScoreList({
 
   if (!collapsible) {
     return (
-      <div className="divide-y divide-white/[0.06]">
+      <div className="divide-y divide-line">
         {items.map((c) => (
           <ScoreRow key={c.key} c={c} />
         ))}
@@ -84,9 +84,9 @@ export function CategoryScoreList({
 
   return (
     <div>
-      <div className="divide-y divide-white/[0.06]">
+      <div className="divide-y divide-line">
         {shown.length === 0 ? (
-          <p className="text-sm text-slate-500 py-3">No high-risk activities flagged.</p>
+          <p className="text-sm text-faint py-3">No high-risk activities flagged.</p>
         ) : (
           shown.map((c) => <ScoreRow key={c.key} c={c} />)
         )}
@@ -94,7 +94,7 @@ export function CategoryScoreList({
       {absent.length > 0 && (
         <button
           onClick={() => setExpanded((v) => !v)}
-          className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white transition-colors focus-teal"
+          className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-ink transition-colors focus-teal"
         >
           {expanded ? (
             <>

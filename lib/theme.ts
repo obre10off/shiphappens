@@ -3,9 +3,17 @@
 // SINGLE SOURCE OF TRUTH for the design system: colors, risk palette, radii,
 // typography, spacing and elevation tokens.
 //
+// Theme: warm "parchment" light theme.
+//   Base palette (muted warm neutrals, given):
+//     #2B2A28 espresso · #6B6258 taupe · #C9A86A gold · #EFE2C8 parchment ·
+//     #FFF9EF cream
+//   Accent (vibrant, chosen): deep teal #0E7C7B — the complement to the warm
+//   gold/cream neutrals; premium and clearly distinct from the risk colors.
+//
 // Consumed in three places, all derived from this one file:
-//   1. tailwind.config.ts  → maps these into Tailwind tokens (bg-accent,
-//      text-risk-high, rounded-card, …) and injects them as CSS variables.
+//   1. tailwind.config.ts  → maps these into Tailwind tokens (bg-canvas,
+//      text-ink, text-muted, bg-accent, text-risk-high, …) and injects them as
+//      :root CSS variables.
 //   2. globals.css         → references the injected CSS variables (--color-*).
 //   3. Runtime/SSR code that needs raw values (charts, the @react-pdf report)
 //      imports the objects directly: `import { risk } from '@/lib/theme'`.
@@ -14,46 +22,56 @@
 // in components — add a token here and use it.
 // ────────────────────────────────────────────────────────────────────────────
 
-/** Core brand + surface palette (refined-dark / corporate). */
+/** Core surface + brand palette (warm light theme). */
 export const colors = {
-  /** App background (cool slate-900). */
-  canvas: '#0f172a',
-  /** Solid raised surface (e.g. <select> option menus). */
-  surface: '#1e293b',
-  /** Translucent card fill over the canvas. */
-  card: 'rgba(255, 255, 255, 0.03)',
-  /** Hairline border on cards/sections. */
-  border: 'rgba(255, 255, 255, 0.08)',
+  /** App background (warm cream). */
+  canvas: '#FFF9EF',
+  /** Raised card / panel surface. */
+  surface: '#FFFFFF',
+  /** Secondary fill — chips, bar tracks, subtle panels (parchment). */
+  surfaceAlt: '#EFE2C8',
+  /** Hairline border / divider over surfaces. */
+  border: 'rgba(43, 42, 40, 0.12)',
 
-  /** Restrained steel-blue accent — the only brand color. */
-  accent: '#5b7ba6',
-  accentHover: '#7a97bd',
-  accentMuted: '#48637f',
+  /** Vibrant accent — deep teal, complement to the warm neutrals. */
+  accent: '#0E7C7B',
+  accentHover: '#0A605F',
+  accentMuted: '#5FA3A1',
+  /** Text/icon color that sits on top of the accent. */
+  onAccent: '#FFF9EF',
 
-  white: '#ffffff',
+  /** Muted warm gold — secondary/decorative accent. */
+  gold: '#C9A86A',
 } as const;
 
-/** Neutral slate ramp for text, muted UI and non-semantic chart marks. */
+/** Text colors (warm). */
+export const text = {
+  ink: '#2B2A28', // primary
+  muted: '#6B6258', // secondary
+  faint: '#938A7D', // tertiary / labels
+} as const;
+
+/** Neutral warm ramp for muted UI and non-semantic chart marks. */
 export const neutral = {
-  300: '#cbd5e1',
-  400: '#94a3b8',
-  500: '#64748b',
-  600: '#475569',
+  300: '#D8CDB8',
+  400: '#A89F92',
+  500: '#6B6258',
+  600: '#4A453F',
 } as const;
 
 /**
- * Risk signal palette — desaturated on purpose. These are the ONLY saturated
- * colors in the product and should appear only on actual results.
- * `400` shades are for text/icons, `500`/base for fills, borders and bars.
+ * Risk signal palette — warm-harmonized but still clearly semantic. These are
+ * the saturated signal colors and appear only on actual results. `400` shades
+ * are for text/icons, base for fills, borders and bars.
  */
 export const risk = {
-  high: '#c0564b',
-  highText: '#cf7b72',
-  review: '#bf9040',
-  reviewText: '#cda85c',
-  clear: '#4f8a6d',
+  high: '#B23A2E', // warm brick red
+  highText: '#C25548',
+  review: '#B97D1E', // warm amber/ochre (distinct from the muted gold)
+  reviewText: '#C28A33',
+  clear: '#3F7D5A', // muted forest green
   /** Absent / zero-score category. */
-  none: neutral[600],
+  none: '#B8AE9E',
 } as const;
 
 export type RiskBand = 'high' | 'review' | 'clear';
@@ -72,15 +90,15 @@ export function scoreColor(score: number): string {
   return risk.none;
 }
 
-/** Light-mode tokens used only by the printable PDF report. */
+/** Tokens used by the printable PDF report (light document). */
 export const print = {
-  ink: colors.canvas,
-  muted: neutral[500],
-  barTrack: '#e2e8f0',
-  link: '#2563eb',
+  ink: text.ink,
+  muted: text.muted,
+  barTrack: colors.surfaceAlt,
+  link: colors.accent,
 } as const;
 
-/** Border radii (Tailwind `rounded-*` overrides). */
+/** Border radii (Tailwind `rounded-*`). */
 export const radius = {
   sm: '8px',
   md: '10px',
@@ -107,14 +125,14 @@ export const fontFamily = {
 
 /** Layout tokens. */
 export const layout = {
-  /** Max content width for the screening flow / landing sections. */
   container: '48rem', // ~ max-w-3xl
   containerWide: '56rem', // ~ max-w-4xl
 } as const;
 
-/** Elevation. Intentionally minimal — the corporate theme avoids glows. */
+/** Elevation — soft warm shadows for the light theme. */
 export const shadow = {
-  card: '0 1px 2px rgba(0, 0, 0, 0.2)',
+  card: '0 1px 2px rgba(43, 42, 40, 0.06)',
+  raised: '0 6px 24px rgba(43, 42, 40, 0.08)',
 } as const;
 
 export const zIndex = {
@@ -130,6 +148,13 @@ export const zIndex = {
 export const tailwindColors = {
   canvas: colors.canvas,
   surface: colors.surface,
+  'surface-alt': colors.surfaceAlt,
+  line: colors.border,
+  ink: text.ink,
+  muted: text.muted,
+  faint: text.faint,
+  gold: colors.gold,
+  cream: colors.onAccent,
   accent: {
     DEFAULT: colors.accent,
     hover: colors.accentHover,
@@ -141,8 +166,8 @@ export const tailwindColors = {
     clear: risk.clear,
     none: risk.none,
   },
-  // Desaturated overrides merged into Tailwind's default red/amber scales so
-  // utility classes like `text-red-400` / `bg-amber-500/10` stay on-brand.
+  // Warm overrides merged into Tailwind's default red/amber scales so utility
+  // classes like `text-red-400` / `bg-amber-500/10` stay on-brand.
   red: { 400: risk.highText, 500: risk.high },
   amber: { 400: risk.reviewText, 500: risk.review },
 } as const;
@@ -151,13 +176,17 @@ export const tailwindColors = {
 export const cssVars: Record<string, string> = {
   '--color-canvas': colors.canvas,
   '--color-surface': colors.surface,
-  '--color-card': colors.card,
-  '--color-border': colors.border,
+  '--color-surface-alt': colors.surfaceAlt,
+  '--color-line': colors.border,
+  '--color-ink': text.ink,
+  '--color-muted': text.muted,
   '--color-accent': colors.accent,
   '--color-accent-hover': colors.accentHover,
-  '--color-accent-dim': 'rgba(91, 123, 166, 0.1)',
-  '--color-accent-border': 'rgba(91, 123, 166, 0.3)',
-  '--color-accent-strong': 'rgba(91, 123, 166, 0.4)',
+  '--color-accent-dim': 'rgba(14, 124, 123, 0.08)',
+  '--color-gold': colors.gold,
+  '--color-placeholder': 'rgba(43, 42, 40, 0.4)',
+  '--color-scroll-thumb': '#D8CDB8',
+  '--color-scroll-thumb-hover': '#6B6258',
   '--color-risk-high': risk.high,
   '--color-risk-review': risk.review,
   '--color-risk-clear': risk.clear,

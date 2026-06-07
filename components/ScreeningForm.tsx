@@ -36,12 +36,12 @@ const empty: ScreeningInput = { name: '', country: '', dateOfBirth: '', company:
 function Label({ children, required, tip }: { children: React.ReactNode; required?: boolean; tip?: string }) {
   return (
     <div className="flex items-center gap-1.5 mb-1.5">
-      <label className="text-sm font-medium text-slate-300">
+      <label className="text-sm font-medium text-ink">
         {children}
         {required && <span className="text-accent ml-0.5">*</span>}
       </label>
       {tip && (
-        <span className="text-xs text-slate-500 flex items-center gap-0.5">
+        <span className="text-xs text-faint flex items-center gap-0.5">
           <Info className="w-3 h-3" />
           {tip}
         </span>
@@ -70,13 +70,13 @@ export function ScreeningForm({ onSubmit }: { onSubmit: (input: ScreeningInput) 
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="text-2xl font-bold text-white mb-1">Screen a subject</h2>
-        <p className="text-slate-400 text-sm">Sanctions + PEP, adverse media, and a risk-scored report.</p>
+        <h2 className="text-2xl font-bold text-ink mb-1">Screen a subject</h2>
+        <p className="text-muted text-sm">Sanctions + PEP, adverse media, and a risk-scored report.</p>
       </div>
 
       {/* Demo prefills */}
       <div className="flex items-center gap-3 flex-wrap">
-        <span className="text-xs text-slate-500 flex items-center gap-1.5">
+        <span className="text-xs text-faint flex items-center gap-1.5">
           <Zap className="w-3.5 h-3.5 text-accent" /> Quick demo:
         </span>
         <button
@@ -122,7 +122,7 @@ export function ScreeningForm({ onSubmit }: { onSubmit: (input: ScreeningInput) 
             className="field"
             value={form.dateOfBirth}
             onChange={(e) => set('dateOfBirth', e.target.value)}
-            style={{ colorScheme: 'dark' }}
+            style={{ colorScheme: 'light' }}
           />
         </div>
       </div>
@@ -153,8 +153,8 @@ export function ScreeningForm({ onSubmit }: { onSubmit: (input: ScreeningInput) 
         className={`w-full flex items-center justify-center gap-2 font-bold text-sm py-3 px-6 rounded-xl transition-all focus-teal
           ${
             canSubmit
-              ? 'bg-accent text-white hover:bg-accent-hover'
-              : 'bg-white/5 text-slate-600 cursor-not-allowed'
+              ? 'bg-accent text-cream hover:bg-accent-hover'
+              : 'bg-surface-alt text-faint cursor-not-allowed'
           }`}
       >
         <Shield className="w-4 h-4" />
