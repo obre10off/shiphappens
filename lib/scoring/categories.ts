@@ -4,11 +4,21 @@
 
 import { HIGH_RISK_ACTIVITIES } from '@/lib/data/highRiskActivities';
 import { CATEGORY_PRESENCE_SCORE } from '@/lib/data/weights';
+import { isEnrichmentDataset, isSanctionsDataset } from '@/lib/data/datasets';
 import type {
   AdverseMediaResult,
   CategoryScore,
   SanctionsResult,
 } from '@/lib/contracts/types';
+
+const uniq = (xs: string[]) => [...new Set(xs.filter(Boolean))];
+
+/** Human-meaningful PEP context: the public positions held (e.g. "Prime Minister of Bulgaria"). */
+function pepPositions(sanctions: SanctionsResult | null): string[] {
+  const matched = (sanctions?.matches ?? []).filter((m) => m.match);
+  const positions = uniq(matched.flatMap((m) => m.properties?.position ?? [])).slice(0, 4);
+  return positions.length ? positions : ['Senior public / political figure (PEP)'];
+}
 
 /** Stable, url-safe id from a human label. */
 export function slug(label: string): string {
@@ -27,7 +37,6 @@ export function buildHighRiskActivityScores(
   adverseMedia: AdverseMediaResult | null,
 ): CategoryScore[] {
   const flagged = new Set(adverseMedia?.highRiskActivities ?? []);
-  const evidence = (adverseMedia?.sources ?? []).map((s) => s.url).filter(Boolean);
 
   return HIGH_RISK_ACTIVITIES.map((activity) => {
     const present = flagged.has(activity);
@@ -36,7 +45,9 @@ export function buildHighRiskActivityScores(
       label: activity,
       present,
       score: present ? CATEGORY_PRESENCE_SCORE : 0,
-      evidence: present ? evidence : [],
+      // Supporting articles are cited inline in the summary + listed in Sources,
+      // so we don't repeat the full URL list on every activity row.
+      evidence: [],
     };
   });
 }
@@ -49,8 +60,10 @@ export function buildAdverseMediaScores(
   sanctions: SanctionsResult | null,
   adverseMedia: AdverseMediaResult | null,
 ): CategoryScore[] {
-  const sourceUrls = (adverseMedia?.sources ?? []).map((s) => s.url).filter(Boolean);
   const datasets = sanctions?.datasetsHit ?? [];
+  // The sanctions row shows only real enforcement lists; PEP/enrichment codes
+  // (wikidata, everypolitician, …) are filtered out so the tags stay meaningful.
+  const sanctionLists = uniq(datasets.filter(isSanctionsDataset).filter((d) => !isEnrichmentDataset(d)));
 
   return [
     {
@@ -58,35 +71,36 @@ export function buildAdverseMediaScores(
       label: 'On a sanctions list',
       present: !!sanctions?.isSanctioned,
       score: sanctions?.isSanctioned ? 100 : 0,
-      evidence: sanctions?.isSanctioned ? datasets : [],
+      evidence: sanctions?.isSanctioned ? sanctionLists : [],
     },
     {
       key: 'pep',
       label: 'Politically Exposed Person',
       present: !!sanctions?.isPep,
       score: sanctions?.isPep ? 70 : 0,
-      evidence: sanctions?.isPep ? datasets : [],
+      // Show the actual public positions held — far more meaningful than dataset codes.
+      evidence: sanctions?.isPep ? pepPositions(sanctions) : [],
     },
     {
       key: 'bad_press',
       label: 'Adverse media (any time)',
       present: !!adverseMedia?.badPress,
       score: adverseMedia?.badPress ? 60 : 0,
-      evidence: adverseMedia?.badPress ? sourceUrls : [],
+      evidence: [],
     },
     {
       key: 'bad_press_recent',
       label: 'Adverse media (last 5 years)',
       present: !!adverseMedia?.badPressLast5Years,
       score: adverseMedia?.badPressLast5Years ? 100 : 0,
-      evidence: adverseMedia?.badPressLast5Years ? sourceUrls : [],
+      evidence: [],
     },
     {
       key: 'high_risk_activity',
       label: 'High-risk activity involvement',
       present: !!adverseMedia?.highRiskActivitiesFlag,
       score: adverseMedia?.highRiskActivitiesFlag ? 50 : 0,
-      evidence: adverseMedia?.highRiskActivitiesFlag ? sourceUrls : [],
+      evidence: [],
     },
   ];
 }

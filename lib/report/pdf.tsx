@@ -9,7 +9,8 @@ import {
   View,
 } from '@react-pdf/renderer';
 import type { CategoryScore, RiskReport } from '@/lib/contracts/types';
-import { bandColor, colors, print, scoreColor } from '@/lib/theme';
+import { bandColor, categoryTo10, colors, overallTo10, print, scoreColor } from '@/lib/theme';
+import { stripMarkdown } from '@/lib/util/markdown';
 
 const INK = print.ink; // primary heading/text on the white page
 const TEAL = colors.accent; // teal accent
@@ -53,7 +54,7 @@ function ScoreRow({ c }: { c: CategoryScore }) {
       <View style={styles.barTrack}>
         <View style={[styles.barFill, { width: `${c.score}%`, backgroundColor: color }]} />
       </View>
-      <Text style={[styles.rowScore, { color }]}>{c.score}</Text>
+      <Text style={[styles.rowScore, { color }]}>{categoryTo10(c.score)}</Text>
     </View>
   );
 }
@@ -82,7 +83,7 @@ export function RiskReportDocument({ report }: { report: RiskReport }) {
             <Text style={[styles.bandLabel, { color: bandColor[report.band] }]}>
               {report.band.toUpperCase()}
             </Text>
-            <Text style={styles.bandScore}>Score {report.overallScore}/100</Text>
+            <Text style={styles.bandScore}>Score {overallTo10(report.overallScore)}/10</Text>
             <Text style={styles.bandScore}>
               weights S {report.weights.sanctions.toFixed(2)} · M {report.weights.adverseMedia.toFixed(2)} · So{' '}
               {report.weights.social.toFixed(2)}
@@ -92,7 +93,7 @@ export function RiskReportDocument({ report }: { report: RiskReport }) {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Summary</Text>
-          <Text style={styles.para}>{report.summary}</Text>
+          <Text style={styles.para}>{stripMarkdown(report.summary)}</Text>
         </View>
 
         <View style={styles.section}>
@@ -135,8 +136,7 @@ export function RiskReportDocument({ report }: { report: RiskReport }) {
             <Text style={styles.sectionTitle}>Sources</Text>
             {report.sources.map((s, i) => (
               <Text key={i} style={styles.source}>
-                {s.url}
-                {s.note ? ` — ${s.note}` : ''}
+                [{i + 1}] {s.note ? `${s.note} — ` : ''}{s.url}
               </Text>
             ))}
           </View>

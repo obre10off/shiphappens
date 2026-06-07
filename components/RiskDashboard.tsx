@@ -4,6 +4,8 @@ import { useState } from 'react';
 import {
   AlertTriangle,
   CheckCircle,
+  ChevronDown,
+  ChevronUp,
   Clock,
   ExternalLink,
   FileDown,
@@ -14,12 +16,19 @@ import {
 import type { RiskBand, RiskReport } from '@/lib/contracts/types';
 import { ScoreGauge } from './ScoreGauge';
 import { CategoryScoreList } from './CategoryScoreList';
+import { Markdown } from './Markdown';
 
-const BAND_META: Record<RiskBand, { label: string; color: string; ring: string; bg: string; Icon: typeof XCircle }> = {
-  high: { label: 'HIGH RISK', color: 'text-red-400', ring: 'border-red-500/50', bg: 'bg-red-500/8', Icon: XCircle },
-  review: { label: 'REVIEW', color: 'text-amber-400', ring: 'border-amber-500/50', bg: 'bg-amber-500/8', Icon: AlertTriangle },
-  clear: { label: 'CLEAR', color: 'text-risk-clear', ring: 'border-risk-clear/50', bg: 'bg-risk-clear/8', Icon: CheckCircle },
+const BAND_META: Record<
+  RiskBand,
+  { label: string; verdict: string; color: string; ring: string; bg: string; Icon: typeof XCircle }
+> = {
+  high: { label: 'HIGH RISK', verdict: 'Decline — escalate to compliance', color: 'text-red-400', ring: 'border-red-500/50', bg: 'bg-red-500/8', Icon: XCircle },
+  review: { label: 'REVIEW', verdict: 'Hold — enhanced due diligence required', color: 'text-amber-400', ring: 'border-amber-500/50', bg: 'bg-amber-500/8', Icon: AlertTriangle },
+  clear: { label: 'CLEAR', verdict: 'Cleared to proceed under standard due diligence', color: 'text-risk-clear', ring: 'border-risk-clear/50', bg: 'bg-risk-clear/8', Icon: CheckCircle },
 };
+
+const TIMELINE_PREVIEW = 4;
+const SOURCES_PREVIEW = 3;
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -33,9 +42,18 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 export function RiskDashboard({ report, onReset }: { report: RiskReport; onReset?: () => void }) {
   const [downloading, setDownloading] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
+  const [showAllTimeline, setShowAllTimeline] = useState(false);
+  const [showAllSources, setShowAllSources] = useState(false);
   const meta = BAND_META[report.band];
   const { Icon } = meta;
   const timeline = report.adverseMedia?.timeline ?? [];
+  const shownTimeline = showAllTimeline ? timeline : timeline.slice(0, TIMELINE_PREVIEW);
+
+  // Sources keep their report order so the summary's inline [n] citations stay
+  // stable (adverse-media articles come first, numbered 1..N).
+  const orderedSources = report.sources;
+  const shownSources = showAllSources ? orderedSources : orderedSources.slice(0, SOURCES_PREVIEW);
+  const citationUrl = (n: number) => orderedSources[n - 1]?.url;
 
   const downloadPdf = async () => {
     setDownloading(true);
@@ -81,21 +99,26 @@ export function RiskDashboard({ report, onReset }: { report: RiskReport; onReset
               {(report.durationMs / 1000).toFixed(1)}s
             </p>
           </div>
-          <ScoreGauge score={report.overallScore} band={report.band} weights={report.weights} />
+          <ScoreGauge score={report.overallScore} band={report.band} />
         </div>
       </div>
 
-      {/* Summary + recommendation */}
-      <Section title="Summary">
-        <p className="text-sm text-ink leading-relaxed whitespace-pre-line">{report.summary}</p>
-      </Section>
-
+      {/* Recommended action — the headline signal, kept at the top */}
       <div className={`rounded-2xl border-2 ${meta.ring} ${meta.bg} p-5`}>
         <h3 className="text-xs font-semibold text-faint uppercase tracking-widest mb-2">
           Recommended action
         </h3>
+        <div className="flex items-start gap-2.5 mb-2">
+          <Icon className={`w-5 h-5 ${meta.color} flex-shrink-0 mt-0.5`} />
+          <span className={`text-lg font-bold leading-snug ${meta.color}`}>{meta.verdict}</span>
+        </div>
         <p className="text-sm text-ink leading-relaxed">{report.recommendation}</p>
       </div>
+
+      {/* Summary */}
+      <Section title="Summary">
+        <Markdown text={report.summary} citationUrl={citationUrl} />
+      </Section>
 
       {/* Adverse-media signals */}
       <Section title="Adverse-media signals">
@@ -111,11 +134,11 @@ export function RiskDashboard({ report, onReset }: { report: RiskReport; onReset
       {timeline.length > 0 && (
         <Section title="Timeline">
           <div className="space-y-3">
-            {timeline.map((t, i) => (
+            {shownTimeline.map((t, i) => (
               <div key={i} className="flex gap-3">
                 <div className="flex flex-col items-center flex-shrink-0">
                   <Clock className="w-3.5 h-3.5 text-accent mt-0.5" />
-                  {i < timeline.length - 1 && <div className="w-px flex-1 bg-line mt-1" />}
+                  {i < shownTimeline.length - 1 && <div className="w-px flex-1 bg-line mt-1" />}
                 </div>
                 <div className="pb-1">
                   <div className="text-xs font-semibold text-accent">{t.date || 'Date unknown'}</div>
@@ -124,14 +147,30 @@ export function RiskDashboard({ report, onReset }: { report: RiskReport; onReset
               </div>
             ))}
           </div>
+          {timeline.length > TIMELINE_PREVIEW && (
+            <button
+              onClick={() => setShowAllTimeline((v) => !v)}
+              className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-ink transition-colors focus-teal"
+            >
+              {showAllTimeline ? (
+                <>
+                  <ChevronUp className="w-3.5 h-3.5" /> Show less
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="w-3.5 h-3.5" /> Show {timeline.length - TIMELINE_PREVIEW} more
+                </>
+              )}
+            </button>
+          )}
         </Section>
       )}
 
-      {/* Sources */}
-      {report.sources.length > 0 && (
-        <Section title={`Sources (${report.sources.length})`}>
+      {/* Sources — the single home for evidence links; [n] matches the summary citations */}
+      {orderedSources.length > 0 && (
+        <Section title={`Sources (${orderedSources.length})`}>
           <div className="space-y-1.5">
-            {report.sources.map((s, i) => (
+            {shownSources.map((s, i) => (
               <a
                 key={i}
                 href={s.url}
@@ -139,11 +178,30 @@ export function RiskDashboard({ report, onReset }: { report: RiskReport; onReset
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-sm text-accent hover:text-accent-hover transition-colors group"
               >
+                <span className="text-xs font-bold text-faint tabular-nums flex-shrink-0 w-5 text-right">
+                  {i + 1}
+                </span>
                 <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />
                 <span className="truncate">{s.note ? `${s.note} — ` : ''}{s.url.replace(/^https?:\/\/(www\.)?/, '')}</span>
               </a>
             ))}
           </div>
+          {orderedSources.length > SOURCES_PREVIEW && (
+            <button
+              onClick={() => setShowAllSources((v) => !v)}
+              className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-muted hover:text-ink transition-colors focus-teal"
+            >
+              {showAllSources ? (
+                <>
+                  <ChevronUp className="w-3.5 h-3.5" /> Show less
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="w-3.5 h-3.5" /> Show {orderedSources.length - SOURCES_PREVIEW} more
+                </>
+              )}
+            </button>
+          )}
         </Section>
       )}
 

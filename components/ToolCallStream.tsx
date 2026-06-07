@@ -32,8 +32,8 @@ function ToolCard({ call }: { call: ToolCallState }) {
         failed
           ? 'border-amber-500/30 bg-amber-500/5'
           : running
-            ? 'border-[#00c9a7]/40 bg-[#00c9a7]/[0.06]'
-            : 'border-white/[0.06] bg-white/[0.02]'
+            ? 'border-accent/40 bg-accent/8'
+            : 'border-line bg-surface'
       }`}
     >
       <button
@@ -41,40 +41,40 @@ function ToolCard({ call }: { call: ToolCallState }) {
         className="w-full px-3.5 py-2.5 flex items-center gap-2.5 text-left focus-teal"
       >
         <ChevronRight
-          className={`w-3.5 h-3.5 flex-shrink-0 text-slate-500 transition-transform ${open ? 'rotate-90' : ''}`}
+          className={`w-3.5 h-3.5 flex-shrink-0 text-faint transition-transform ${open ? 'rotate-90' : ''}`}
         />
-        <Wrench className="w-3.5 h-3.5 flex-shrink-0 text-[#00c9a7]" />
-        <code className="text-[13px] font-semibold text-white">
+        <Wrench className="w-3.5 h-3.5 flex-shrink-0 text-accent" />
+        <code className="text-[13px] font-semibold text-ink">
           {meta.label}
-          <span className="text-slate-500">(</span>
-          <span className="text-slate-400 font-normal">{preview ? '…' : ''}</span>
-          <span className="text-slate-500">)</span>
+          <span className="text-faint">(</span>
+          <span className="text-muted font-normal">{preview ? '…' : ''}</span>
+          <span className="text-faint">)</span>
         </code>
         <span className="ml-auto flex-shrink-0">
           {running ? (
-            <Loader className="w-3.5 h-3.5 text-[#00c9a7] animate-spin" />
+            <Loader className="w-3.5 h-3.5 text-accent animate-spin" />
           ) : failed ? (
             <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
           ) : (
-            <span className="text-[11px] font-mono text-[#00c9a7]">✓ 200</span>
+            <span className="text-[11px] font-mono text-accent">✓ 200</span>
           )}
         </span>
       </button>
 
       {open && (
-        <div className="px-3.5 pb-3 pt-0.5 space-y-2 border-t border-white/[0.04]">
-          <div className="text-[10px] uppercase tracking-wider text-slate-500 mt-2">Source</div>
-          <div className="text-xs text-slate-400">{meta.source}</div>
+        <div className="px-3.5 pb-3 pt-0.5 space-y-2 border-t border-line">
+          <div className="text-[10px] uppercase tracking-wider text-faint mt-2">Source</div>
+          <div className="text-xs text-muted">{meta.source}</div>
 
-          <div className="text-[10px] uppercase tracking-wider text-slate-500">Arguments</div>
-          <pre className="text-[11px] leading-relaxed font-mono text-slate-300 bg-black/30 rounded-lg p-2.5 overflow-x-auto">
+          <div className="text-[10px] uppercase tracking-wider text-faint">Arguments</div>
+          <pre className="text-[11px] leading-relaxed font-mono text-muted bg-surface-alt/50 rounded-lg p-2.5 overflow-x-auto">
             {JSON.stringify(call.args ?? {}, null, 2)}
           </pre>
 
           {call.summary && (
             <>
-              <div className="text-[10px] uppercase tracking-wider text-slate-500">Result</div>
-              <div className={`text-xs font-medium ${failed ? 'text-amber-400' : 'text-[#00c9a7]'}`}>
+              <div className="text-[10px] uppercase tracking-wider text-faint">Result</div>
+              <div className={`text-xs font-medium ${failed ? 'text-amber-400' : 'text-accent'}`}>
                 {call.summary}
               </div>
             </>
@@ -85,7 +85,7 @@ function ToolCard({ call }: { call: ToolCallState }) {
       {/* Collapsed result line so the outcome is visible without expanding. */}
       {!open && call.summary && (
         <div className="px-3.5 pb-2.5 -mt-1 pl-[2.4rem]">
-          <span className={`text-[11px] ${failed ? 'text-amber-400/90' : 'text-slate-400'}`}>
+          <span className={`text-[11px] ${failed ? 'text-amber-400/90' : 'text-muted'}`}>
             → {call.summary}
           </span>
         </div>
@@ -100,8 +100,8 @@ export function ToolCallStream({ calls }: { calls: ToolCallState[] }) {
   return (
     <div className="mt-5">
       <div className="flex items-center gap-2 mb-2.5">
-        <Terminal className="w-3.5 h-3.5 text-slate-500" />
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+        <Terminal className="w-3.5 h-3.5 text-faint" />
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-faint">
           Agent tool calls
         </h3>
       </div>

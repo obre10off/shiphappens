@@ -7,8 +7,9 @@
 import { generateText, stepCountIs, tool } from 'ai';
 import { anthropic } from '@ai-sdk/anthropic';
 import { z } from 'zod';
-import { searchSanctions } from '@/lib/sanctions/match';
+import { getScope, searchSanctions } from '@/lib/sanctions/match';
 import { analyzeAdverseMedia } from '@/lib/google/tool';
+import { withTimeout } from '@/lib/util/timeout';
 import type {
   AdverseMediaResult,
   SanctionsResult,
@@ -17,6 +18,44 @@ import type {
   SocialMediaResult,
 } from '@/lib/contracts/types';
 import { AGENT_ORCHESTRATION_PROMPT, MODEL_ID, buildUserPrompt } from './prompts';
+
+// Per-step deadlines. The underlying HTTP clients already cap individual fetches
+// (OpenSanctions/Tavily ~10s), but the LLM calls and the orchestration loop have
+// no ceiling — these guard against a step that hangs past what's reasonable.
+const SANCTIONS_STEP_MS = 25_000;
+const ADVERSE_STEP_MS = 45_000;
+const AGENT_LOOP_MS = 90_000;
+
+function timeoutLabel(ms: number): string {
+  return `timed out after ${Math.round(ms / 1000)}s`;
+}
+
+function timedOutSanctions(ms: number): SanctionsResult {
+  return {
+    matches: [],
+    totalMatches: 0,
+    bestScore: 0,
+    isPep: false,
+    isSanctioned: false,
+    datasetsHit: [],
+    scope: getScope(),
+    error: `sanctions screening ${timeoutLabel(ms)}`,
+  };
+}
+
+function timedOutAdverse(name: string, ms: number): AdverseMediaResult {
+  return {
+    name,
+    badPress: false,
+    badPressLast5Years: false,
+    highRiskActivitiesFlag: false,
+    highRiskActivities: [],
+    summary: 'Adverse-media screening could not be completed; no findings available.',
+    sources: [],
+    timeline: [],
+    error: `adverse-media screening ${timeoutLabel(ms)}`,
+  };
+}
 
 export interface ScreeningBundle {
   sanctions: SanctionsResult | null;
@@ -68,7 +107,9 @@ export async function runScreening(
       execute: async (args) => {
         onEvent({ type: 'phase', phase: 'sanctions', status: 'start' });
         onEvent({ type: 'tool', tool: 'searchSanctions', status: 'call', args });
-        const res = await searchSanctions(args);
+        const res = await withTimeout(searchSanctions(args), SANCTIONS_STEP_MS, () =>
+          timedOutSanctions(SANCTIONS_STEP_MS),
+        );
         captured.sanctions = res;
         onEvent({
           type: 'tool',
@@ -96,7 +137,9 @@ export async function runScreening(
       execute: async (args) => {
         onEvent({ type: 'phase', phase: 'adverse_media', status: 'start' });
         onEvent({ type: 'tool', tool: 'searchGoogle', status: 'call', args });
-        const res = await analyzeAdverseMedia(args);
+        const res = await withTimeout(analyzeAdverseMedia(args), ADVERSE_STEP_MS, () =>
+          timedOutAdverse(args.name, ADVERSE_STEP_MS),
+        );
         captured.adverseMedia = res;
         onEvent({
           type: 'tool',
@@ -118,13 +161,20 @@ export async function runScreening(
   };
 
   try {
-    await generateText({
-      model: anthropic(MODEL_ID),
-      stopWhen: stepCountIs(6),
-      tools,
-      system: AGENT_ORCHESTRATION_PROMPT,
-      prompt: buildUserPrompt(input),
-    });
+    // Guard the whole orchestration loop: if the model hangs (outside a tool we
+    // already time-bound), stop awaiting and let the deterministic fallback fill
+    // any missing signals below. The loop's late result, if any, is ignored.
+    await withTimeout(
+      generateText({
+        model: anthropic(MODEL_ID),
+        stopWhen: stepCountIs(6),
+        tools,
+        system: AGENT_ORCHESTRATION_PROMPT,
+        prompt: buildUserPrompt(input),
+      }).then(() => undefined),
+      AGENT_LOOP_MS,
+      () => undefined,
+    );
   } catch {
     // The agent loop failed (e.g. no API key). Fall through to direct calls below.
   }
@@ -138,7 +188,9 @@ export async function runScreening(
       status: 'call',
       args: { name: input.name, dateOfBirth: input.dateOfBirth, country: input.country, company: input.company },
     });
-    captured.sanctions = await searchSanctions(input);
+    captured.sanctions = await withTimeout(searchSanctions(input), SANCTIONS_STEP_MS, () =>
+      timedOutSanctions(SANCTIONS_STEP_MS),
+    );
     onEvent({
       type: 'tool',
       tool: 'searchSanctions',
@@ -162,7 +214,9 @@ export async function runScreening(
       status: 'call',
       args: { name: input.name, dateOfBirth: input.dateOfBirth, country: input.country, company: input.company, freeText: input.freeText },
     });
-    captured.adverseMedia = await analyzeAdverseMedia(input);
+    captured.adverseMedia = await withTimeout(analyzeAdverseMedia(input), ADVERSE_STEP_MS, () =>
+      timedOutAdverse(input.name, ADVERSE_STEP_MS),
+    );
     onEvent({
       type: 'tool',
       tool: 'searchGoogle',

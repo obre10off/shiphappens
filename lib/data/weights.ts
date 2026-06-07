@@ -1,7 +1,7 @@
 // lib/data/weights.ts
 // All weighting + thresholds in one place so they're easy to tune live during the demo.
 
-export const WEIGHTS = { sanctions: 0.6, adverseMedia: 0.3, social: 0.1 };
+export const WEIGHTS = { sanctions: 0.66, adverseMedia: 0.33, social: 0.01 };
 
 // Component sub-scores → 0..100, then weighted sum → overall.
 export const SANCTIONS_POINTS = {

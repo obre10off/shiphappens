@@ -32,11 +32,11 @@ function buildContext(args: AdverseArgs, hits: SearchHit[]): string {
 
   const evidence = hits.length
     ? hits
-        .map(
-          (h, i) =>
-            `[${i + 1}] ${h.title}\nURL: ${h.link}\nDate: ${h.date ?? 'unknown'}\nSnippet: ${h.snippet}`,
-        )
-        .join('\n\n')
+      .map(
+        (h, i) =>
+          `[${i + 1}] ${h.title}\nURL: ${h.link}\nDate: ${h.date ?? 'unknown'}\nSnippet: ${h.snippet}`,
+      )
+      .join('\n\n')
     : 'No search results were returned.';
 
   return `SUBJECT:\n${subject}\n\nSEARCH RESULTS (use only these to ground factual claims; cite their URLs):\n${evidence}`;
@@ -66,7 +66,7 @@ export async function analyzeAdverseMedia(args: AdverseArgs): Promise<AdverseMed
     );
     console.log(
       `[tavily] ${args.name} (${args.country}) → ${hits.length} hit(s)\n` +
-        hits.map((h, i) => `  [${i + 1}] ${h.link}`).join('\n'),
+      hits.map((h, i) => `  [${i + 1}] ${h.link}`).join('\n'),
     );
   } catch (err) {
     // Search failed — still ask the model, but it will have no grounding.
@@ -83,6 +83,8 @@ export async function analyzeAdverseMedia(args: AdverseArgs): Promise<AdverseMed
       schema: adverseMediaSchema,
       system: FULL_SYSTEM_PROMPT,
       prompt: buildContext(args, hits),
+      // Generous ceiling so a rich summary + timeline never truncates mid-sentence.
+      maxOutputTokens: 8000,
     });
     const sanitized = sanitizeAdverseMedia(object, hits);
     // Ensure the name field reflects the subject we screened.

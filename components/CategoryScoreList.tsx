@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { CategoryScore } from '@/lib/contracts/types';
-import { neutral, scoreColor } from '@/lib/theme';
+import { categoryTo10, neutral, scoreColor } from '@/lib/theme';
+import { datasetDescription, datasetLabel, isDatasetCode } from '@/lib/data/datasets';
 
 function isUrl(s: string): boolean {
   return /^https?:\/\//i.test(s);
@@ -11,6 +12,10 @@ function isUrl(s: string): boolean {
 
 function ScoreRow({ c }: { c: CategoryScore }) {
   const color = scoreColor(c.score);
+  // Non-URL evidence (sanctions datasets, PEP positions) renders as readable
+  // tags. Supporting articles are cited inline in the summary, not here.
+  const tags = c.evidence.filter((e) => !isUrl(e));
+
   return (
     <div className={`py-2.5 ${c.present ? '' : 'opacity-50'}`}>
       <div className="flex items-center gap-3">
@@ -27,31 +32,24 @@ function ScoreRow({ c }: { c: CategoryScore }) {
           className="text-xs font-bold tabular-nums w-7 text-right flex-shrink-0"
           style={{ color: c.present ? color : neutral[400] }}
         >
-          {c.score}
+          {categoryTo10(c.score)}
         </span>
       </div>
-      {c.present && c.evidence.length > 0 && (
+      {c.present && tags.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mt-1.5 pl-0.5">
-          {c.evidence.slice(0, 6).map((e, i) =>
-            isUrl(e) ? (
-              <a
-                key={i}
-                href={e}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[11px] text-accent bg-accent/10 border border-accent/20 px-2 py-0.5 rounded hover:bg-accent/20 transition-colors max-w-[220px] truncate"
-              >
-                {e.replace(/^https?:\/\/(www\.)?/, '')}
-              </a>
-            ) : (
+          {tags.map((e, i) => {
+            const label = isDatasetCode(e) ? datasetLabel(e) : e;
+            const title = isDatasetCode(e) ? datasetDescription(e) : undefined;
+            return (
               <span
                 key={i}
-                className="text-[11px] text-muted bg-surface-alt border border-line px-2 py-0.5 rounded"
+                title={title}
+                className="text-[11px] text-muted bg-surface-alt border border-line px-2 py-0.5 rounded cursor-default"
               >
-                {e}
+                {label}
               </span>
-            ),
-          )}
+            );
+          })}
         </div>
       )}
     </div>

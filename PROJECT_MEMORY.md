@@ -2,7 +2,7 @@
 
 > **Living memory of this project.** Keep this file current — see the rule in
 > [CLAUDE.md](./CLAUDE.md). Update it whenever a plan file changes or a build step ships.
-> Last updated: 2026-06-07 (added agent tool-calling visualization).
+> Last updated: 2026-06-07 (relevant inline summary citations; meaningful PEP/sanctions tags; no-truncate summaries).
 
 ## What we're building
 
@@ -20,7 +20,10 @@ PEP status, and adverse media in ~8s instead of 45 min.* Built for a hackathon.
   2. `searchGoogle` → Google SERP → LLM adverse-media flagging.
   - `searchSocial` → optional social lookup (stretch).
 - Agent results → `scoreReport()` → `RiskReport` → streamed to UI over SSE.
-- **Scoring weights:** sanctions 0.60 (highest) · adverse media 0.30 · social 0.10.
+- **Scoring weights:** sanctions 0.66 (highest) · adverse media 0.33 · social 0.01.
+- **Score display scale:** the engine computes on 0–100 internally (bands, weights, category
+  math, tests), but the UI + PDF render on a **0–10 scale** (`overallTo10` 1-decimal overall,
+  `categoryTo10` whole-number sub-scores in `lib/theme.ts`). Bands/colors still keyed off 0–100.
 
 ## Stack & decisions
 
@@ -71,6 +74,51 @@ PEP status, and adverse media in ~8s instead of 45 min.* Built for a hackathon.
 
 ## Progress log
 
+- **2026-06-07** — **Relevant-citations + meaningful-tags pass** (follow-up):
+  (1) **Summary no longer truncates** — `generateObject` now sets `maxOutputTokens: 8000`; the prompt
+  insists every sentence/`**` is closed; the `Markdown` renderer strips stray unclosed `**`.
+  (2) **Citations are now relevant, not dumped** — the adverse-media prompt asks the model to place
+  `[n]` *inline in the summary* next to the specific claim (≤2–3 per claim). `sanitizeAdverseMedia`
+  (`lib/agent/schema.ts`) resolves those + the `sources[]` refs into one ordered source list and
+  **renumbers the inline `[n]` to the final source position** (new unit test covers this). The
+  `Markdown` component renders `[n]` as superscript links via a `citationUrl(n)` resolver built from
+  `report.sources`; the Sources section and PDF are numbered to match. Removed the old per-category
+  URL dump (`buildAdverseMediaScores`/`buildHighRiskActivityScores` no longer attach the full source
+  list to every row) and the `citations` prop on `CategoryScoreList`. Dropped the dashboard source
+  re-sort so `[n]` stays ascending/stable.
+  (3) **Meaningful PEP + sanctions tags** (`lib/data/datasets.ts` gained a `kind` of
+  sanctions/pep/enrichment + `isSanctionsDataset`/`isEnrichmentDataset`): the **sanctions row** shows
+  only real enforcement lists (filters out wikidata/everypolitician/wd_categories), and the **PEP row**
+  now shows the subject's actual public **positions** (`properties.position`, e.g. "President of
+  Ukraine") instead of opaque dataset codes. Note: "On a sanctions list = 0" is correct for a
+  PEP-but-not-sanctioned subject (sanctioned ≠ PEP). Mocks/tests updated; 35 tests green, `tsc` clean.
+- **2026-06-07** — **KYC framing + citations pass** (follow-up to the UX overhaul):
+  (1) **Hid the "Weighted score" breakdown** — `ScoreGauge` is now just the 0–10 ring (dropped the
+  `weights` prop + `WeightRow`). (2) **Recommendations reframed from onboarding → KYC investor due
+  diligence** in `recommendationFor` (`lib/scoring/score.ts`): high = "Decline the prospective
+  relationship… do not accept funds/proceed with the investment…"; review = "conduct EDD… establish
+  source of wealth/funds"; clear = "Cleared to proceed". `BAND_META.verdict` labels + mock
+  recommendations updated to match. (3) **Inline adverse-media citations** — the Sources section is
+  numbered (sorted by `sourceRank`), and `CategoryScoreList` renders URL evidence as compact
+  superscript `[n]` links (via a `citations: Map<url, number>` prop built in `RiskDashboard`) that
+  point at the matching numbered source. Non-URL evidence still shows as readable dataset tags.
+  Tests/lint green, verified in-browser.
+- **2026-06-07** — **Report dashboard UX overhaul** (`components/RiskDashboard.tsx` + helpers):
+  (1) Summary now renders **light markdown** — a tiny in-house `components/Markdown.tsx`
+  (headings/bullets/bold/paragraphs); the adverse-media prompt (`lib/data/adverseMedia.ts`) was
+  flipped from "no markdown" to "use short **bold** headings + `-` bullets, quick-scannable"; the
+  PDF strips markdown via `lib/util/markdown.ts` `stripMarkdown`. (2) **Recommended action moved to
+  the top** with a per-band one-line verdict (`BAND_META.verdict`). (3) **Human-readable sanctions
+  tags** — new `lib/data/datasets.ts` maps OpenSanctions dataset codes (`us_sam_exclusions`,
+  `wd_peps`, …) → `{label, description}` with a prettify fallback; rendered as chips with a `title`
+  tooltip in `CategoryScoreList`. (4) **No more repeated links per section** — category rows show
+  only non-URL tags; all links live in a single **Sources** section, ordered by relevance
+  (`sourceRank`: sanctions/OpenSanctions → noted media → rest) with a **Show more** beyond 3.
+  (5) **Timeline** collapses beyond 4 items with Show more/less. (6) **0–10 score scale**: gauge +
+  category bars + PDF now show 0–10 (`overallTo10`/`categoryTo10` in `lib/theme.ts`); **social
+  weight set to 1%** (`WEIGHTS` → sanctions 0.66 / adverseMedia 0.33 / social 0.01). Updated the
+  weighted-blend unit test + mock fixtures (markdown summary, new weights). 34 tests green,
+  `next build` clean, verified in-browser with `?mock=1`.
 - **2026-06-07** — Repo set up; DEV_PLAN + part specs + BUILD_PLAN authored; project memory + update rule added.
 - **2026-06-07** — Implemented ALL parts in one pass (single-dev). Upgraded to AI SDK v6 / anthropic v3,
   added vitest. Built `lib/{contracts,scoring,report,sanctions,google,social,agent,client}`, the
@@ -91,3 +139,12 @@ PEP status, and adverse media in ~8s instead of 45 min.* Built for a hackathon.
   signature, source, pretty-printed args, ✓/spinner/⚠ status, one-line result summary). Wired into
   `app/screen/page.tsx` for both live and mock modes (mock synthesizes the calls/summaries from the
   fixture report). Verified live in-browser. 34 tests green, `tsc` clean.
+- **2026-06-07** — Added **per-step timeout guards** (`lib/util/timeout.ts` `withTimeout`). In
+  `lib/agent/agent.ts` each step now has a ceiling so a hung step degrades instead of stalling the
+  run: sanctions step 25s, adverse-media step 45s (LLM call has no native cap), and the whole
+  orchestration loop 90s (on timeout it stops awaiting and the deterministic fallback fills missing
+  signals). Timed-out steps return a degraded result with `error` set, so the UI shows
+  `failed — … timed out after Ns`. Also **fixed the white/invisible text** in
+  `components/ToolCallStream.tsx`: it was built with a dark palette (`text-white`, slate grays,
+  hardcoded `#00c9a7`) on the warm light canvas — remapped to theme tokens (`text-ink`/`text-muted`/
+  `text-faint`/`accent`/`surface`). 34 tests green, `tsc` clean.

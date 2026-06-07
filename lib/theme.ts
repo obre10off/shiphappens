@@ -89,6 +89,19 @@ export function scoreColor(score: number): string {
   return risk.none;
 }
 
+// ── 0–10 display scale ───────────────────────────────────────────────────────
+// The engine computes on 0–100 (bands, weights, category math); the UI/PDF show
+// the same numbers on a friendlier 0–10 scale. Overall keeps one decimal, the
+// per-category sub-scores round to whole numbers.
+
+export function overallTo10(score100: number): string {
+  return (Math.max(0, Math.min(100, score100)) / 10).toFixed(1);
+}
+
+export function categoryTo10(score100: number): number {
+  return Math.round(Math.max(0, Math.min(100, score100)) / 10);
+}
+
 /** Tokens used by the printable PDF report (light document). */
 export const print = {
   ink: text.ink,

@@ -65,6 +65,32 @@ describe('sanitizeAdverseMedia', () => {
       { url: 'https://news.example.com/article-b', note: 'fraud charge' },
     ]);
   });
+
+  it('renumbers inline summary [n] citations to match the final source order', () => {
+    const hits = [
+      { link: 'https://x.com/a', title: 'A' },
+      { link: 'https://x.com/b', title: 'B' },
+      { link: 'https://x.com/c', title: 'C' },
+    ];
+    const out = sanitizeAdverseMedia(
+      {
+        name: 'X', badPress: true, badPressLast5Years: false, highRiskActivitiesFlag: false,
+        highRiskActivities: [],
+        summary: 'Claim one [1]. Claim three [3].',
+        sources: [{ ref: 2, note: 'b' }],
+        timeline: [],
+      },
+      hits,
+    );
+    // source order: ref 2 (B) first, then the summary-cited A and C.
+    expect(out.sources).toEqual([
+      { url: 'https://x.com/b', note: 'b' },
+      { url: 'https://x.com/a', note: 'A' },
+      { url: 'https://x.com/c', note: 'C' },
+    ]);
+    // [1]→A is now source #2, [3]→C is now source #3.
+    expect(out.summary).toBe('Claim one [2]. Claim three [3].');
+  });
 });
 
 describe('runScreening', () => {

@@ -77,25 +77,29 @@ function buildSummary(
   else if (adverseMedia?.error) parts.push('Adverse-media screening was degraded.');
 
   if (parts.length === 0) parts.push('No material risk signals were identified.');
-  return parts.join(' ');
+  // Blank line between the sanctions prefix and the adverse-media markdown so the
+  // renderer treats them as separate blocks.
+  return parts.join('\n\n');
 }
 
 function recommendationFor(band: RiskBand, reasons: string[]): string {
   switch (band) {
     case 'high':
       return (
-        'Reject onboarding and escalate to the MLRO. File a Suspicious Activity Report (SAR) ' +
-        'if a business relationship or transaction was attempted. Retain the full evidence trail. ' +
+        'Decline the prospective relationship and escalate to compliance / the MLRO. Do not accept ' +
+        'funds or proceed with the investment. Consider filing a Suspicious Activity Report (SAR) if a ' +
+        'relationship or transaction was already initiated, and retain the full evidence trail. ' +
         (reasons.length ? `Drivers: ${reasons.join('; ')}.` : '')
       ).trim();
     case 'review':
       return (
-        'Route to manual enhanced due diligence before any decision. ' +
-        (reasons.length ? `Review reasons: ${reasons.join('; ')}.` : 'Confirm identity and resolve flagged signals.')
+        'Do not proceed yet — conduct enhanced due diligence (EDD) before any decision. Verify ' +
+        'identity and establish source of wealth and source of funds. ' +
+        (reasons.length ? `Review reasons: ${reasons.join('; ')}.` : 'Resolve the flagged signals before clearing.')
       ).trim();
     case 'clear':
     default:
-      return 'Proceed with onboarding under standard due diligence. Schedule periodic re-screening every 12 months.';
+      return 'Cleared to proceed under standard due diligence. Document the file and schedule periodic re-screening every 12 months.';
   }
 }
 

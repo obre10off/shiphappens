@@ -30,37 +30,70 @@ interface ResolvableHit {
 }
 
 /**
- * Map the model's ref-based sources back to the exact deep URLs from the search
- * hits (1-based refs). Invalid/hallucinated refs are dropped; results are deduped
- * by URL. This guarantees every source links to a real article, not a root domain.
+ * Build the final ordered source list and rewrite the summary's inline citations.
+ *
+ * The model cites SEARCH RESULTS by their 1-based hit index — both in the
+ * `sources[]` array and inline in the summary as `[n]`. We:
+ *   1. resolve `sources[]` refs to real URLs (in order, deduped),
+ *   2. append any hit cited inline in the summary that wasn't already listed,
+ *   3. rewrite each `[n]` in the summary from the hit index to that source's
+ *      1-based position in the final list (so `[2]` always points at source #2),
+ *      dropping citations to invalid/hallucinated hits.
  */
-function resolveSources(
+function resolveSourcesAndCitations(
   refs: AdverseMediaObject['sources'],
+  summary: string,
   hits: ResolvableHit[],
-): Source[] {
-  const byUrl = new Map<string, Source>();
-  for (const { ref, note } of refs) {
-    const hit = hits[ref - 1];
-    if (!hit?.link) continue;
-    if (!byUrl.has(hit.link)) byUrl.set(hit.link, { url: hit.link, note: note || hit.title });
-  }
-  return [...byUrl.values()];
+): { sources: Source[]; summary: string } {
+  const sources: Source[] = [];
+  const posByHit = new Map<number, number>(); // hit index (1-based) → source position
+  const posByUrl = new Map<string, number>();
+
+  const add = (hitIndex: number, note?: string) => {
+    const hit = hits[hitIndex - 1];
+    if (!hit?.link) return;
+    const existing = posByUrl.get(hit.link);
+    if (existing) {
+      posByHit.set(hitIndex, existing);
+      return;
+    }
+    sources.push({ url: hit.link, note: note || hit.title });
+    const pos = sources.length;
+    posByUrl.set(hit.link, pos);
+    posByHit.set(hitIndex, pos);
+  };
+
+  for (const { ref, note } of refs ?? []) add(ref, note);
+  for (const m of summary.matchAll(/\[(\d+)\]/g)) add(Number(m[1]));
+
+  const rewritten = summary
+    .replace(/\[(\d+)\]/g, (_full, d: string) => {
+      const pos = posByHit.get(Number(d));
+      return pos ? `[${pos}]` : '';
+    })
+    .replace(/[ \t]+([.,;:)])/g, '$1') // tidy space left before punctuation by a dropped citation
+    .replace(/[ \t]{2,}/g, ' ');
+
+  return { sources, summary: rewritten };
 }
 
 /**
  * Drop any highRiskActivities string that isn't an exact HIGH_RISK_ACTIVITIES
  * entry (the scoring engine keys off exact strings), reconcile the flag, and
- * resolve ref-based sources to the real search-hit URLs.
+ * resolve ref-based sources to real URLs while renumbering the summary's
+ * inline `[n]` citations to match the final source list.
  */
 export function sanitizeAdverseMedia(
   obj: AdverseMediaObject,
   hits: ResolvableHit[] = [],
 ): AdverseMediaResult {
   const highRiskActivities = (obj.highRiskActivities ?? []).filter((a) => VALID.has(a));
+  const { sources, summary } = resolveSourcesAndCitations(obj.sources ?? [], obj.summary ?? '', hits);
   return {
     ...obj,
+    summary,
     highRiskActivities,
     highRiskActivitiesFlag: highRiskActivities.length > 0 ? true : obj.highRiskActivitiesFlag,
-    sources: resolveSources(obj.sources ?? [], hits),
+    sources,
   };
 }

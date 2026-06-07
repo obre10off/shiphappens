@@ -114,7 +114,7 @@ export const mockRiskReport: RiskReport = {
   input: mockInput,
   band: 'high',
   overallScore: 92,
-  weights: { sanctions: 0.6, adverseMedia: 0.3, social: 0.1 },
+  weights: { sanctions: 0.66, adverseMedia: 0.33, social: 0.01 },
   sanctions: mockSanctionsResult,
   adverseMedia: mockAdverseMediaResult,
   social: null,
@@ -135,18 +135,29 @@ export const mockRiskReport: RiskReport = {
     },
   ],
   adverseMediaScores: [
-    { key: 'sanctioned', label: 'On a sanctions list', score: 100, present: true, evidence: ['us_ofac_sdn', 'eu_fsf'] },
-    { key: 'pep', label: 'Politically Exposed Person', score: 70, present: true, evidence: ['un_sc_sanctions'] },
-    { key: 'bad_press', label: 'Adverse media (any time)', score: 60, present: true, evidence: ['https://www.reuters.com/example-yanukovych'] },
-    { key: 'bad_press_recent', label: 'Adverse media (last 5 years)', score: 100, present: true, evidence: ['https://www.bbc.com/news/example-yanukovych'] },
-    { key: 'high_risk_activity', label: 'High-risk activity involvement', score: 50, present: true, evidence: ['https://www.occrp.org/example-yanukovych'] },
+    { key: 'sanctioned', label: 'On a sanctions list', score: 100, present: true, evidence: ['us_ofac_sdn', 'eu_fsf', 'un_sc_sanctions', 'gb_hmt_sanctions'] },
+    { key: 'pep', label: 'Politically Exposed Person', score: 70, present: true, evidence: ['President of Ukraine'] },
+    { key: 'bad_press', label: 'Adverse media (any time)', score: 60, present: true, evidence: [] },
+    { key: 'bad_press_recent', label: 'Adverse media (last 5 years)', score: 100, present: true, evidence: [] },
+    { key: 'high_risk_activity', label: 'High-risk activity involvement', score: 50, present: true, evidence: [] },
   ],
-  summary:
-    'Listed on OFAC, EU, UN and UK sanctions regimes; confirmed Politically Exposed Person. ' +
-    mockAdverseMediaResult.summary,
+  summary: [
+    '**Overview**',
+    'Listed on OFAC, EU, UN and UK sanctions regimes and a confirmed Politically Exposed Person. Extensive, ongoing adverse media — the relationship is not advisable.',
+    '',
+    '**Key findings**',
+    '- Active **sanctions designations** across four major regimes (OFAC, EU, UN, UK).',
+    '- Confirmed **Politically Exposed Person** (former head of state).',
+    '- Adverse media on **embezzlement, corruption and money laundering** [1], continuing into the last five years [2].',
+    '- Subject of an **international arrest warrant** [2].',
+    '',
+    '**Risk drivers**',
+    '- Offshore vehicles used to move state funds [3].',
+  ].join('\n'),
   recommendation:
-    'Reject onboarding and escalate to the MLRO. File a Suspicious Activity Report (SAR) if a ' +
-    'business relationship or transaction was attempted. Retain the full evidence trail.',
+    'Decline the prospective relationship and escalate to compliance / the MLRO. Do not accept funds ' +
+    'or proceed with the investment. Consider filing a Suspicious Activity Report (SAR) if a relationship ' +
+    'or transaction was already initiated, and retain the full evidence trail.',
   sources: [
     ...mockAdverseMediaResult.sources,
     { url: 'https://www.opensanctions.org/entities/Q1090/', note: 'OpenSanctions entity' },
@@ -173,7 +184,7 @@ export const mockRiskReportClear: RiskReport = {
   ],
   summary: 'No adverse media was identified for the subject across the searched sources.',
   recommendation:
-    'Proceed with onboarding under standard due diligence. Schedule periodic re-screening every 12 months.',
+    'Cleared to proceed under standard due diligence. Document the file and schedule periodic re-screening every 12 months.',
   sources: [],
   generatedAt: '2026-06-07T12:00:00.000Z',
   durationMs: 7200,

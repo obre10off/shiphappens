@@ -119,8 +119,8 @@ describe('scoreReport', () => {
       adverseMedia: mockAdverseMediaResult, // 100
       social: { profiles: [], flags: [], summary: '' }, // 0, keeps full weights
     });
-    // 100*0.6 + 100*0.3 + 0*0.1 = 90
-    expect(r.overallScore).toBe(90);
-    expect(r.weights.social).toBe(0.1);
+    // 100*0.66 + 100*0.33 + 0*0.01 = 99
+    expect(r.overallScore).toBe(99);
+    expect(r.weights.social).toBe(0.01);
   });
 });
