@@ -17,3 +17,6 @@ npm-debug.log*
 
 # Playwright MCP screenshot scratch
 .playwright-mcp/
+
+# TypeScript incremental build info (generated)
+*.tsbuildinfo

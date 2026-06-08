@@ -2,7 +2,9 @@
 
 > **Living memory of this project.** Keep this file current — see the rule in
 > [CLAUDE.md](./CLAUDE.md). Update it whenever a plan file changes or a build step ships.
-> Last updated: 2026-06-07 (added `?mock=2` Ivan Ivanov ambiguous-identity high-band fixture).
+> Last updated: 2026-06-08 (VC-final deck pass 2 — added Market TAM/SAM/SOM slide, competitor
+> 2×2 positioning matrix, enterprise-first pricing, fund-network GTM, team photo/logo placeholders,
+> €150K/10% ask; reframed problem stat to analyst-hours. Deck now 18 slides).
 
 ## What we're building
 
@@ -79,6 +81,101 @@ PEP status, and adverse media in ~8s instead of 45 min.* Built for a hackathon.
 
 ## Progress log
 
+- **2026-06-09** — **Zoom + competitor-logo legibility follow-up.** (1) **Deck-wide zoom-in** —
+  the slide content wrapper now uses `max-w-6xl` + `[zoom:1.15]` so everything (text, cards,
+  matrix, logos) scales up uniformly to fill a projector; the scroll `<section>` switched from
+  `flex items-center` to `grid place-items-center` so any tall slide can still scroll without
+  top-clipping. Verified at **1920×1080** — all slides (problem, market, competitors, business,
+  gtm, team, ask) fill the screen and fit. (2) **Competitor logos enlarged** — `CompetitorLogo`
+  image 28px → **44px** (`h-11`, max-w 180px) in bigger white chips; Clavis chip text → `text-2xl`.
+  Logos (LexisNexis, World-Check/LSEG, ComplyAdvantage, Sumsub, Greenlite) now clearly readable
+  with no overlap/clipping. `tsc` + `next build` clean.
+- **2026-06-09** — **Readability + competitor-matrix pass (room-scale legibility).** (1) **Bigger
+  text deck-wide** — `HEADING` → `text-5xl sm:text-6xl`, `BigStat` value → 6xl / label → text-lg,
+  `Kicker` → text-base, `Sources` → text-sm; per-slide body bumped (human/chain/stakes/solution/
+  speed/value/market/business/gtm/team/ask/appendix) from text-sm/base → text-base/lg, icons +
+  stat figures enlarged. (2) **Team photos prominent** — `Avatar` 56px circle → **96px rounded-2xl
+  with ring**; `LogoIcon` 16→24px; member name → text-xl, company chips bigger with name + logo.
+  (3) **GTM trimmed** — 3 long bullets/phase → **2 short ones** (EN+BG). (4) **Competitor 2×2
+  reworked with real logos + honest axes** — new `CompetitorLogo` (white chip, `/logos/<slug>.png`,
+  text fallback); axes redefined as **X = Data depth** (single lists → multi-source+live web),
+  **Y = Autonomy** (manual → autonomous AI agent), each shown as a labelled criterion with poles;
+  top-right is a dashed **"Autonomous + full coverage" ideal/destination zone** (left empty) with
+  Clavis placed high/right-of-centre *leading toward it* (x73,y84) — NOT parked in the corner;
+  incumbents spread credibly (LexisNexis bottom-right x88/y15, World-Check/LSEG x68/y25,
+  ComplyAdvantage centre, Sumsub mid-left, Greenlite top-left x30/y78). Plot height tuned to 340px
+  so the insight fits. Competitor logos saved to `public/logos/{lexisnexis,lseg,complyadvantage,
+  sumsub,greenlite}.png`. `tsc` + `next build` clean; slides verified via screenshots.
+- **2026-06-08** — **Real team photos + company logos wired into the Why-us slide.** Saved the
+  four founder headshots to `public/team/{alexander,vladislav,dimitar,mario}.jpg` (the `Avatar`
+  component already loads `/team/<slug>.jpg`, initials fallback) and five company logos to
+  `public/logos/{n8n,nexo,talentsight,agency,tuktam}.png` (normalised to ≤128px via `sips`).
+  Replaced the SVG-wordmark `Logo` with a `LogoIcon` (16px `/logos/<slug>.png`, hides on error)
+  and the team card now shows **logo icon + company name** together. Logo↔company mapping
+  (by visual ID): n8n = pink connected-nodes, Nexo = "N" mark, TalentSight = atom+person,
+  agency = gold octopus, Tuk-Tam = seal — overwrite the file with the same name to fix any
+  mismatch (slugs in `content.ts` `team.members[].companies[].slug`). `tsc` + `next build` clean,
+  team slide verified in-browser.
+- **2026-06-08** — **Removed the demo slide** ("From a name to a defensible decision."). Deleted the
+  `demo` slide from `PresentationDeck.tsx`, the `demo` field from `PresentationContent` + both
+  locales in `content.ts`, and the now-unused `DEMO_VIDEO_ID`/`ArrowUpRight` imports (the
+  `DEMO_VIDEO_ID` const export stays in content.ts in case the demo is re-added). **Deck now 17
+  slides** (main pitch 1–15, appendix 16–17). The live demo now runs **off-deck** after the Solution
+  slide — `PRESENTATION_SCRIPT.md` time budget + section numbering updated accordingly. `tsc` +
+  `next build` clean.
+- **2026-06-08** — **Measurable-outcome slide (08, `speed`) reworked into a cost/ROI worked
+  example.** Replaced the time-only 60–90min→<2min comparison with a fund-of-funds scenario:
+  10 FoF · 5-yr horizon · 220 investors. Manual = ~600 reviews (onboard + monitor) × ~60 min ×
+  €30–35/h ≈ **€21,000**; Clavis = 1–10 min/report ≈ **~€3,000** → **7× lower cost** + productivity
+  ("analysts screen more, or run leaner"). NOTE on the math: 220×1h×€35 ≈ €7.7k for a single pass,
+  so the €21k basis explicitly includes periodic re-screening over the 5-yr hold (~600 reviews) —
+  surfaced in the manual column so it's defensible. `speed` content type changed from
+  `bad/good: {title, time}` to `{scenario[], bad/good: {title, rows[], totalLabel, total}}`
+  (EN + BG). `tsc` + `next build` clean; EN slide verified via screenshot. Script slide-8 line updated.
+- **2026-06-08** — **VC-final deck pass 2 (Digithon, 3/5 judges are funds/VCs).** Deck 17 → **18
+  slides**; new order inserts **Market** before Competitors. Changes (all in
+  `lib/presentation/content.ts` + `components/PresentationDeck.tsx`, both EN/BG):
+  (1) **New Market slide (TAM/SAM/SOM)** — concentric rings + breakdown: TAM $200B+ compliance
+  spend · SAM ~$11B KYC/AML software by 2030 · SOM ~$300M EU funds/crypto/mid-market fintech
+  beachhead. Sharp wedge defined to differentiate from the *other* KYC team. Sourced
+  (LexisNexis; MarketsandMarkets/Precedence 2025). (2) **Cost stat fact-checked & reframed** —
+  problem slide now leads with **~3 hrs analyst time** per corporate review + **$2,000+** cost +
+  $200B+ spend. The $2,000 is VERIFIED (Statista 2024: $2,001–2,500/review; Corporate Compliance
+  Insights avg $2,598) — kept it and added the human-hours anchor (Castellum.AI/SymphonyAI ~3h/case).
+  (3) **Competitor 2×2 matrix** replaces the table — axes "Raw data/alerts → Cited decision" (x)
+  and "Manual → Autonomous AI" (y); named players (World-Check/LSEG, LexisNexis, ComplyAdvantage,
+  Sumsub, Greenlite AI) scattered, **Clavis alone in the tinted top-right quadrant**. New `Logo`
+  helper (tries `/logos/<slug>.svg`, falls back to text wordmark). (4) **Business model
+  enterprise-first** — Pilot €3K/mo · **Platform from €30K/yr** (highlighted) · Enterprise custom;
+  ACV-led note (venture-scale, "a contract not a credit card"). (5) **GTM reworked** to warm
+  fund-network-in (design partners screening LPs/GPs/counterparties), data integrations (Interpol
+  notices, OpenSanctions, OFAC, EU; Sumsub/Persona/Alloy), RegTech directories + referral deals,
+  and "our investors' portfolio = first customers" (the VC-judge angle). (6) **Team slide** gained
+  `Avatar` photo placeholders (`/team/<slug>.jpg` → initials fallback) + company logo chips + two
+  tags (close venture-field observers; international exposure NL/BG/England/France). (7) **Ask** →
+  **€150K for 10%** (~12mo), 55% product/feature-parity · 30% GTM · 10% data&SOC2 · 5% ops, with a
+  detail paragraph + realistic 12-mo milestone (feature parity, 5+ paying fund partners, first
+  recurring revenue). New `/public/{team,logos}/README.md` document where to drop real assets.
+  `tsc` clean, `next build` clean, EN slides verified via Playwright. BG copy added in the same
+  pass (not re-screenshotted per user). `PRESENTATION_SCRIPT.md` updated.
+- **2026-06-08** — **Pitch deck reworked for the VC final (Digithon).** Two fixes + five new
+  investor slides + two hidden Q&A appendix slides, all bilingual (EN/BG), same light theme.
+  **Deck went 10 → 17 slides.** (1) **Slide 3 "Why it breaks"** — the six human-error cards all
+  used the same `AlertTriangle`; added a per-index `humanIcons` array (`Keyboard`, `FileSearch`,
+  `Eye`, `Gauge`, `History`, `Split`) in `PresentationDeck.tsx`. (2) **Slide 4 "Chain reaction"**
+  — the two side-by-side percentages (90–95% false positives + up to 90% analyst time) read as one
+  confusing/duplicate figure to the prelim judges; the `chain` content type changed from
+  `stats: Stat[]` to a single `stat: Stat` headline ("90–95% … false positive — pure noise") plus a
+  `takeaway: {strong, rest}` consequence band, rendered as one big stat card + one insight row.
+  (3) **New main-flow slides (10–14):** Competitor analysis (3-col table: player / what they give /
+  why it still breaks + positioning insight), Business model (3 SaaS tiers, Team tier highlighted +
+  land-and-expand note), Go-to-market (3 PLG phases Land→Expand→Scale), Why us / team (Alexander
+  Gekov, Vladislav Manolov, Dimitar Parpulov, Mario Yordanoff — initials avatars), The ask (€750K
+  pre-seed, 45/25/20/10 use-of-funds, 18-mo milestone). (4) **Appendix (slides 16–17, after Close,
+  held for jury Q&A):** Defensibility/moat + Trust & accuracy. New `PresentationContent` fields:
+  `competitors`, `business`, `gtm`, `team`, `ask`, `appendix` (+ reworked `chain`). `tsc` clean,
+  `next build` clean, verified both locales in-browser via Playwright screenshots.
+  `PRESENTATION_SCRIPT.md` time budget updated to match.
 - **2026-06-07** — **`/screen` form polished for live demo.** The input form now "pops out":
   wrapped in a raised white card (`bg-surface` + `border` + new `shadow-raised` token added to
   `tailwind.config.ts`) with an indigo accent hairline along the top, a shield icon badge in the
