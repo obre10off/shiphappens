@@ -756,7 +756,32 @@ export default function PresentationDeck({
       ),
     },
 
-    // 14 — The ask
+    // 14 — Demo video
+    {
+      id: 'demo',
+      label: t.demo.label,
+      render: () => (
+        <div>
+          <Kicker>{t.demo.kicker}</Kicker>
+          <StreamingText text={t.demo.heading} className={HEADING} />
+          <Reveal index={0} className="mt-10">
+            <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-sm">
+              <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                <iframe
+                  src={`https://www.youtube.com/embed/${t.demo.videoId}?rel=0&modestbranding=1`}
+                  title={t.demo.heading}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="absolute inset-0 h-full w-full"
+                />
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      ),
+    },
+
+    // 15 — The ask
     {
       id: 'ask',
       label: t.ask.label,

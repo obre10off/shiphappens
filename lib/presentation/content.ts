@@ -9,7 +9,7 @@
 // ────────────────────────────────────────────────────────────────────────────
 
 /** YouTube video id for the demo embed (from https://youtu.be/<id>). */
-export const DEMO_VIDEO_ID = 'rZh0m8bg67k';
+export const DEMO_VIDEO_ID = 'SWvNMwwGjW0';
 
 export type Locale = 'en' | 'bg';
 
@@ -72,6 +72,12 @@ export interface PresentationContent {
     members: { name: string; role: string; slug: string; companies: { name: string; slug: string }[] }[];
     note: string;
     tags: string[];
+  };
+  demo: {
+    label: string;
+    kicker: string;
+    heading: string;
+    videoId: string;
   };
   ask: SectionBase & {
     raise: string;
@@ -337,6 +343,12 @@ export const en: PresentationContent = {
       'Close observers of the venture field',
       'International exposure: Netherlands · Bulgaria · England · France',
     ],
+  },
+  demo: {
+    label: 'Demo',
+    kicker: 'See it in action',
+    heading: 'From a name to a defensible decision — in seconds.',
+    videoId: DEMO_VIDEO_ID,
   },
   ask: {
     label: 'The ask',
@@ -634,6 +646,12 @@ export const bg: PresentationContent = {
       'Близки наблюдатели на венчър сектора',
       'Международен опит: Нидерландия · България · Англия · Франция',
     ],
+  },
+  demo: {
+    label: 'Демо',
+    kicker: 'Вижте го в действие',
+    heading: 'От едно име до защитимо решение — за секунди.',
+    videoId: DEMO_VIDEO_ID,
   },
   ask: {
     label: 'Искането',
